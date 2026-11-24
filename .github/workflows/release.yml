@@ -1,11 +1,20 @@
 # A release: push a tag like v1.0.0 (matching VERSION in moneyapp/version.py and a section in
-# CHANGELOG.md). This tests, builds the Windows setup (MoneyThistle-Setup-<version>.exe), has it
-# signed by SignPath Foundation when signing is set up (free for open-source projects; until
-# then the setup is published unsigned), and publishes a GitHub release with it.
+# CHANGELOG.md). Two jobs run side by side:
+#   windows: tests, builds the Windows setup (MoneyThistle-Setup-<version>.exe), has it signed by
+#            SignPath Foundation when signing is set up (free for open-source projects; until then
+#            the setup is published unsigned), and publishes a GitHub release with the setup and
+#            its SHA-256 (MoneyThistle-Updates in the app checks that file before installing).
+#   docker:  builds the container image for Intel/AMD and ARM servers and publishes it to the
+#            GitHub Container Registry as ghcr.io/moneythistle/moneythistle with the tags
+#            <version> (1.2.3), <major.minor> (1.2), <major> (1) and latest. Unraid and Docker
+#            installs pull it from there; pinning a tag keeps that version.
 #
 # Signing, once SignPath approves the project (https://signpath.org/apply): add the repository
 # secret SIGNPATH_API_TOKEN and the variables SIGNPATH_ORGANIZATION_ID, SIGNPATH_PROJECT_SLUG
 # (e.g. moneythistle) and SIGNPATH_POLICY_SLUG (e.g. release-signing).
+#
+# The first time an image is published, GitHub may keep the package private: on GitHub, open
+# the organization's Packages, then moneythistle, Package settings, and make it Public.
 name: release
 on:
   push:
@@ -70,4 +79,44 @@ jobs:
           $out -join "`n" | Out-File notes.md -Encoding utf8
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
           "`n`nSHA-256 of the setup: ``$hash``" | Out-File notes.md -Append -Encoding utf8
-          gh release create "${{ github.ref_name }}" $file --title "MoneyThistle $env:VERSION" --notes-file notes.md
+          # The hash as a file of its own too: the app's one-click update checks it.
+          $sum = "$file.sha256"
+          "$hash  MoneyThistle-Setup-$env:VERSION.exe" | Out-File $sum -Encoding ascii -NoNewline
+          gh release create "${{ github.ref_name }}" $file $sum --title "MoneyThistle $env:VERSION" --notes-file notes.md
+
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Version matches the tag
+        run: |
+          v=$(python3 -c "import sys; sys.path.insert(0, '.'); from moneyapp.version import VERSION; print(VERSION)")
+          if [ "v$v" != "${{ github.ref_name }}" ]; then echo "Tag ${{ github.ref_name }} but moneyapp/version.py says $v"; exit 1; fi
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          # (image names must be lower case)
+          images: ghcr.io/moneythistle/moneythistle
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+      - name: Build and publish the image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

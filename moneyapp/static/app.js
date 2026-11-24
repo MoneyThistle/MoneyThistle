@@ -857,8 +857,9 @@ async function renderHome() {
   const showing = id => H.cards.some(c => c.id === id && c.show);
   const dueDays = (S.ui && S.ui.due_days) || 14;
   const sc = scopeQS();
-  const [d, fc] = await Promise.all([GET(`/api/summary?days=${dueDays}&recent=${H.recent_count || 8}${sc}`),
-    showing("forecast") ? GET("/api/forecast?days=" + (H.forecast_days || 30) + sc).catch(() => null) : Promise.resolve(null)]);
+  const [d, fc, upd] = await Promise.all([GET(`/api/summary?days=${dueDays}&recent=${H.recent_count || 8}${sc}`),
+    showing("forecast") ? GET("/api/forecast?days=" + (H.forecast_days || 30) + sc).catch(() => null) : Promise.resolve(null),
+    S.me.user.is_admin ? GET("/api/updates").catch(() => null) : Promise.resolve(null)]);
   refreshBackupState(d.backup);
   if (!d.accounts.length && !(d.shared_accounts || []).length) {
     view().innerHTML = `<h1>Welcome</h1><div class="card" style="max-width:640px">
@@ -939,6 +940,7 @@ async function renderHome() {
     <a class="btn small primary" href="#/quick" title="Enter a purchase, deposit or transfer">+ Quick add</a>
     ${scopeSwitch()}<button class="small" id="homeCustom" title="Choose which cards show here and where">Customize</button></div>
   ${scopeNote("changes are made in each item's own environment (choosing one switches there)")}
+  ${updateNote(upd)}
   ${statementsDueNote(d.statements_due)}
   ${cols.length ? `<div class="grid home" style="--home-cols:${template}">${cols.map(c => `<div class="grid" style="align-content:start">${c.html}</div>`).join("")}</div>`
     : `<div class="card empty">Every card is hidden. <a href="#" id="homeCustom2">Customize</a> to show some again.</div>`}`;
@@ -953,6 +955,7 @@ async function renderHome() {
   qa("tr[data-acct]").forEach(r => r.onclick = async () => { await goEnv(+r.dataset.acctenv); location.hash = "#/accounts/" + r.dataset.acct; });
   q("#homeCustom").onclick = () => customizeHome();
   wireStatementsDue();
+  if (q("#homeUpd")) q("#homeUpd").onclick = () => updateNow(upd);
   if (q("#homeCustom2")) q("#homeCustom2").onclick = e => { e.preventDefault(); customizeHome(); };
   qa("[data-fview]").forEach(btn => btn.onclick = async () => {
     if (H.forecast_view === btn.dataset.fview) return;
@@ -3941,6 +3944,7 @@ async function renderComputerTab() {
     <div class="grid" style="align-content:start">${scard}</div></div>`;
   if (q("#restartBtn")) q("#restartBtn").onclick = restartApp;
   if (q("#shutBtn")) q("#shutBtn").onclick = shutDownApp;
+  wireUpdatesRow();
   wireStartupCard();
 }
 function renderLookTab() {
@@ -4251,7 +4255,7 @@ function wireStartupCard() {
 async function restartApp() {
   const v = await GET("/api/version").catch(() => ({}));
   const note = v.in_docker && !v.files_mounted
-    ? "This container runs the files built into its image, so updated files only take effect after the image is rebuilt (run the install script again). Restart anyway?"
+    ? "This container runs the files built into its image: a new version comes with a new image (Unraid: the Docker tab's update). Restart anyway?"
     : "MoneyThistle will save, make its after-changes backup if needed, and start again with the current files. This takes a few seconds.";
   if (!(await confirmBox(note))) return;
   try { await api("POST", "/api/admin/restart"); } catch (e) { toast(e.message, true); return; }
@@ -4275,6 +4279,78 @@ async function restartApp() {
   setTimeout(tick, 1200);
 }
 
+// ---------- new versions (see updates.py) ----------
+// How this copy gets a new version: the Windows program installs it (one click, or by itself);
+// Docker and Unraid update the container; a copy of the code is replaced by the new one.
+function updateHowTo(u) {
+  if (u.kind === "docker") return `<div class="small" style="margin-top:6px"><div>Unraid: the Docker tab shows "update ready" for MoneyThistle. Click it to update, or let an auto-update plugin do it.</div>
+    <div>Docker Compose: <code translate="no">docker compose pull</code>, then <code translate="no">docker compose up -d</code>.</div></div>`;
+  if (u.kind === "source") return `<div class="small" style="margin-top:6px">Get the new version from GitHub, put its files in place of this copy's, then restart.</div>`;
+  return "";
+}
+async function updatesRow() {
+  const u = await GET("/api/updates").catch(() => null);
+  if (!u) return "";
+  const state = u.available ? `<span class="pill amber">Version ${esc(u.latest)} is available</span>
+      <a href="${esc(u.url)}" target="_blank" rel="noopener noreferrer">What's new ↗</a>`
+    : (u.latest ? `<span class="pill green">up to date</span>` : "");
+  return `<div class="setrow"><label>Updates</label><div>
+    <div class="small" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${state}
+      ${u.checked_at ? `<span class="muted">Checked ${esc(niceDate(u.checked_at.slice(0, 10)))}</span>` : ""}
+      ${u.error ? `<span class="muted">GitHub couldn't be reached</span>` : ""}
+      <button class="small" id="updCheck">Check now</button></div>
+    ${u.can_install ? `<div style="margin-top:6px"><button class="primary small" id="updNow">Update now</button></div>` : (u.available ? updateHowTo(u) : "")}
+    <label class="check" style="margin-top:6px"><input type="checkbox" id="updCheckOn" ${u.check ? "checked" : ""}> Check for new versions once a day</label>
+    ${u.kind === "windows" ? `<label class="check"><input type="checkbox" id="updAuto" ${u.auto ? "checked" : ""} ${u.check ? "" : "disabled"}> Install new versions by itself</label>` : ""}
+    <div class="small muted">Only the newest version number is asked of GitHub: nothing about you or your money is sent.</div>
+  </div></div>`;
+}
+function wireUpdatesRow() {
+  const save = async () => {
+    try {
+      await api("PUT", "/api/updates/settings", { check: q("#updCheckOn").checked, ...(q("#updAuto") ? { auto: q("#updAuto").checked } : {}) });
+      toast("Saved"); render();
+    } catch (e) { toast(e.message, true); }
+  };
+  if (q("#updCheckOn")) q("#updCheckOn").onchange = save;
+  if (q("#updAuto")) q("#updAuto").onchange = save;
+  if (q("#updCheck")) q("#updCheck").onclick = async () => {
+    const u = await api("POST", "/api/updates/check");
+    toast(u.error ? "GitHub couldn't be reached" : (u.available ? "A new version is available" : "MoneyThistle is up to date"));
+    render();
+  };
+  if (q("#updNow")) q("#updNow").onclick = async () => updateNow(await GET("/api/updates"));
+}
+// Windows: download, check and install the new version; this page reloads when it's running.
+async function updateNow(u) {
+  if (!u || !u.can_install) { location.hash = "#/settings/computer"; return; }
+  if (!(await confirmBox("Update MoneyThistle now? It saves, makes its backup, installs the new version and starts again by itself. This takes a minute or two."))) return;
+  try { await api("POST", "/api/updates/install"); } catch (e) { toast(e.message, true); return; }
+  view().innerHTML = `<div class="card" style="max-width:520px;margin:40px auto;text-align:center">
+    <h2>Updating MoneyThistle…</h2><p class="muted" id="rsMsg">This page reloads by itself when the new version is running.</p></div>`;
+  const started = Date.now();
+  const tick = async () => {
+    try {
+      const r = await fetch("/api/meta", { cache: "no-store" });
+      if (r.ok && (await r.json()).version === u.latest) { location.reload(); return; }
+    } catch (e) { }
+    if (Date.now() - started > 300000) {
+      q("#rsMsg").textContent = tr("It's taking longer than expected. Open MoneyThistle from the Start menu, then reload this page.");
+      return;
+    }
+    setTimeout(tick, 3000);
+  };
+  setTimeout(tick, 5000);
+}
+// Home, for administrators: a new version is out.
+function updateNote(u) {
+  if (!u || !u.available) return "";
+  return `<div class="notice" style="margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span>🎉 MoneyThistle ${esc(u.latest)} is available.</span>
+    ${u.can_install ? `<button class="small primary" id="homeUpd">Update now</button>` : `<a class="btn small" href="#/settings/computer">How to update</a>`}
+    <a class="btn small" href="${esc(u.url)}" target="_blank" rel="noopener noreferrer">What's new ↗</a></div>`;
+}
+
 async function versionCard() {
   const v = await GET("/api/version").catch(() => null);
   if (!v) return "";
@@ -4288,7 +4364,8 @@ async function versionCard() {
     ${w.log_file ? row("Log", `<code>${esc(w.log_file)}</code>`) : ""}
     ${row("Started", w.started ? `${esc(w.started)} <span class="muted">(process ${esc(w.process_id)})</span>` : "")}
     <div class="setrow"><label>Version</label><div class="small">${v.version ? `<b>${esc(v.version)}</b> · build ` : ""}<code>${esc(v.running || "?")}</code>
-      ${v.update_waiting ? `<span class="pill amber">update waiting</span> <span class="muted">files: <code>${esc(v.files)}</code></span>` : `<span class="pill green">up to date</span>`}</div></div>
+      ${v.update_waiting ? `<span class="pill amber">update waiting</span> <span class="muted">files: <code>${esc(v.files)}</code></span>` : ""}</div></div>
+    ${v.is_admin ? await updatesRow() : ""}
     <div class="setrow"><label>Restart or shut down</label><div><button id="restartBtn" ${v.can_restart ? "" : "disabled"}>Restart MoneyThistle</button>
       ${v.is_admin && S.meta && S.meta.can_shutdown ? `<button id="shutBtn" title="Saves, makes its backup, and stops: nobody can open it until it's started again">⏻ Shut down</button>` : ""}
       ${v.can_restart ? "" : `<div class="small" style="margin-top:4px">${v.is_admin
@@ -4296,7 +4373,7 @@ async function versionCard() {
         : "Nothing to apply right now: everyone can restart when an update is waiting; at other times an administrator can."}</div>`}
       <div class="small muted" style="margin-top:4px">${v.in_docker
         ? (v.files_mounted ? "Copy the new app files to the server's app folder, then restart to use them."
-          : "Restarts the app. In this container new versions need the image rebuilt (the install script does that).")
+          : "Restarts the app. New versions come with a new image: see Updates above.")
         : "Applies updated files: it saves, backs up if needed and starts again."}</div></div></div>
     ${v.is_admin ? await networkRow() : ""}
   </div>`;

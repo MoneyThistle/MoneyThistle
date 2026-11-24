@@ -64,6 +64,7 @@ class App:
         self.find_urls = None        # set by main.py: looks them up again (the network may come later)
         self._urls_at = 0.0
         self.host_fixed = False      # set by main.py: --host / HOST given
+        self.updates = None          # set by main.py: checking for (and installing) new versions
         self.ctx = threading.local()
         self.routes = []
         r = self.route
@@ -106,6 +107,11 @@ class App:
         r("GET", r"/api/settings", lambda q, b: self.ui_settings(), "user")
         r("PUT", r"/api/settings", lambda q, b: self.save_ui_settings(b), "user")
         r("GET", r"/api/version", self.version_info, "user")
+        # New versions (administrators): see updates.py
+        r("GET", r"/api/updates", lambda q, b: self._updater().status(), "admin")
+        r("POST", r"/api/updates/check", lambda q, b: self._updater().check(force=True), "admin")
+        r("PUT", r"/api/updates/settings", lambda q, b: self._updater().save_settings(b or {}), "admin")
+        r("POST", r"/api/updates/install", lambda q, b: self._updater().install(), "admin")
         # Environments, members and connections
         r("POST", r"/api/envs", lambda q, b: {"id": self.system.create_env(self.uid, b.get("name"))}, "user")
         r("PUT", r"/api/envs/(\d+)", self.rename_env, "user")
@@ -943,6 +949,11 @@ class App:
         who = self.ctx.user["display_name"] or self.ctx.user["username"]
         threading.Timer(0.5, lambda: self.request_stop(f"the Shut down button ({who})")).start()
         return {"stopping": True}
+
+    def _updater(self):
+        if not self.updates:
+            raise ApiError("Checking for updates isn't available in this copy", 404)
+        return self.updates
 
     def version_info(self, q, b):
         disk = version.build_id()

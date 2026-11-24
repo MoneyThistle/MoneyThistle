@@ -353,8 +353,10 @@ I18N.helpText({
           aproximados, y dejan fuera una moneda sin tipo de cambio. El informe fiscal se queda en la moneda principal.</li>
         <li><b>Otros dispositivos:</b> una copia que corre en una computadora solo atiende a esa computadora, a menos que permitas
           otros dispositivos de tu red de casa (y reinicies). Las direcciones para abrirlo están al pie de cada página.</li>
-        <li><b>Actualizaciones:</b> cuando hay archivos más nuevos, aparece un aviso; <b>Reiniciar MoneyThistle</b> los aplica.
-          Tus datos se conservan.</li>
+        <li><b>Actualizaciones:</b> MoneyThistle le pregunta a GitHub una vez al día si hay una versión nueva (solo se
+          envía su número de versión; apágalo en Configuración → Esta computadora). En Windows, <b>Actualizar ahora</b> la
+          instala y reinicia, o marca <i>Instalar las versiones nuevas por sí solo</i>. En Unraid, el <i>update ready</i>
+          de la pestaña Docker actualiza el contenedor; con Docker Compose, haz pull y vuelve a iniciarlo. Tus datos se quedan.</li>
         <li><b>Dónde están las cosas:</b> los archivos de la app, la carpeta de datos, los respaldos y el registro aparecen en Configuración.</li>
       </ul>` },
     safety: { title: "Mantenerlo seguro", body: `

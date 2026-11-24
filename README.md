@@ -4,10 +4,24 @@
 
 *A Slightly Better Money App*
 
-A simple personal money manager that runs in Docker and opens in your web browser.
-Accounts, a check register, categories, scheduled bills and deposits, a monthly budget, reports,
-and automatic backups to a folder and/or Nextcloud (or any WebDAV server). No bank connection:
-type transactions in, or import CSV/QIF files your bank lets you download.
+A simple personal money manager that opens in your web browser. It runs as a program on Windows,
+as a container on Docker or Unraid, and on macOS or Linux with Python. Accounts and registers,
+Bills & Deposits, paychecks and paystubs, budgets, reports and a year-end tax report, receipts,
+and automatic backups to a folder and to Nextcloud (or any WebDAV server). No bank connection: type
+transactions in, or import the files your bank lets you download. In English, French, Spanish and
+Portuguese.
+
+![Home](docs/screenshots/home.png)
+
+<table>
+<tr><td><img src="docs/screenshots/register.png" alt="An account's register"></td>
+<td><img src="docs/screenshots/bills.png" alt="Bills &amp; Deposits"></td></tr>
+<tr><td><img src="docs/screenshots/budget.png" alt="The budget"></td>
+<td><img src="docs/screenshots/home-dark.png" alt="Home in the dark look"></td></tr>
+</table>
+
+*(Made-up sample data. Try it yourself: a new install offers "Try it with sample data", and
+"Start fresh" clears it when you're ready.)*
 
 **What it's for:** household money, shared between the people in a home, and at most a very
 simple sole proprietorship kept in its own environment. It is not business bookkeeping: no
@@ -40,41 +54,86 @@ The `localhost` / `127.0.0.1` address works only on the computer MoneyThistle ru
 another computer needs the server's network address (for example `http://192.168.1.20:8080/`) or
 its Tailscale name.
 
-## Install on Unraid
+## Install
 
-The image isn't on Docker Hub, so the server builds it once from this folder.
+### Windows
 
-1. Copy this whole folder to the server, for example to
-   `\\TOWER\appdata\moneythistle\src` (that is `/mnt/user/appdata/moneythistle/src`).
-2. In the Unraid web page click the terminal icon (`>_`) and run:
+Download **MoneyThistle-Setup-….exe** from the [latest release](https://github.com/MoneyThistle/MoneyThistle/releases/latest)
+and double-click it. It brings its own private copy of Python (it never touches another one),
+installs for you only (no administrator rights), adds MoneyThistle to the Start menu and to
+*Settings → Apps → Installed apps* (with Uninstall), and opens it in the browser to set up.
+
+Until the setup is code-signed, Windows may say *"Windows protected your PC"* the first time:
+choose **More info → Run anyway**.
+
+Your money data is never touched by installing, updating or uninstalling (uninstall asks whether
+to delete it, and suggests No).
+
+### Unraid
+
+MoneyThistle runs from a ready-made image, `ghcr.io/moneythistle/moneythistle`, so nothing is
+copied to the server by hand. Until it's listed in Community Applications, add its template once:
+
+1. Open the Unraid terminal (the `>_` icon) and run:
 
    ```
-   bash /mnt/user/appdata/moneythistle/src/unraid/install.sh
+   wget -O /boot/config/plugins/dockerMan/templates-user/my-MoneyThistle.xml https://raw.githubusercontent.com/MoneyThistle/MoneyThistle/main/unraid/moneythistle.xml
    ```
 
-   It asks for a password for the web page, builds the image, and starts the container.
-3. Open `http://TOWER:8080` from any device on your network, or over Tailscale with the
-   server's Tailscale name or IP (the script prints both), e.g. `http://tower.your-tailnet.ts.net:8080`.
+2. **Docker → Add Container**, choose **MoneyThistle** under *Template*, check the port, folders,
+   time zone and (optional) first password, and **Apply**.
+3. Open `http://TOWER:8080` from any device on your network, or over Tailscale with the server's
+   Tailscale name, e.g. `http://tower.your-tailnet.ts.net:8080`.
 
-The container then shows in the **Docker** tab as `moneythistle` (WebUI link included) and starts
-with the array. Your money file is in `/mnt/user/appdata/moneythistle/data`, local backups in
+Your money file is in `/mnt/user/appdata/moneythistle/data` and local backups in
 `/mnt/user/appdata/moneythistle/backups`, owned by `nobody:users` like other Unraid apps.
 
-To update: copy the newer folder over `src`, then in the app open **Settings → Restart MoneyThistle**
-(a notice also appears on every page when an update is waiting). The container reads its files from
-`src`, so a restart is enough; your data is kept. Running the install script again also works
-(and is needed once, for containers installed before this button existed).
-Options: `PORT=8090 TZ=Europe/Berlin APP_PASSWORD='…' bash …/install.sh`.
+### Docker and Docker Compose
 
-The Unraid template (`unraid/moneythistle.xml`) is installed for you so you can edit settings
-(port, folders, password, time zone, WebDAV) from the Docker tab. Don't press "force update" there:
-the image is local, so rebuild with the script instead.
+```
+docker run -d --name moneythistle -p 8080:8080 \
+  -v /path/to/moneythistle/data:/data -v /path/to/moneythistle/backups:/backups \
+  -e TZ=America/New_York --restart unless-stopped ghcr.io/moneythistle/moneythistle:latest
+```
 
-Installed it before the rename, as `home-ledger`? Copy the new version to the server (for example
-to `/mnt/user/appdata/moneythistle/src`) and run its `install.sh`: it stops and removes the old
-`home-ledger` container and its Docker-tab entry, keeps your sign-in password, and goes on using your
-money file in `/mnt/user/appdata/home-ledger/data` (nothing is moved). With Docker Compose, double-click
-**Update Docker container**: it replaces the old `home-ledger` container the same way.
+Or download `docker-compose.yml` from this repository into a folder and run `docker compose up -d`
+there (it keeps `./data` and `./backups` beside it). Then open `http://SERVER:8080`.
+
+Settings the container reads: `TZ`, `PUID`/`PGID` (who owns the files), optionally
+`APP_USERNAME`/`APP_PASSWORD` (the first administrator, created on the very first start only) and
+`WEBDAV_URL`/`WEBDAV_USER`/`WEBDAV_PASSWORD` (the Nextcloud backup).
+
+### macOS and Linux
+
+With Python 3.10 or newer (nothing else to install): download the source of the
+[latest release](https://github.com/MoneyThistle/MoneyThistle/releases/latest), unpack it, and in
+that folder run:
+
+```
+python3 main.py --background   # keeps running after the window closes; opens http://localhost:8080
+python3 main.py --stop         # stops it (backs up first)
+```
+
+## Updates
+
+MoneyThistle asks GitHub once a day whether a newer version is out. It sends only its own
+version number, nothing about you or your money, and you can turn this off under
+**Settings → This computer → Updates**. When there is one, administrators see a note on Home.
+
+- **Windows:** **Update now** downloads the new setup, checks it against the checksum published
+  with the release, and installs it: MoneyThistle saves, backs up, updates and starts again by
+  itself. Tick *Install new versions by itself* to skip the click.
+- **Unraid:** the Docker tab shows *update ready* for MoneyThistle; click it. An auto-update
+  plugin can do that for you. To stay on one version, change the template's *Repository* from
+  `:latest` to a version, like `ghcr.io/moneythistle/moneythistle:1.0.0` (exactly that version)
+  or `:1.0` (that version and its fixes).
+- **Docker Compose:** `docker compose pull && docker compose up -d`. Pin a version the same way,
+  in `docker-compose.yml`.
+- **macOS and Linux:** replace the folder's files with the new version's, then restart.
+
+Your data is kept through every update.
+
+## Using it
 
 ### Locked out?
 
@@ -84,9 +143,9 @@ also set a new password under People. If you're the only administrator and can't
 computer or server MoneyThistle runs on (being able to do that proves it's yours):
 
 ```
-python main.py --reset-password YOUR-USER-NAME                       # in the MoneyThistle folder
+python main.py --reset-password YOUR-USER-NAME                                 # in the MoneyThistle folder
 docker exec -it moneythistle python main.py --reset-password YOUR-USER-NAME   # Docker / Unraid
-python main.py --list-users                                           # the user names
+python main.py --list-users                                                    # the user names
 ```
 
 ### Moving in from another program
@@ -94,15 +153,16 @@ python main.py --list-users                                           # the user
 Settings → *Bring in everything from another program…* reads QIF exports (Microsoft Money: one file per
 account, chosen together; Quicken, Moneydance, KMyMoney, HomeBank, Money Manager Ex, Banktivity: one file)
 and CSV exports from YNAB, GnuCash, Actual Budget, Mint and Firefly III (or any CSV with an Account column).
-You see a preview and choose, per account, a new account, an existing one or to leave it out. Accounts,
-opening balances, categories, payees, splits, transfers and cleared marks come across; scheduled bills,
-budgets and investment holdings don't.
+You see a preview and choose, per account, its type and whether it becomes a new account, goes into an
+existing one or is left out. Accounts, opening balances, categories, payees, splits, transfers and cleared
+marks come across, and investment accounts' dividends, interest and transfers; scheduled bills, budgets and
+investment holdings don't.
 
 ### People, sign-in and environments
 
 Everyone signs in with their own user name and password. On the very first start you create the
 first sign-in in the browser (or give it as `APP_USERNAME` / `APP_PASSWORD`); it becomes the
-administrator and the owner of your existing money file, now called the "Personal" environment.
+administrator and the owner of the first money file, the "Personal" environment.
 
 - **People** (administrators): add sign-ins, reset passwords, make someone an administrator.
 - **Environments**: separate sets of accounts (Personal, Business, In-laws...). Only members see
@@ -118,7 +178,7 @@ administrator and the owner of your existing money file, now called the "Persona
 Backups hold everything (all environments and sign-ins) in one zip. Over plain `http` on your own
 network and Tailscale (which is encrypted) this is fine; don't forward the port to the internet.
 
-## Backups to Nextcloud
+### Backups to Nextcloud
 
 In the app open **Backups**, tick *Nextcloud or another WebDAV server* and fill in:
 
@@ -130,14 +190,13 @@ Or set `WEBDAV_URL`, `WEBDAV_USER` and `WEBDAV_PASSWORD` on the container.
 If Nextcloud runs on the same Unraid server, use its LAN address (e.g. `http://TOWER:8666/...`)
 or its usual https address.
 
-Defaults follow the original program: back up after changes (keep 3), a scheduled backup every
-14 days (keep 3), compressed. On top of those, the last backup of each of the latest 7 days,
-4 weeks and 12 months is kept. Any backup can be restored from the Backups page.
+Back up after changes (keep 3), a scheduled backup every 14 days (keep 3), compressed. On top of
+those, the last backup of each of the latest 7 days, 4 weeks and 12 months is kept. Any backup can
+be restored from the Backups page.
 
-## Starting over from a backup (lost computer, new server)
+### Starting over from a backup (lost computer, new server)
 
-1. Install MoneyThistle as usual (folder + **Start MoneyThistle**, Docker Compose or the Unraid
-   script). Don't create a sign-in.
+1. Install MoneyThistle as usual. Don't create a sign-in.
 2. Open it: under *Set up MoneyThistle* choose **Start from a backup instead**, then pick a backup
    file (`money-….zip` / `.zip.enc` + its backup password) or enter your Nextcloud backup folder and
    choose one of its backups.
@@ -147,67 +206,32 @@ Defaults follow the original program: back up after changes (keep 3), a schedule
 Without a browser: stop MoneyThistle, run `python main.py --restore money-….zip.enc` (it asks for
 the backup password, or set `BACKUP_PASSWORD`), then start it.
 
-## Install on a Windows computer (nothing else needed)
+### Where your files go
 
-Double-click **MoneyThistle-Setup-….exe** and answer *Yes*. It brings its own private copy of Python
-(it never touches another one), installs for you only (no administrator rights), adds MoneyThistle
-to the Start menu and to *Settings → Apps → Installed apps* (with Uninstall), and opens it in the
-browser to set up. To update, run a newer setup: it stops MoneyThistle (which backs up first),
-replaces the program and starts it again. Your money data is never touched by installing,
-updating or uninstalling (uninstall asks whether to delete it, and suggests No).
+Settings → This computer shows the exact folders.
 
-Windows may say *"Windows protected your PC"* the first time, because the setup isn't signed with
-a paid code-signing certificate: choose **More info → Run anyway**.
-
-Making the setup file (on Windows, with Python 3.10+): `python tools/build_windows.py`
-→ `dist/MoneyThistle-Setup-<version>.exe`. It uses the Python running it (trimmed, about 12 MB in
-all) and the free Inno Setup 6 for the branded installer; without Inno Setup it makes a plainer
-one with Windows' own IExpress.
-
-## Releasing (GitHub)
-
-0. Once: create the repository on GitHub *empty*: no README, license or .gitignore (this folder
-   already has them; `LICENSE` is the GNU AGPL-3.0, which GitHub recognises once it's pushed).
-1. Raise `VERSION` in `moneyapp/version.py` and add a `## <version>` section to `CHANGELOG.md`.
-2. Push a tag `v<version>` (e.g. `v1.0.1`). The *release* workflow tests, builds the Windows setup,
-   has it signed (once SignPath Foundation's free open-source signing is set up: see the comments
-   in `.github/workflows/release.yml`) and publishes a GitHub release with the setup and its SHA-256.
-
-The *tests* workflow runs the tests on Windows and Linux for every change.
-
-## Other ways to run it
-
-Docker Compose (any machine): `docker compose up -d --build`, then `http://SERVER:8080`.
-Run the same command after changes to rebuild and restart (on Windows: double-click
-**Update Docker container**).
-Edit `APP_PASSWORD` in `docker-compose.yml` first.
-
-Without Docker on Windows: double-click **Start MoneyThistle** in this folder. It runs in the
-background (no window to keep open), opens http://localhost:8080, and keeps running until you
-double-click **Stop MoneyThistle** or restart the computer. If it ever stops on its own,
-`moneythistle.log` in the data folder says why (older copies wrote `home-ledger.log`; its lines
-move into the new file on the next start).
-
-Where your files go (Settings shows the exact folders):
-
-| Install | App files | Money data, log and local backups |
+| Install | Program | Money data, log and local backups |
 |---|---|---|
-| Windows | wherever you put the MoneyThistle folder | `%APPDATA%\MoneyThistle` (e.g. `C:\Users\you\AppData\Roaming\MoneyThistle`) |
+| Windows | `%LOCALAPPDATA%\Programs\MoneyThistle` | `%APPDATA%\MoneyThistle` (e.g. `C:\Users\you\AppData\Roaming\MoneyThistle`) |
 | macOS | wherever you put the folder | `~/Library/Application Support/MoneyThistle` |
 | Linux | wherever you put the folder | `~/.local/share/moneythistle` |
-| Docker Compose | this folder | `./data` and `./backups` beside `docker-compose.yml` |
-| Unraid | `/mnt/user/appdata/moneythistle/src` | `/mnt/user/appdata/moneythistle/data` and `.../backups` |
+| Docker Compose | the image | `./data` and `./backups` beside `docker-compose.yml` |
+| Unraid | the image | `/mnt/user/appdata/moneythistle/data` and `.../backups` |
 
-Keeping the data outside the program folder means replacing or deleting the program never
-touches your money files. A copy that already has a `data` folder beside the program (from
-before this change) keeps using it. `--data FOLDER` (or `DATA_DIR`) picks any other folder.
+Keeping the data outside the program means replacing or deleting the program never touches your
+money files. `--data FOLDER` (or `DATA_DIR`) picks any other folder. If it ever stops on its own,
+`moneythistle.log` in the data folder says why.
 
-Without Docker (Python 3.10+, nothing else to install):
+## For developers
 
 ```
-python main.py --background   # keeps running after the window closes
-python main.py --stop         # stops it (backs up first)
 python main.py            # runs while this window stays open; opens http://localhost:8080
 python main.py --demo     # start with sample data
 python -m unittest discover -s tests
+python tools/build_windows.py   # dist/MoneyThistle-Setup-<version>.exe (with Inno Setup 6)
+docker build -t moneythistle .  # the container image
 ```
+
+How releases, the container image, the Unraid template, code signing and updates fit together, and
+the steps for publishing a new version: [docs/PUBLISHING.md](docs/PUBLISHING.md). Notes for coding
+agents: [CLAUDE.md](CLAUDE.md).

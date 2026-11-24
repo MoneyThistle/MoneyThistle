@@ -52,6 +52,10 @@ browser, with no bank connections.
   can start any environment fresh under Settings, Your data (its name typed to confirm; a copy is kept).
 - Investment, retirement and asset accounts: Update value records what they're worth now as one
   "Change in value" entry (left out of budgets and spending reports); investments are reminded monthly.
+- Updates: MoneyThistle checks GitHub once a day for a newer version (only its version number is
+  sent). Windows installs it with one click, or by itself; Docker and Unraid update the container
+  from the published image (ghcr.io/moneythistle/moneythistle), with `latest` or a pinned version.
+- Unraid: a template that installs from the published image; nothing to copy to the server.
 - Moving in from Moneydance: its "All accounts" QIF now brings in every account (it was read as one).
   Investment and retirement accounts (a Roth IRA, a 401(k)) come in with their transfers, dividends
   and interest (buys and sells aren't entries). Types follow the account's name, not the firm's: an HSA

@@ -21,7 +21,8 @@ it. Keep the screens simple by default (the "Simple" view folds extras under "Mo
     with `ALTER TABLE`, never drop data).
   - `system.py`: `system.db`: people, sign-in, environments, shares, automatic entries.
   - `paystubs.py`, `loans.py`, `backup.py`, `notify.py`, `migrate.py` (QIF/CSV/OFX import),
-    `moveacct.py`, `attachments.py`, `currencies.py`, `defaults.py` (starting categories).
+    `moveacct.py`, `attachments.py`, `currencies.py`, `defaults.py` (starting categories),
+    `updates.py` (the daily check for a new version on GitHub; one-click update on Windows).
   - `static/`: the single-page app in plain JavaScript: `app.js` (screens), `i18n.js`
     (languages), `help.js` (Help, FAQ, terms, About), `lang/*.js` (translations), `style.css`.
 - `tests/test_app.py`: the unit tests; `tests/i18n_check.js`: the translation matcher (node).
@@ -61,6 +62,9 @@ Open a page with `?i18naudit` to list text shown without a translation.
 
 ## Releasing
 
-See "Releasing (GitHub)" in `README.md`: raise `VERSION` in `moneyapp/version.py`, add a
-`CHANGELOG.md` section, push a tag `v<version>`; the release workflow tests, builds, signs (once
-SignPath is set up) and publishes the installer.
+See `docs/PUBLISHING.md`: raise `VERSION` in `moneyapp/version.py`, add a `CHANGELOG.md`
+section, push a tag `v<version>`. The release workflow tests, builds and signs (once SignPath is
+set up) the Windows setup, publishes it with its `.sha256` (the in-app updater checks it), and
+publishes the container image `ghcr.io/moneythistle/moneythistle` (tags `x.y.z`, `x.y`, `x`,
+`latest`) that the Unraid template (`unraid/moneythistle.xml`) and `docker-compose.yml` use.
+Screenshots in `docs/screenshots/` are made with `python main.py --screenshot FILE --page PAGE`.

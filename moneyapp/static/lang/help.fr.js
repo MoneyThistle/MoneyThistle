@@ -364,8 +364,11 @@ I18N.helpText({
           approximatifs, et excluent une devise sans taux. Le rapport fiscal reste dans la devise principale.</li>
         <li><b>Autres appareils :</b> une copie qui tourne sur un ordinateur n'écoute que cet ordinateur, à moins que vous permettiez
           les autres appareils de votre réseau domestique (puis redémarriez). Les adresses pour l'ouvrir sont en bas de chaque page.</li>
-        <li><b>Mises à jour :</b> quand des fichiers plus récents sont en place, un avis apparaît; <b>Redémarrer MoneyThistle</b> les
-          applique. Vos données sont gardées.</li>
+        <li><b>Mises à jour :</b> MoneyThistle demande à GitHub une fois par jour si une nouvelle version existe (seul
+          son numéro de version est envoyé; désactivez-le sous Paramètres → Cet ordinateur). Sous Windows, <b>Mettre à jour
+          maintenant</b> l'installe et redémarre, ou cochez <i>Installer les nouvelles versions tout seul</i>. Sous Unraid,
+          le <i>update ready</i> de l'onglet Docker met le conteneur à jour; avec Docker Compose, faites pull puis relancez.
+          Vos données restent.</li>
         <li><b>Où trouver les choses :</b> les fichiers de l'application, le dossier de données, les sauvegardes et le journal sont
           listés dans les Paramètres.</li>
       </ul>` },

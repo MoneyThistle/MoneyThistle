@@ -25,6 +25,7 @@ from moneyapp.backup import BackupManager  # noqa: E402
 from moneyapp.demo import load_sample  # noqa: E402
 from moneyapp.server import App, companion_host, make_server  # noqa: E402
 from moneyapp.system import System  # noqa: E402
+from moneyapp.updates import Updater  # noqa: E402
 from moneyapp.version import build_id  # noqa: E402
 
 
@@ -42,7 +43,9 @@ def build(data_dir):
                   "create it in the browser instead.", file=sys.stderr)
     backups = BackupManager(system, os.path.join(data_dir, "backups"), os.path.join(data_dir, "settings.json"))
     first = system.q1("SELECT id FROM environments ORDER BY id LIMIT 1")["id"]
-    return system, system.store(first), backups, App(system, backups)
+    app = App(system, backups)
+    app.updates = Updater(data_dir)
+    return system, system.store(first), backups, app
 
 
 def find_browser():
@@ -73,6 +76,7 @@ def screenshot(out_path, page="home", theme=None, accent=None, width=1280, heigh
     try:
         system, store, backups, app = build(os.path.join(tmp, "data"))
         load_sample(store)
+        store.set_setting("sample_data", False)   # (pictures of the app, without the sample-data bar)
         uid = system.users()[0]["id"] if system.has_users() else \
             system.create_user("demo", "demo-password", "Sam Sample", True)
         app.auto_user_id = uid  # the picture is taken as this (sample) person
@@ -600,6 +604,7 @@ def main():
         except OSError:
             extra = None
     backups.start()
+    app.updates.start()   # once a day: is there a newer version? (see updates.py)
 
     reason = {"why": "the server loop ended", "restart": False}
     in_docker = os.path.exists("/.dockerenv")

@@ -59,6 +59,9 @@ Name: "{userdesktop}\MoneyThistle"; Filename: "{app}\runtime\pythonw.exe"; Param
 
 [Run]
 Filename: "{app}\runtime\pythonw.exe"; Parameters: """{app}\app\main.py"""; WorkingDir: "{app}\app"; Description: "Open MoneyThistle now"; Flags: nowait postinstall skipifsilent
+; An update MoneyThistle installed itself (/VERYSILENT /AUTOSTART=1): start it again, without a
+; new browser tab (the open page reloads by itself when it's back).
+Filename: "{app}\runtime\pythonw.exe"; Parameters: """{app}\app\main.py"" --no-browser"; WorkingDir: "{app}\app"; Flags: nowait; Check: StartAfterUpdate
 
 [UninstallRun]
 ; Stop it first (it saves and makes its backup).
@@ -72,6 +75,11 @@ Type: filesandordirs; Name: "{group}"
 Type: filesandordirs; Name: "{app}"
 
 [Code]
+function StartAfterUpdate: Boolean;
+begin
+  Result := ExpandConstant('{param:AUTOSTART|0}') = '1';
+end;
+
 // An update: ask the running copy to stop (it backs up first) before files are replaced.
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var Code: Integer;

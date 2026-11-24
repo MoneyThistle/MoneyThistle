@@ -344,8 +344,10 @@ const HELP = {
           leave out a currency with no rate. The tax report keeps to the main currency.</li>
         <li><b>Other devices:</b> a copy running on a computer listens to that computer only, unless you allow
           other devices on your home network (then restart). Addresses to open it are at the bottom of every page.</li>
-        <li><b>Updates:</b> when newer files are in place, a notice appears; <b>Restart MoneyThistle</b> applies them.
-          Your data is kept.</li>
+        <li><b>Updates:</b> MoneyThistle asks GitHub once a day whether a newer version is out (only its version
+          number is sent; turn it off under Settings → This computer). On Windows, <b>Update now</b> installs it and
+          starts again, or tick <i>Install new versions by itself</i>. On Unraid, the Docker tab's <i>update ready</i>
+          updates the container; with Docker Compose, pull and start it again. Your data is kept.</li>
         <li><b>Where things are:</b> the app files, data folder, backups and log are listed under Settings.</li>
       </ul>` },
     { id: "safety", title: "Keeping it safe", tab: "settings", body: `

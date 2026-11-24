@@ -352,8 +352,10 @@ I18N.helpText({
           O relatório fiscal fica na moeda principal.</li>
         <li><b>Outros dispositivos:</b> uma cópia rodando num computador só atende esse computador, a menos que você permita outros
           dispositivos da sua rede de casa (e reinicie). Os endereços para abrir estão no rodapé de cada página.</li>
-        <li><b>Atualizações:</b> quando há arquivos mais novos, aparece um aviso; <b>Reiniciar o MoneyThistle</b> os aplica.
-          Seus dados são mantidos.</li>
+        <li><b>Atualizações:</b> o MoneyThistle pergunta ao GitHub uma vez por dia se há uma versão nova (só o número
+          da versão é enviado; desligue em Configurações → Este computador). No Windows, <b>Atualizar agora</b> instala e
+          reinicia, ou marque <i>Instalar as versões novas sozinho</i>. No Unraid, o <i>update ready</i> da aba Docker
+          atualiza o contêiner; com Docker Compose, faça pull e inicie de novo. Seus dados ficam.</li>
         <li><b>Onde estão as coisas:</b> os arquivos do app, a pasta de dados, os backups e o log aparecem em Configurações.</li>
       </ul>` },
     safety: { title: "Mantendo seguro", body: `

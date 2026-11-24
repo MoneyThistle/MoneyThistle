@@ -2828,6 +2828,95 @@ class LastDayTests(unittest.TestCase):
         self.assertEqual(next_occurrence(dt.date(2026, 3, 31), "Monthly", 31), dt.date(2026, 4, 30))
 
 
+class UpdateTests(unittest.TestCase):
+    """Checking GitHub for a newer release, and installing it (GitHub and the setup are faked)."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def fake(self, version, setup=b"setup bytes", sha=None):
+        import hashlib
+        sha = sha or hashlib.sha256(setup).hexdigest()
+        base = "https://github.com/MoneyThistle/MoneyThistle/releases/download"
+        rel = {"tag_name": f"v{version}", "html_url": "https://github.com/MoneyThistle/MoneyThistle/releases/tag/v" + version,
+               "body": "What changed", "published_at": "2026-12-01T10:00:00Z",
+               "assets": [{"name": f"MoneyThistle-Setup-{version}.exe", "browser_download_url": f"{base}/setup.exe"},
+                          {"name": f"MoneyThistle-Setup-{version}.exe.sha256", "browser_download_url": f"{base}/setup.sha256"}]}
+        calls = []
+
+        def get(url, timeout=20, limit=None):
+            calls.append(url)
+            if url.endswith("/releases/latest"):
+                return json.dumps(rel).encode()
+            if url.endswith("setup.sha256"):
+                return f"{sha}  MoneyThistle-Setup-{version}.exe".encode()
+            if url.endswith("setup.exe"):
+                return setup
+            raise OSError("no such address")
+        return get, calls
+
+    def test_check_and_install(self):
+        from moneyapp import updates
+        from moneyapp.version import VERSION
+        major = int(VERSION.split(".")[0])
+        get, calls = self.fake(f"{major + 1}.0.0")
+        up = updates.Updater(self.dir, get=get, kind="windows")
+        launched = []
+        up.launch = launched.append
+        st = up.check()
+        self.assertTrue(st["available"] and st["can_install"])
+        self.assertEqual(st["latest"], f"{major + 1}.0.0")
+        # Once a day: a second check doesn't ask again (unless forced).
+        n = len(calls)
+        up.check()
+        self.assertEqual(len(calls), n)
+        # Remembered across starts.
+        self.assertTrue(updates.Updater(self.dir, get=get, kind="windows").status()["available"])
+        r = up.install()
+        self.assertEqual(r["version"], f"{major + 1}.0.0")
+        self.assertTrue(launched[0].endswith(f"MoneyThistle-Setup-{major + 1}.0.0.exe"))
+        with open(launched[0], "rb") as f:
+            self.assertEqual(f.read(), b"setup bytes")
+        shutil.rmtree(os.path.dirname(launched[0]), ignore_errors=True)
+        with self.assertRaises(ApiError):   # once at a time
+            up.install()
+
+    def test_refused_when_the_checksum_differs(self):
+        from moneyapp import updates
+        get, _ = self.fake("99.0.0", sha="0" * 64)
+        up = updates.Updater(self.dir, get=get, kind="windows")
+        up.launch = lambda exe: self.fail("must not run")
+        up.check()
+        with self.assertRaises(ApiError):
+            up.install()
+        self.assertFalse(up.status()["installing"])
+
+    def test_docker_and_settings(self):
+        from moneyapp import updates
+        from moneyapp.version import VERSION
+        get, calls = self.fake(VERSION)
+        up = updates.Updater(self.dir, get=get, kind="docker")
+        st = up.check()
+        self.assertFalse(st["available"])                  # the same version: up to date
+        with self.assertRaises(ApiError):
+            up.save_settings({"auto": True})              # Docker updates the container itself
+        up.save_settings({"check": False})
+        n = len(calls)
+        self.assertFalse(up.check()["check"])
+        self.assertEqual(len(calls), n)                   # turned off: GitHub isn't asked
+        get2, _ = self.fake("99.0.0")
+        up2 = updates.Updater(self.dir, get=get2, kind="docker")
+        st = up2.check(force=True)
+        self.assertTrue(st["available"])
+        self.assertFalse(st["can_install"])               # shown how, not installed
+        # GitHub unreachable: said so, nothing breaks.
+        up3 = updates.Updater(self.dir, get=lambda *a, **k: (_ for _ in ()).throw(OSError("offline")), kind="source")
+        self.assertEqual(up3.check(force=True)["error"], "unreachable")
+
+
 class DataFolderTests(unittest.TestCase):
     """Where a copy started without --data keeps its money files."""
 

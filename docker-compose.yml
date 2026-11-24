@@ -1,7 +1,11 @@
+# MoneyThistle with Docker Compose: the image each release publishes on GitHub.
+#   docker compose up -d                          start it (http://SERVER:8080)
+#   docker compose pull && docker compose up -d   update it to the newest release
+# To stay on one version, change :latest to a version number, like :1.0.0 (only that version)
+# or :1.0 (its fixes too).
 services:
   moneythistle:
-    build: .
-    image: moneythistle:latest
+    image: ghcr.io/moneythistle/moneythistle:latest
     container_name: moneythistle
     restart: unless-stopped
     ports:
@@ -9,18 +13,16 @@ services:
       - "8080:8080"
     environment:
       TZ: "America/New_York"
-      PUID: "99"          # Unraid: nobody
-      PGID: "100"         # Unraid: users
-      CURRENCY_SYMBOL: "$"
-      # Only shown in the app's Settings, in place of /app, /data and /backups.
-      HOST_APP_DIR: "this folder (beside docker-compose.yml)"
+      PUID: "1000"        # the user that owns ./data and ./backups (Unraid: 99)
+      PGID: "1000"        # its group (Unraid: 100)
+      # Only shown in the app's Settings, in place of /data and /backups.
       HOST_DATA_DIR: "./data"
       HOST_BACKUP_DIR: "./backups"
       # Optional: the first administrator, created on the very first start only.
       # Leave these out to create it in the browser instead (do that right away).
       # Everyone else gets their own sign-in under People in the app.
-      APP_USERNAME: "admin"
-      APP_PASSWORD: "change-me-please"
+      # APP_USERNAME: "admin"
+      # APP_PASSWORD: "choose-a-password"
       # Optional: set the Nextcloud / WebDAV backup here instead of in the app.
       # WEBDAV_URL: "https://cloud.example.com/remote.php/dav/files/USERNAME/Backups/Money"
       # WEBDAV_USER: "USERNAME"
@@ -28,7 +30,4 @@ services:
     volumes:
       - ./data:/data
       - ./backups:/backups
-      # The app's own files, read-only: after updating this folder, the
-      # "Restart MoneyThistle" button (Settings) starts the new version.
-      - ./:/app:ro
     stop_grace_period: 60s

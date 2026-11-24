@@ -2,7 +2,10 @@ FROM python:3.12-slim
 
 LABEL org.opencontainers.image.title="MoneyThistle" \
       org.opencontainers.image.description="Simple personal money manager with a browser interface and WebDAV/Nextcloud backups" \
-      net.unraid.docker.webui="http://[IP]:[PORT:8080]/"
+      org.opencontainers.image.source="https://github.com/MoneyThistle/MoneyThistle" \
+      org.opencontainers.image.licenses="AGPL-3.0-only" \
+      net.unraid.docker.webui="http://[IP]:[PORT:8080]/" \
+      net.unraid.docker.icon="https://raw.githubusercontent.com/MoneyThistle/MoneyThistle/main/moneyapp/static/icon-512.png"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -14,7 +17,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PUID=99 \
     PGID=100 \
     UMASK=002 \
-    TZ=Etc/UTC
+    TZ=Etc/UTC \
+    MONEYTHISTLE_INSTALL=docker
 
 # Time zone data, so "today" (bills due, budgets) matches the TZ you set.
 RUN apt-get update && apt-get install -y --no-install-recommends tzdata \

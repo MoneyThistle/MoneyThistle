@@ -1,4 +1,5 @@
-# Run the tests on every change, on Windows and Linux.
+# Run the tests on every change, on Windows and Linux; and check the container image builds and
+# starts (the one each release publishes for Docker and Unraid).
 name: tests
 on:
   push:
@@ -22,3 +23,20 @@ jobs:
         env:
           NO_SHORTCUTS: "1"
         run: python -W ignore -m unittest discover -s tests
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the image and check that it starts
+        run: |
+          docker build -t moneythistle:test .
+          docker run -d --name mt -p 8080:8080 -e APP_USERNAME=admin -e APP_PASSWORD=check-only-123 moneythistle:test
+          ok=""
+          for i in $(seq 1 30); do
+            if curl -fs http://127.0.0.1:8080/healthz >/dev/null; then ok=1; break; fi
+            sleep 2
+          done
+          docker logs mt
+          [ -n "$ok" ] || { echo "The container didn't answer"; exit 1; }
+          curl -fs http://127.0.0.1:8080/api/meta
