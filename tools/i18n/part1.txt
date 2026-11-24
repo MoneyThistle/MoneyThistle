@@ -1,0 +1,401 @@
+# catalog number|French (Canada)|Spanish (Latin America)|Portuguese (Brazil); empty = stays in English
+0|Revenus de placement|Ingresos por inversiones|Rendimentos de investimentos
+1|Dividendes|Dividendos|Dividendos
+2|Intérêts|Intereses|Juros
+3|Gains en capital|Ganancias de capital|Ganhos de capital
+4|Intérêts exonérés d'impôt|Intereses exentos de impuestos|Juros isentos de imposto
+5|Autres revenus|Otros ingresos|Outras receitas
+6|Pension alimentaire reçue|Pensión alimenticia recibida|Pensão alimentícia recebida
+7|Cadeaux reçus|Regalos recibidos|Presentes recebidos
+8|Capital de prêt reçu|Capital de préstamo recibido|Principal de empréstimo recebido
+9|Loteries|Loterías|Loterias
+10|Remboursement d'impôt provincial et local|Reembolso de impuestos estatales y locales|Restituição de impostos estaduais e locais
+11|Prestations d'assurance-emploi|Seguro de desempleo|Seguro-desemprego
+12|Options d'achat d'actions|Opciones sobre acciones|Opções de ações
+13|Revenus de retraite|Ingresos de jubilación|Renda de aposentadoria
+14|Retraits de REER/IRA|Retiros de IRA|Retiradas de IRA
+15|Pensions et rentes|Pensiones y anualidades|Pensões e anuidades
+16|Prestations de sécurité sociale|Beneficios de seguridad social|Benefícios da previdência social
+17|Salaires et traitements|Sueldos y salarios|Salários e ordenados
+18|Prime|Bono|Bônus
+19|Commission|Comisión|Comissão
+20|Contribution de l'employeur|Aporte del empleador|Contrapartida do empregador
+21|Salaire brut|Sueldo bruto|Salário bruto
+22|Salaire net|Sueldo neto|Salário líquido
+23|Heures supplémentaires|Horas extra|Horas extras
+24|Automobile|Automóvil|Automóvel
+25|Essence|Gasolina|Combustível
+26|Entretien|Mantenimiento|Manutenção
+27|Paiement d'auto|Pago del auto|Prestação do carro
+28|Factures|Facturas|Contas
+29|Câble/Télévision par satellite|Cable/Televisión satelital|TV a cabo/satélite
+30|Cellulaire|Celular|Celular
+31|Cellulaire|Telefonía celular|Telefonia celular
+32|Électricité|Electricidad|Energia elétrica
+33|Ordures et recyclage|Basura y reciclaje|Lixo e reciclagem
+34|Centre de conditionnement physique|Gimnasio|Academia
+35|Frais de copropriété|Cuotas de mantenimiento|Taxa de condomínio
+36|Frais d'adhésion|Cuotas de membresía|Mensalidades de associação
+37|Paiement hypothécaire|Pago de hipoteca|Prestação do financiamento imobiliário
+38|Gaz naturel/Mazout|Gas natural/Combustible|Gás natural/Óleo
+39|Journal|Periódico|Jornal
+40|Service Internet|Servicio de Internet|Serviço de internet
+41|Autre paiement de prêt|Otro pago de préstamo|Outra prestação de empréstimo
+42|Loyer|Renta|Aluguel
+43|Paiement de prêt étudiant|Pago de préstamo estudiantil|Prestação do financiamento estudantil
+44|Téléphone|Teléfono|Telefone
+45|Eau et égouts|Agua y alcantarillado|Água e esgoto
+46|Frais bancaires|Cargos bancarios|Tarifas bancárias
+47|Intérêts payés|Intereses pagados|Juros pagos
+48|Frais de service|Cargo por servicio|Tarifa de serviço
+49|Retrait d'argent|Retiro de efectivo|Saque em dinheiro
+50|Dons de bienfaisance|Donativos|Doações
+51|Garde d'enfants|Cuidado infantil|Creche e cuidados infantis
+52|Enfants/Jouets|Niños/Juguetes|Filhos/Brinquedos
+53|Pension alimentaire|Pensión alimenticia|Pensão alimentícia
+54|Garderie|Guardería|Creche
+55|Vêtements|Ropa|Vestuário
+56|Paiements/Transferts de carte de crédit|Pagos/Transferencias de tarjeta de crédito|Pagamentos/Transferências de cartão de crédito
+57|Restaurants|Comer fuera|Restaurantes
+58|Éducation|Educación|Educação
+59|Livres|Libros|Livros
+60|Frais|Cuotas|Taxas
+61|Frais de scolarité|Colegiatura|Mensalidade escolar
+62|Divertissement|Entretenimiento|Entretenimento
+63|Frais|Comisiones|Taxas
+64|Alimentation|Comida|Alimentação
+65|Cadeaux|Regalos|Presentes
+66|Épicerie|Supermercado|Supermercado
+67|Soins de santé|Salud|Saúde
+68|Soins dentaires|Dental|Dentista
+69|Soins des yeux|Oftalmología|Oftalmologista
+70|Hôpital|Hospital|Hospital
+71|Médecin|Médico|Médico
+72|Médicaments sur ordonnance|Medicamentos con receta|Remédios com receita
+73|Loisirs|Pasatiempos/Ocio|Hobbies/Lazer
+74|Livres et magazines|Libros y revistas|Livros e revistas
+75|Événements culturels|Eventos culturales|Eventos culturais
+76|Réceptions|Reuniones sociales|Recepções
+77|Films et location de vidéos|Películas y renta de videos|Filmes e locação de vídeos
+78|Événements sportifs|Eventos deportivos|Eventos esportivos
+79|Articles de sport|Artículos deportivos|Artigos esportivos
+80|Cassettes et CD|Cintas y CD|Fitas e CDs
+81|Jouets et jeux|Juguetes y juegos|Brinquedos e jogos
+82|Rénovations|Mejoras del hogar|Reformas da casa
+83|Ménage|Hogar|Casa
+84|Ameublement|Muebles|Móveis
+85|Entretien ménager|Limpieza del hogar|Faxina
+86|Entretien du terrain|Jardinería|Jardinagem
+87|Assurances|Seguros|Seguros
+88|Automobile|Automóvil|Automóvel
+89|Santé|Salud|Saúde
+90|Propriétaire/Locataire|Hogar/Inquilino|Residencial
+91|Vie|Vida|Vida
+92|Dépenses d'emploi|Gastos de trabajo|Despesas de trabalho
+93|Non remboursées|No reembolsados|Não reembolsadas
+94|Remboursées|Reembolsados|Reembolsadas
+95|Prêt|Préstamo|Empréstimo
+96|Intérêts sur prêt|Intereses del préstamo|Juros do empréstimo
+97|Intérêts hypothécaires|Intereses hipotecarios|Juros do financiamento imobiliário
+98|Intérêts sur prêt étudiant|Intereses de préstamo estudiantil|Juros do financiamento estudantil
+99|Divers|Varios|Diversos
+100|Hypothèque/Loyer|Hipoteca/Renta|Financiamento/Aluguel
+101|Soins personnels|Cuidado personal|Cuidados pessoais
+102|Animaux|Mascotas|Animais de estimação
+103|Nourriture|Alimento|Ração
+104|Fournitures|Suministros|Suprimentos
+105|Vétérinaire|Veterinario|Veterinário
+106|Téléphone/Sans fil|Teléfono/Inalámbrico|Telefone/Celular
+107|Services/Abonnements|Servicios/Membresías|Serviços/Assinaturas
+108|Impôts|Impuestos|Impostos
+109|Impôt fédéral sur le revenu|Impuesto federal sobre la renta|Imposto de renda federal
+110|Impôt fédéral sur le revenu - année précédente|Impuesto federal sobre la renta - año anterior|Imposto de renda federal - ano anterior
+111|Impôt local sur le revenu|Impuesto local sobre la renta|Imposto de renda municipal
+112|Impôt Medicare|Impuesto de Medicare|Imposto Medicare
+113|Autres impôts|Otros impuestos|Outros impostos
+114|Impôts fonciers|Impuesto predial|IPTU
+115|Taxe de vente|Impuesto sobre las ventas|Imposto sobre vendas
+116|Cotisations à la sécurité sociale|Impuesto de seguridad social|Contribuição previdenciária
+117|Impôt provincial sur le revenu|Impuesto estatal sobre la renta|Imposto de renda estadual
+118|Provincial/État|Estatal/Provincial|Estadual/Provincial
+119|Voyages/Vacances|Viajes/Vacaciones|Viagens/Férias
+120|Hébergement|Hospedaje|Hospedagem
+121|Voyages|Viajes|Viagens
+122|Services publics|Servicios públicos|Serviços públicos
+123|Pension alimentaire (conjoint)|Pensión compensatoria|Pensão ao ex-cônjuge
+124|Pas une dépense|No es un gasto|Não é despesa
+125|Compte chèques|Cuenta corriente|Conta corrente
+126|Épargne|Ahorros|Poupança
+127|Carte de crédit|Tarjeta de crédito|Cartão de crédito
+128|Marge de crédit|Línea de crédito|Linha de crédito
+129|Argent comptant|Efectivo|Dinheiro
+130|Placement|Inversión|Investimento
+131|Retraite|Jubilación|Aposentadoria
+132|Actif|Activo|Ativo
+133|Passif|Pasivo|Passivo
+134|Prêt|Préstamo|Empréstimo
+135|Autre|Otro|Outro
+136|Chaque jour|Diario|Diário
+137|Chaque semaine|Semanal|Semanal
+138|Aux deux semaines|Cada dos semanas|A cada duas semanas
+139|Deux fois par mois|Dos veces al mes|Duas vezes por mês
+140|Aux quatre semaines|Cada cuatro semanas|A cada quatro semanas
+141|Mensuel|Mensual|Mensal
+142|Aux deux mois|Cada dos meses|A cada dois meses
+143|Aux trois mois|Cada tres meses|A cada três meses
+144|Deux fois par année|Dos veces al año|Duas vezes por ano
+145|Annuel|Anual|Anual
+146|Aux deux ans|Cada dos años|A cada dois anos
+147|Une seule fois|Solo una vez|Só uma vez
+148|À|Para|Para
+149|Ajouter|Agregar|Adicionar
+150|Tout|Todo|Tudo
+151|Échéance|Vence|Vence
+152|Nouveau|Nuevo|Novo
+153|Maintenant|Ahora|Agora
+154|Nº|Núm.|Nº
+155|Rouge|Rojo|Vermelho
+156|Tab|Tab|Tab
+157|Impôt|Impuesto|Imposto
+158|Le|El|O
+159|Utiliser|Usar|Usar
+160|Oui|Sí|Sim
+161|, ou|, o|, ou
+162|Retour|Volver|Voltar
+163|Bleu|Azul|Azul
+164|Carte|Tarjeta|Cartão
+165|Copier|Copiar|Copiar
+166|Date|Fecha|Data
+167|De|De|De
+168|Aide|Ayuda|Ajuda
+169|Accueil|Inicio|Início
+170|Dans|En|Em
+171|Élément|Elemento|Item
+172|Genre|Tipo|Tipo
+173|Gauche|Izquierda|Esquerda
+174|Apparence|Apariencia|Aparência
+175|Fait|Hecho|Feito
+176|Note|Nota|Observação
+177|Menu|Menú|Menu
+178|Plus|Más|Mais
+179|Nom|Nombre|Nome
+180|Suivant|Siguiente|Próximo
+181|Seulement|Solo|Só
+182|Ouvrir|Abrir|Abrir
+183|Payé|Pagado|Pago
+184|Partie|Parte|Parte
+185|Paie :|Pago:|Pagamento:
+186|Port|Puerto|Porta
+187|Rose|Rosa|Rosa
+188|Enregistrer|Guardar|Salvar
+189|Afficher|Mostrar|Mostrar
+190|Taille|Tamaño|Tamanho
+191|Sauter|Omitir|Pular
+192|Trier|Ordenar|Ordenar
+193|Sarcelle|Verde azulado|Verde-azulado
+194|Type|Tipo|Tipo
+195|Annuler|Deshacer|Desfazer
+196|Utilisé|Usado|Usado
+197|Quoi|Qué|O quê
+198|Ajouté|Agregado|Adicionado
+199|En date du|Al|Em
+200|Graphique|Gráfico|Gráfico
+201|Vérifier|Revisar|Verificar
+202|Effacer|Borrar|Limpar
+203|Fermer|Cerrar|Fechar
+204|Courriel|Correo|E-mail
+205|Terminé|Terminó|Terminou
+206|Inscrire|Registrar|Lançar
+207|Écriture|Movimiento|Lançamento
+208|Fichiers|Archivos|Arquivos
+209|Vert|Verde|Verde
+210||
+211|Icônes|Íconos|Ícones
+212|Dans {}|En {}|Em {}
+213|Étiquette|Etiqueta|Rótulo
+214|Apparence :|Apariencia:|Aparência:
+215|Associer|Emparejar|Associar
+216|Argent|Dinero|Dinheiro
+217|Mois|Mes|Mês
+218|Notes|Notas|Observações
+219|Ordre|Orden|Ordem
+220|Dû :|Adeudo:|Devido:
+221|Bénéficiaire|Beneficiario|Favorecido
+222|Téléphone|Teléfono|Telefone
+223|Droite|Derecha|Direita
+224|Enregistré|Guardado|Salvo
+225|Partager|Compartir|Compartilhar
+226|Ardoise|Pizarra|Ardósia
+227|Ventilé|Dividido|Dividido
+228|Thème|Tema|Tema
+229|Sujet|Tema|Assunto
+230|Total|Total|Total
+231|Annuler :|Deshacer:|Desfazer:
+232|Où|Dónde|Onde
+233||
+234||
+235|🧾 Le|🧾 El|🧾 O
+236|Accepter|Aceptar|Aceitar
+237|Actif|Activo|Ativo
+238|Réel|Real|Real
+239|Montant|Monto|Valor
+240|Budget|Presupuesto|Orçamento
+241|Bouton|Botón|Botão
+242|Annuler|Cancelar|Cancelar
+243|Modifier|Cambiar|Alterar
+244|Choisir|Elegir|Escolher
+245|Fermé|Cerrada|Encerrada
+246|Colonne|Columna|Coluna
+247|Copié|Copiado|Copiado
+248|Créer|Crear|Criar
+249|Personnalisé|Personalizado|Personalizado
+250|Supprimer|Eliminar|Excluir
+251|Appareil|Dispositivo|Dispositivo
+252|Courriel…|Correo…|E-mail…
+253|Fin de|Fin de|Fim de
+254|Échap|Esc|Esc
+255|Entiercement|Depósito en garantía|Caução
+256|Exporter|Exportar|Exportar
+257|Terminer|Terminar|Concluir
+258|Guides|Guías|Guias
+259|Revenus|Ingresos|Receitas
+260|Plus tard :|Después:|Depois:
+261|Le plus bas|Más bajo|Mais baixo
+262|Gérer|Administrar|Gerenciar
+263|Milieu|Centro|Meio
+264|Numéro|Número|Número
+265|Orange|Naranja|Laranja
+266|Ordre :|Orden:|Ordem:
+267|Papiers|Documentos|Documentos
+268|Violet|Morado|Roxo
+269|Inscrire|Registrar|Registrar
+270|Recharger|Recargar|Recarregar
+271|Retirer|Quitar|Remover
+272|Renommer|Renombrar|Renomear
+273|Revoir|Revisar|Revisar
+274|Serveur|Servidor|Servidor
+275|Partagé|Compartida|Compartilhada
+276|Simple|Simple|Simples
+277|État|Estado|Situação
+278|Impôts :|Impuestos:|Impostos:
+279|Mettre à jour|Actualizar|Atualizar
+280|L'utiliser|Usarlo|Usar
+281|Vérifier|Verificar|Verificar
+282|Où :|Dónde:|Onde:
+283|Compte|Cuenta|Conta
+284|Approuver|Aprobar|Aprovar
+285|Sauvegardes|Respaldos|Backups
+286|Solde|Saldo|Saldo
+287|Opérations bancaires|Banca|Banco
+288|Entre|Entre|Entre
+289|Compensé|Conciliado|Compensado
+290|Refuser|Rechazar|Recusar
+291|Supprimé|Eliminado|Excluído
+292|Dépôt|Depósito|Depósito
+293|Détails|Detalles|Detalhes
+294||
+295|Inscrit|Registrado|Lançado
+296|Écritures|Movimientos|Lançamentos
+297|Exemple|Ejemplo|Exemplo
+298|Dépense|Gasto|Despesa
+299|Trouvé un|Se encontró un|Encontrado um
+300|Historique|Historial|Histórico
+301|Dans {}|A {}|Em {}
+302|Le garder|Conservarlo|Manter
+303|Gardé comme|Guardado como|Mantido como
+304|Emménager|Mudarse|Mudar para cá
+305|Déplacer vers|Mover a|Mover para
+306|Monter|Subir|Subir
+307|Déplacement…|Moviendo…|Movendo…
+308|Plus anciennes ▶|Anteriores ▶|Mais antigos ▶
+309|Seulement {}|Solo {}|Só {}
+310|Ouvrir {}|Abrir {}|Abrir {}
+311|En retard|Vencido|Atrasado
+312|Paiement|Pago|Pagamento
+313|Talon de paie|Recibo de nómina|Holerite
+314|Personnes :|Personas:|Pessoas:
+315|Aperçu|Vista previa|Prévia
+316||
+317|Retiré|Quitado|Removido
+318|Renommé|Renombrado|Renomeado
+319|Rapports|Informes|Relatórios
+320|Restaurer|Restaurar|Restaurar
+321|Tout voir|Ver todo|Ver tudo
+322|Envoyer à|Enviar a|Enviar para
+323|Afficher comme|Mostrar como|Mostrar como
+324|Se connecter|Iniciar sesión|Entrar
+325|Arrêté|Detenido|Parado
+326||
+327|Version|Versión|Versão
+328|Bienvenue|Bienvenido|Bem-vindo
+329|· version|· compilación|· versão
+330|◀ Plus récentes|◀ Más recientes|◀ Mais recentes
+331|, le {}|, el {}|, o {}
+332|Comptes|Cuentas|Contas
+333|Ajouter un prêt|Agregar préstamo|Adicionar empréstimo
+334|Montant{}|Monto{}|Valor{}
+335|N'importe quand|Cuando sea|A qualquer hora
+336|Approuver…|Aprobar…|Aprovar…
+337|Soldes|Saldos|Saldos
+338|Entreprise|Negocio|Empresa
+339|Catégorie|Categoría|Categoria
+340|Vérifié :|Revisado:|Verificado:
+341|Devise|Moneda|Moeda
+342|Dettes {}|Deudas {}|Dívidas {}
+343|Refusé|Rechazado|Recusado
+344|Télécharger|Descargar|Baixar
+345|Gains|Percepciones|Proventos
+346|Tout le monde|Todos|Todos
+347|Prévision|Pronóstico|Previsão
+348|Aide : {}|Ayuda: {}|Ajuda: {}
+349|Garder le|Conservar el|Manter o
+350|Langue|Idioma|Idioma
+351|Chargement…|Cargando…|Carregando…
+352|Recherche…|Buscando…|Procurando…
+353|Medicare|Medicare|Medicare
+354|Déplacer maintenant|Mover ahora|Mover agora
+355|Nouvelle facture|Nueva factura|Nova conta
+356|Nouveau prêt|Nuevo préstamo|Novo empréstimo
+357|Dû maintenant|Adeudo actual|Devido agora
+358|Remboursé|Liquidado|Quitado
+359|Date de paie|Fecha de pago|Data do pagamento
+360|Payer à partir de|Pagar desde|Pagar com
+361|Paie|Pago de nómina|Salário
+362|Talon de paie :|Recibo de nómina:|Holerite:
+363|Talon de paie…|Recibo de nómina…|Holerite…
+364|Personnes →|Personas →|Pessoas →
+365|Reçus|Recibos|Recibos
+366|Inscrit|Registrado|Registrado
+367|Registre|Registro|Extrato
+368|Restauré|Restaurado|Restaurado
+369||
+370|Sécurité|Seguridad|Segurança
+371|Paramètres|Configuración|Configurações
+372|Se déconnecter|Cerrar sesión|Sair
+373|Sauter : {}|Omitir: {}|Pular: {}
+374|Dépenses|Gastos|Gastos
+375|Année d'imposition|Año fiscal|Ano fiscal
+376|Ils peuvent|Pueden|Eles podem
+377|Mises à jour :|Actualizaciones:|Atualizações:
+378|et cochez|y marque|e marque
+379|: habituellement|: normalmente|: normalmente
+380|Tous les types|Todos los tipos|Todos os tipos
+381|Actifs {}|Activos {}|Ativos {}
+382|Sauvegardé|Respaldado|Com backup
+383|Budget par|Presupuesto por|Orçamento por
+384|Vérification…|Revisando…|Verificando…
+385|Entrées|Entradas|Entradas
+386|À venir|Próximamente|Em breve
+387|Connecté|Conectado|Conectado
+388|Personnaliser|Personalizar|Personalizar
+389|Date de paiement|Fecha de pago|Data do pagamento
+390|Dû aujourd'hui|Vence hoy|Vence hoje
+391|Courriel pour|Correo para|E-mail para
+392|Va dans|Va a|Vai para
+393|Sorties|Salidas|Saídas
+394|Salaire brut|Sueldo bruto|Salário bruto
+395|Fréquence|Frecuencia|Frequência
+396|Revenus {}|Ingresos {}|Receitas {}
+397|L'an dernier|El año pasado|Ano passado
+398|Reste|Sobrante|Sobra
+399|Nom de la ligne|Nombre de la línea|Nome da linha

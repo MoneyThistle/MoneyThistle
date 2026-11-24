@@ -1,0 +1,501 @@
+# catalog number|French (Canada)|Spanish (Latin America)|Portuguese (Brazil); empty = stays in English
+400|Nom du prêt|Nombre del préstamo|Nome do empréstimo
+401|Descendre|Bajar|Descer
+402|Déplacer vers|Mover a|Mover para
+403|Valeur nette|Patrimonio neto|Patrimônio líquido
+404|Prochaine date|Próxima fecha|Próxima data
+405|Pas de courriel?|¿Sin correo?|Sem e-mail?
+406|Introuvable|No encontrado|Não encontrado
+407|Vers {}|Hacia {}|Para {}
+408|Mot de passe…|Contraseña…|Senha…
+409|Capital|Capital|Principal
+410|Ajout rapide|Agregar rápido|Lançamento rápido
+411|Le retirer|Quitarlo|Remover
+412|Rapports →|Informes →|Relatórios →
+413|Enregistrer la date|Guardar fecha|Salvar data
+414|Envoyer un test|Enviar prueba|Enviar teste
+415|Défini dans {}|Definido en {}|Definido em {}
+416||
+417|Cette année|Este año|Este ano
+418|Nom d'utilisateur|Nombre de usuario|Nome de usuário
+419|Quel genre|Qué tipo|Que tipo
+420|Vos données|Tus datos|Seus dados
+421|Votre nom|Tu nombre|Seu nome
+422|jusqu'ici {}|hasta ahora {}|até agora {}
+423|cet élément|este elemento|este item
+424|nom d'utilisateur|nombre de usuario|nome de usuário
+425|semaines et|semanas y|semanas e
+426|{} Supprimer|{} Eliminar|{} Excluir
+427|{} Papiers|{} Documentos|{} Documentos
+428|({} ans)|({} años)|({} anos)
+429|Comptes{}|Cuentas{}|Contas{}
+430|Ajouter comme nouveau|Agregar como nuevo|Adicionar como novo
+431|Ajouter une personne|Agregar persona|Adicionar pessoa
+432|Apparence|Apariencia|Aparência
+433|Catégories|Categorías|Categorias
+434|Effacer la marque|Quitar marca|Limpar marca
+435|Compensé {}|Conciliado {}|Compensado {}
+436|Devises|Monedas|Moedas
+437|Date du {}|Fecha del {}|Data de {}
+438|Style de date|Formato de fecha|Formato de data
+439|Date, note|Fecha, nota|Data, observação
+440|Différence|Diferencia|Diferença
+441|Chaque mois|Cada mes|Todo mês
+442|Chiffrement|Cifrado|Criptografia
+443|Tout|Todo|Tudo
+444|Exporter en CSV|Exportar CSV|Exportar CSV
+445|Aller à l'accueil|Ir al inicio|Ir para o início
+446|Aller à {} →|Ir a {} →|Ir para {} →
+447|Reçu de {}|Entrada desde {}|Entrada de {}
+448|Dans {} jours|En {} días|Em {} dias
+449|Prêt enregistré|Préstamo guardado|Empréstimo salvo
+450|Monter {}|Subir {}|Subir {}
+451|Mois prochain|Mes siguiente|Próximo mês
+452|Une écriture :|Un movimiento:|Um lançamento:
+453|Dû après|Adeudo después|Devido depois
+454|Papiers : {}|Documentos: {}|Documentos: {}
+455|Mot de passe{}|Contraseña{}|Senha{}
+456|Rapproché|Conciliado|Conciliado
+457|Retirer {}?|¿Quitar {}?|Remover {}?
+458|Restauration…|Restaurando…|Restaurando…
+459|Paramètres ›|Configuración ›|Configurações ›
+460|Paramètres →|Configuración →|Configurações →
+461|Partager avec|Compartir con|Compartilhar com
+462|Se connecter en tant que|Iniciar sesión como|Entrar como
+463|Encore dû|Adeudo pendiente|Ainda devido
+464|Le budget|El presupuesto|O orçamento
+465|Ce mois-ci|Este mes|Este mês
+466|Vers le compte|A la cuenta|Para a conta
+467|Transferts :|Transferencias:|Transferências:
+468|Retrait|Retiro|Saque
+469|Annuel (1)|Anual (1)|Anual (1)
+470|fonctionnent aussi.|también funcionan.|também funcionam.
+471|jours à l'avance|días adelante|dias à frente
+472|limite {} ·|límite {} ·|limite {} ·
+473||
+474|à jour|al día|em dia
+475|{} à venir|{} por venir|{} a vir
+476|+ Ajout rapide|+ Agregar rápido|+ Lançamento rápido
+477|+ {} d'entiercement|+ {} de depósito en garantía|+ {} de caução
+478||
+479|Ajouter un compte|Agregar cuenta|Adicionar conta
+480|Tous les changements|Todos los cambios|Todas as alterações
+481|Montant dû|Monto adeudado|Valor devido
+482|Automatique ⟳|Automático ⟳|Automático ⟳
+483|Sauvegarder maintenant|Respaldar ahora|Fazer backup agora
+484|Sauvegarde…|Respaldando…|Fazendo backup…
+485|Fichier de sauvegarde|Archivo de respaldo|Arquivo de backup
+486|Sauvegarde faite|Respaldo hecho|Backup feito
+487|L'importer|Importarlo|Importar
+488|Compensé (C)|Conciliado (C)|Compensado (C)
+489|Connexions|Conexiones|Conexões
+490|Carte de crédit|Tarjeta de crédito|Cartão de crédito
+491|Crédit restant|Crédito disponible|Crédito disponível
+492|Supprimer le prêt|Eliminar préstamo|Excluir empréstimo
+493|Chiffrement :|Cifrado:|Criptografia:
+494|Environnement|Entorno|Ambiente
+495|Tout :|Todo:|Tudo:
+496|Importer un fichier|Importar archivo|Importar arquivo
+497|Importer dans|Importar en|Importar para
+498|Plus de champs|Más campos|Mais campos
+499|Valeur nette{}|Patrimonio neto{}|Patrimônio líquido{}
+500|Nouveau compte|Nueva cuenta|Nova conta
+501|Nouveau dépôt|Nuevo depósito|Novo depósito
+502|Note pour {}|Nota para {}|Observação para {}
+503|Rien encore|Nada todavía|Nada ainda
+504|Sur un téléphone :|En un teléfono:|No celular:
+505|Lecture de {}…|Leyendo {}…|Lendo {}…
+506|{} restauré|{} restaurado|{} restaurado
+507|Taux approximatifs|Tipos de cambio aproximados|Cotações aproximadas
+508|Serveur SMTP|Servidor SMTP|Servidor SMTP
+509|Enregistrer le budget|Guardar presupuesto|Salvar orçamento
+510|Chercher dans l'aide|Buscar en la ayuda|Pesquisar na ajuda
+511|Envoi de {}…|Enviando {}…|Enviando {}…
+512|Menu Démarrer :|Menú Inicio:|Menu Iniciar:
+513|Passé à|Se cambió a|Mudou para
+514|Lié aux impôts|Relacionado con impuestos|Relacionado a impostos
+515|Période|Periodo|Período
+516|Transfert vers|Transferencia a|Transferência para
+517|Hebdomadaire (52)|Semanal (52)|Semanal (52)
+518|Retraits|Retiros|Saques
+519|et {} de plus|y {} más|e mais {}
+520|non compensé|no conciliado|não compensado
+521|jusqu'ici {}{}|hasta ahora {}{}|até agora {}{}
+522|{} · partagé|{} · compartida|{} · compartilhada
+523|· {} d'entiercement|· {} de depósito en garantía|· {} de caução
+524|· {} ventilations|· {} divisiones|· {} divisões
+525|⏻ Arrêter|⏻ Apagar|⏻ Desligar
+526|● rempli|● con datos|● preenchido
+527|⟳ Automatique|⟳ Automático|⟳ Automático
+528|(processus {})|(proceso {})|(processo {})
+529|({} écritures)|({} movimientos)|({} lançamentos)
+530|Couleur d'accent|Color de acento|Cor de destaque
+531|Liste des comptes|Lista de cuentas|Lista de contas
+532|Nom du compte|Nombre de la cuenta|Nome da conta
+533|Tous les comptes|Todas las cuentas|Todas as contas
+534|Mot de passe d'application|Contraseña de aplicación|Senha de aplicativo
+535|Automatique ⟳ :|Automático ⟳:|Automático ⟳:
+536|Budget enregistré|Presupuesto guardado|Orçamento salvo
+537|Par catégorie :|Por categoría:|Por categoria:
+538|Cartes de crédit|Tarjetas de crédito|Cartões de crédito
+539|Limite de crédit|Límite de crédito|Limite de crédito
+540|Environnements|Entornos|Ambientes
+541|Moins de champs|Menos campos|Menos campos
+542|Dossier là-bas|Carpeta allí|Pasta lá
+543||
+544|Masquer les écritures|Ocultar movimientos|Ocultar lançamentos
+545|Importer celles-ci|Importar estos|Importar estes
+546|30 derniers jours|Últimos 30 días|Últimos 30 dias
+547|90 derniers jours|Últimos 90 días|Últimos 90 dias
+548|Le laisser de côté|Dejarlo fuera|Deixar de fora
+549|Détails du prêt|Detalles del préstamo|Detalhes do empréstimo
+550|Marché monétaire|Mercado monetario|Mercado monetário
+551|Plus de détails|Más detalles|Mais detalhes
+552|Plus d'options|Más opciones|Mais opções
+553|Descendre {}|Bajar {}|Descer {}
+554|Nouvelle catégorie|Nueva categoría|Nova categoria
+555|Nouveau mot de passe|Nueva contraseña|Nova senha
+556|Nouveau transfert|Nueva transferencia|Nova transferência
+557|Prochain paiement|Próximo pago|Próximo pagamento
+558||
+559|Mot de passe défini|Contraseña establecida|Senha definida
+560|Payer en ligne ↗|Pagar en línea ↗|Pagar on-line ↗
+561|Personne ajoutée|Persona agregada|Pessoa adicionada
+562|Demande envoyée|Solicitud enviada|Pedido enviado
+563|Enregistrer l'adresse|Guardar dirección|Salvar endereço
+564|Enregistrer les changements|Guardar cambios|Salvar alterações
+565|Enregistrer le talon|Guardar recibo|Salvar holerite
+566|Envoyer la demande|Enviar solicitud|Enviar pedido
+567|Définir le mot de passe|Establecer contraseña|Definir senha
+568|Connecté en tant que|Sesión iniciada como|Conectado como
+569|Prendre une photo|Tomar una foto|Tirar foto
+570|Opérations|Movimientos|Lançamentos
+571|Ce qui se passe|Qué pasa|O que acontece
+572|Vos sauvegardes|Tus respaldos|Seus backups
+573|Votre connexion|Tu acceso|Seu acesso
+574|mot de passe d'application|contraseña de aplicación|senha de aplicativo
+575|réseau domestique|red de casa|rede de casa
+576|paiement de prêt|pago de préstamo|pagamento de empréstimo
+577|seulement le consulter|solo verla|só visualizar
+578|partagé par {}|compartida por {}|compartilhada por {}
+579|pour continuer.|para continuar.|para continuar.
+580|votre adresse|tu dirección|seu endereço
+581||
+582|{} de marge|{} de margen|{} de folga
+583|{} % d'intérêt|{}% de interés|{}% de juros
+584|…et {} de plus|…y {} más|…e mais {}
+585|(aucune catégorie)|(sin categoría)|(sem categoria)
+586|(avec Docker :|(con Docker:|(com Docker:
+587|({} détaillés)|({} detallados)|({} detalhados)
+588||
+589|Un fichier de sauvegarde|Un archivo de respaldo|Um arquivo de backup
+590|Un nouveau compte|Una cuenta nueva|Uma conta nova
+591|Compte enregistré|Cuenta guardada|Conta salva
+592|Compte là-bas|Cuenta allí|Conta lá
+593|Ajouter au budget|Agregar al presupuesto|Adicionar ao orçamento
+594|Adresse enregistrée|Dirección guardada|Endereço salvo
+595|Administrateur|Administrador|Administrador
+596|Toute fréquence|Cualquier frecuencia|Qualquer frequência
+597|Budget de {}|Presupuesto de {}|Orçamento de {}
+598|Le calculer :|Calcularlo:|Calcular:
+599|Choisir un fichier|Elegir un archivo|Escolher um arquivo
+600|Colonne pour {}|Columna para {}|Coluna para {}
+601|Lecture impossible|No se pudo leer|Não foi possível ler
+602|Chaque paiement :|Cada pago:|Cada pagamento:
+603|Adresse courriel|Correo electrónico|Endereço de e-mail
+604|De la banque|Del banco|Do banco
+605|Aller à la connexion|Ir a iniciar sesión|Ir para o login
+606|Hypothèque résidentielle|Hipoteca de la casa|Financiamento da casa
+607|Remonter jusqu'à :|Hasta cuándo:|Até quando:
+608|Paiement de prêt :|Pago de préstamo:|Pagamento de empréstimo:
+609|Prévisions|Lo que viene|Previsão
+610|Devise principale|Moneda principal|Moeda principal
+611|Plus de champs{}|Más campos{}|Mais campos{}
+612|Notifications|Notificaciones|Notificações
+613|Plus anciennes d'abord.|Más antiguos primero.|Mais antigos primeiro.
+614|Autres appareils|Otros dispositivos|Outros dispositivos
+615|Paie de|Pago de nómina de|Salário de
+616|Taux et durée|Tasa y plazo|Taxa e prazo
+617|Enregistrer la paie|Guardar pago de nómina|Salvar salário
+618|Enregistrer les paramètres|Guardar configuración|Salvar configurações
+619|Écritures ventilées|Movimientos divididos|Lançamentos divididos
+620|Encore à venir|Aún por venir|Ainda por vir
+621|Faire la visite|Hacer el recorrido|Fazer o tour
+622|Salaire net|Sueldo neto|Salário líquido
+623|Cet ordinateur|Esta computadora|Este computador
+624|Paiement total|Pago total|Pagamento total
+625|Transfert de|Transferencia desde|Transferência de
+626|Transfert vers…|Transferencia a…|Transferência para…
+627|et créer un|y crear una|e criar uma
+628|selon le calendrier|del calendario|da agenda
+629|ouvrir le registre|abrir el registro|abrir o extrato
+630|autre carte réseau|otro adaptador|outro adaptador
+631|cet ordinateur|esta computadora|este computador
+632|votre employeur|tu empleador|seu empregador
+633|{} Reçus{}|{} Recibos{}|{} Recibos{}
+634|{} à approuver|{} por aprobar|{} para aprovar
+635|· {} remboursé|· {} reembolsado|· {} reembolsado
+636|(solde complet)|(saldo total)|(saldo total)
+637|, {} transferts|, {} transferencias|, {} transferências
+638|Numéro de compte|Número de cuenta|Número da conta
+639|Ajouter un compte|Agregar una cuenta|Adicionar uma conta
+640|Montant variable :|Monto variable:|Valor variável:
+641|Sauvegarde vérifiée|Respaldo verificado|Backup verificado
+642|Sauvegarde supprimée|Respaldo eliminado|Backup excluído
+643|L'importer comme|Importarlo como|Importar como
+644|Historique des changements|Historial de cambios|Histórico de alterações
+645|Complet tel quel|Completo así|Completo assim
+646|Envoi impossible :|No se pudo enviar:|Não foi possível enviar:
+647|Personnaliser l'accueil|Personalizar el inicio|Personalizar o início
+648|Supprimer le compte|Eliminar cuenta|Excluir conta
+649|Supprimer le paiement|Eliminar pago|Excluir pagamento
+650|Supprimer le talon de paie|Eliminar recibo de nómina|Excluir holerite
+651|Chaque achat :|Cada compra:|Cada compra:
+652|L'entiercement va à|El depósito en garantía va a|A caução vai para
+653|Adresse du dossier|Dirección de la carpeta|Endereço da pasta
+654|Logiciel libre.|Software libre.|Software livre.
+655|Prévisions :|Lo que viene:|Previsão:
+656|Faire un paiement|Hacer un pago|Fazer um pagamento
+657|{} déplacé vers {}|{} movido a {}|{} movido para {}
+658|L'ouvre dans {}|La abre en {}|Abre em {}
+659|Autres appareils :|Otros dispositivos:|Outros dispositivos:
+660|Mot de passe (encore)|Contraseña otra vez|Senha novamente
+661|Payer une carte :|Pagar una tarjeta:|Pagar um cartão:
+662|Choisir n'importe quelle couleur|Elegir cualquier color|Escolher qualquer cor
+663|Veuillez confirmer|Confirma, por favor|Confirme, por favor
+664|Veuillez vous connecter|Inicia sesión, por favor|Entre, por favor
+665|Pratiquez une fois :|Practica una vez:|Pratique uma vez:
+666|Mois précédent|Mes anterior|Mês anterior
+667|Rapproché (R)|Conciliado (R)|Conciliado (R)
+668|Inscrire le paiement|Registrar pago|Registrar pagamento
+669|Réinitialiser les comptes|Restablecer cuentas|Redefinir contas
+670|Revoir l'importation :|Revisar importación:|Revisar importação:
+671|Numéro de transit|Número de ruta (ABA)|Número de roteamento
+672|Enregistrer le relevé|Guardar estado de cuenta|Salvar fatura
+673|Élément prévu|Elemento programado|Item agendado
+674|Paramètres enregistrés|Configuración guardada|Configurações salvas
+675|Compte partagé|Cuenta compartida|Conta compartilhada
+676|Afficher dans le budget|Mostrar en el presupuesto|Mostrar no orçamento
+677|Afficher ensemble :|Mostrar juntos:|Mostrar juntos:
+678|Paiement ventilé :|Pago dividido:|Pagamento dividido:
+679|Date du relevé|Fecha del estado de cuenta|Data da fatura
+680|Sous-catégorie de|Subcategoría de|Subcategoria de
+681|Vers l'environnement|Al entorno|Para o ambiente
+682|Deux devises|Dos monedas|Duas moedas
+683|Utiliser l'appareil photo|Usar la cámara|Usar a câmera
+684|Pourquoi il existe.|Por qué existe.|Por que existe.
+685|Votre nom d'utilisateur|Tu nombre de usuario|Seu nome de usuário
+686|sur {} empruntés|de {} prestados|de {} emprestados
+687|sur {} prévus|de {} previstos|de {} previstos
+688|sur votre téléphone.|en tu teléfono.|no seu celular.
+689|mise à jour en attente|actualización pendiente|atualização pendente
+690|avec {} fichier{}|con {} archivo{}|com {} arquivo{}
+691|· partagé par {}|· compartida por {}|· compartilhada por {}
+692|· {} transferts|· {} transferencias|· {} transferências
+693|📷 Prendre une photo|📷 Tomar una foto|📷 Tirar foto
+694|, {} catégories|, {} categorías|, {} categorias
+695|= salaire net|= sueldo neto|= salário líquido
+696|Détails du compte|Detalles de la cuenta|Detalhes da conta
+697|Montant reçu|Monto recibido|Valor recebido
+698|Mot de passe de sauvegarde|Contraseña del respaldo|Senha do backup
+699|Concilier le compte|Conciliar la cuenta|Conciliar a conta
+700|Banque ou société|Banco o empresa|Banco ou empresa
+701|Importation…|Importando…|Importando…
+702|Paiement de carte à|Pago de tarjeta a|Pagamento de cartão para
+703|Changer la catégorie|Cambiar categoría|Alterar categoria
+704|La relier à|Conectarla con|Conectar com
+705|Personnaliser l'accueil…|Personalizar el inicio…|Personalizar o início…
+706|Supprimer « {} »? {}|¿Eliminar "{}"? {}|Excluir "{}"? {}
+707|M'envoyer un lien par courriel|Enviarme un enlace por correo|Enviar-me um link por e-mail
+708|Entrez un montant|Ingresa un monto|Digite um valor
+709|Inscrire le relevé|Registrar estado de cuenta|Lançar fatura
+710|Tout le reste|Todo lo demás|Todo o resto
+711|Revenus prévus|Ingresos previstos|Receitas previstas
+712|Pour tous dans|Para todos en|Para todos em
+713|Pour la connexion|Para el inicio de sesión|Para o login
+714|Pour commencer|Primeros pasos|Primeiros passos
+715|Cartes de l'accueil|Tarjetas del inicio|Cartões do início
+716|Accueil enregistré|Inicio guardado|Início salvo
+717|Importation terminée|Importación terminada|Importação concluída
+718|Il apparaîtra dans|Aparecerá en|Vai aparecer em
+719|Le garder en sécurité|Mantenerlo seguro|Mantendo seguro
+720||
+721|Argent qui entre|Dinero que entra|Dinheiro entrando
+722|Argent qui sort|Dinero que sale|Dinheiro saindo
+723|Nouvel environnement|Nuevo entorno|Novo ambiente
+724|Prochain paiement {}|Próximo pago {}|Próximo pagamento {}
+725|Aucun compte encore|Aún no hay cuentas|Nenhuma conta ainda
+726|Aucun mot ne correspond.|Ninguna palabra coincide.|Nenhuma palavra corresponde.
+727|Notifications{}|Notificaciones{}|Notificações{}
+728||
+729|Solde d'ouverture|Saldo inicial|Saldo inicial
+730|Paiement supprimé|Pago eliminado|Pagamento excluído
+731|Talon de paie supprimé|Recibo de nómina eliminado|Holerite excluído
+732|Détails du talon de paie|Detalles del recibo de nómina|Detalhes do holerite
+733|Personnes et accès|Personas y acceso|Pessoas e acesso
+734|Enregistrer les devises|Guardar monedas|Salvar moedas
+735|Enregistré à l'instant :|Guardado hace un momento:|Salvo agora mesmo:
+736|Éléments prévus|Elementos programados|Itens agendados
+737|Voir en ligne ↗|Ver en línea ↗|Ver on-line ↗
+738|Paramètres → Apparence|Configuración → Apariencia|Configurações → Aparência
+739|Comptes partagés|Cuentas compartidas|Contas compartilhadas
+740|Sécurité sociale|Seguridad social|Previdência social
+741|Disposition standard|Diseño estándar|Layout padrão
+742|Démarrer tout seul|Iniciar solo|Iniciar sozinho
+743|Relevé enregistré|Estado de cuenta guardado|Fatura salva
+744|Salaire net{}|Sueldo neto{}|Salário líquido{}
+745|Transfert (déplacer)|Transferencia (mover)|Transferência (mover)
+746|Transfert de…|Transferencia desde…|Transferência de…
+747|Activer les sauvegardes|Activar respaldos|Ativar backups
+748|Arrive habituellement|Suele llegar|Costuma chegar
+749|Ce que les mots veulent dire|Qué significan las palabras|O que as palavras significam
+750|tous les {} comme d'habitude|todos los {} como siempre|todos os {} como sempre
+751|incl. {} partagés|incl. {} compartidas|incl. {} compartilhadas
+752|s'ouvre correctement|abre correctamente|abre corretamente
+753|{} n'est pas coché|{} no está marcado|{} não está marcado
+754|+ Ajouter un gain|+ Agregar una percepción|+ Adicionar um provento
+755|Comptes à déplacer|Cuentas a mover|Contas a mover
+756|Valeurs par défaut|Volver a lo predeterminado|Voltar ao padrão
+757|Copie de « Sauvegarder maintenant »|Copia de "Respaldar ahora"|Cópia de "Fazer backup agora"
+758|Solde dû maintenant|Saldo adeudado ahora|Saldo devido agora
+759|Factures et dépôts|Facturas y depósitos|Contas e depósitos
+760|Factures dues d'ici|Facturas que vencen en|Contas que vencem em
+761|Modifier une écriture :|Cambiar un movimiento:|Alterar um lançamento:
+762|Vérifier ce qui sera déplacé|Revisar qué se mueve|Verificar o que será movido
+763|Devises enregistrées|Monedas guardadas|Moedas salvas
+764|Mot de passe actuel|Contraseña actual|Senha atual
+765|Modifier l'opération|Editar movimiento|Editar lançamento
+766|Plafond de l'IRS pour {}|Límite del IRS para {}|Limite do IRS para {}
+767|Reste (plan)|Sobrante (plan)|Sobra (plano)
+768|Comme cet appareil|Como este dispositivo|Como este dispositivo
+769||
+770|MoneyThistle : {}|MoneyThistle: {}|MoneyThistle: {}
+771|Déplacer des comptes :|Mover cuentas:|Mover contas:
+772|Nom de la banque|Nombre del banco|Nome do banco
+773|Note ou mots-clés|Nota o palabras clave|Observação ou palavras-chave
+774|Autres retenues|Otras deducciones|Outros descontos
+775|Mot de passe modifié|Contraseña cambiada|Senha alterada
+776|Paiement déplacé vers|Pago movido a|Pagamento movido para
+777|Paiement inscrit|Pago registrado|Pagamento registrado
+778|Calendrier des paiements|Calendario de pagos|Cronograma de pagamentos
+779|Dépenses prévues|Gastos previstos|Gastos previstos
+780|Retirer cette ligne|Quitar esta línea|Remover esta linha
+781|Section des paramètres|Sección de configuración|Seção de configurações
+782|Partager un compte|Compartir una cuenta|Compartilhar uma conta
+783|Comptes partagés :|Cuentas compartidas:|Contas compartilhadas:
+784|Tout ou rien|Todo o nada|Tudo ou nada
+785|Afficher chaque écriture|Mostrar cada movimiento|Mostrar cada lançamento
+786|Afficher ses sauvegardes|Mostrar sus respaldos|Mostrar seus backups
+787|Afficher les {} prochains|Mostrar los próximos {}|Mostrar os próximos {}
+788|Solde de départ|Saldo inicial|Saldo inicial
+789|Impôt provincial sur le revenu|Impuesto estatal sobre la renta|Imposto de renda estadual
+790|Test envoyé : vérifiez|Prueba enviada: revisa|Teste enviado: verifique
+791|Deux fois par année (2)|Dos veces al año (2)|Duas vezes por ano (2)
+792|Utiliser ce montant :|Usar este monto:|Usar este valor:
+793|Votre propre adresse|Tu propia dirección|Seu próprio endereço
+794|demandé par {} {}{}|pedido por {} {}{}|pedido por {} {}{}
+795|en haut fait.|arriba hace.|no topo faz.
+796|y met fin tout de suite.|lo termina de inmediato.|encerra na hora.
+797|ouvre tout.|abre todo.|abre tudo.
+798|autres retenues|otras deducciones|outros descontos
+799|l'inscrire pour moi|registrarlo por mí|lançar para mim
+800|sauvegarde planifiée|respaldo programado|backup agendado
+801|cet environnement-là|ese entorno|esse ambiente
+802|cet environnement|este entorno|este ambiente
+803|coche chacun;|marca cada uno;|marca cada um;
+804|avec vous ({}){}.|contigo ({}){}.|com você ({}){}.
+805|{} déjà là|{} ya está|{} já está lá
+806|+ Ajouter une retenue|+ Agregar una deducción|+ Adicionar um desconto
+807|, modifiez-le, puis|, cámbialo y luego|, altere e depois
+808|Le compte est fermé|La cuenta está cerrada|A conta está encerrada
+809|Ajoutez vos comptes|Agrega tus cuentas|Adicione suas contas
+810|Ajouté après impôts|Agregado después de impuestos|Adicionado após impostos
+811|Tous les CSS ensemble|Todas las HSA juntas|Todas as HSAs juntas
+812|Sauvegardes automatiques|Respaldos automáticos|Backups automáticos
+813|Chaque mois pour {}|Cada mes por {}|Todo mês por {}
+814|Catégorie d'intérêts|Categoría de intereses|Categoria de juros
+815|Taux d'intérêt (%)|Tasa de interés (%)|Taxa de juros (%)
+816|Pas encore sauvegardé|Aún sin respaldo|Ainda sem backup
+817|Autres retenues :|Otras deducciones:|Outros descontos:
+818|Paiements par année|Pagos por año|Pagamentos por ano
+819|Retenue avant impôts|Deducción antes de impuestos|Desconto antes dos impostos
+820|Restaurer ce fichier|Restaurar este archivo|Restaurar este arquivo
+821|Envoi des reçus…|Enviando recibos…|Enviando recibos…
+822|Sections des paramètres|Secciones de configuración|Seções de configurações
+823|Afficher tous les comptes|Mostrar todas las cuentas|Mostrar todas as contas
+824|Mot de passe de départ|Contraseña inicial|Senha inicial
+825|Solde du relevé|Saldo del estado de cuenta|Saldo da fatura
+826|Arrêter MoneyThistle|Detener MoneyThistle|Parar o MoneyThistle
+827|Où trouver les choses :|Dónde están las cosas:|Onde estão as coisas:
+828|Quel environnement|Qué entorno|Qual ambiente
+829|Vos comptes : {}|Tus cuentas: {}|Suas contas: {}
+830|dans le registre (|en el registro (|no extrato (
+831|minutes. Gardez le|minutos. Conserva el|minutos. Mantenha o
+832|salaire brut manquant|falta el sueldo bruto|falta o salário bruto
+833|manquant : Medicare|falta: Medicare|falta: Medicare
+834|paiement dû le {}|pago con vencimiento el {}|pagamento com vencimento em {}
+835|le dossier des sauvegardes|la carpeta de respaldos|a pasta de backups
+836|avec {} reçu{}|con {} recibo{}|com {} recibo{}
+837|{} (partagé par {})|{} (compartida por {})|{} (compartilhada por {})
+838|{} après ceci : {}|{} después de esto: {}|{} depois disto: {}
+839|{} au-delà de la limite|{} por encima del límite|{} acima do limite
+840|{} · partagé par {}|{} · compartida por {}|{} · compartilhada por {}
+841|« Bientôt dû » à l'accueil|"Por vencer" en el inicio|"Vence em breve" no início
+842|(dernier : {}, {})|(último: {}, {})|(último: {}, {})
+843|({} déjà là)|({} ya están)|({} já estão lá)
+844|À propos de MoneyThistle|Acerca de MoneyThistle|Sobre o MoneyThistle
+845|Ajouter comme nouvelle écriture|Agregar como movimiento nuevo|Adicionar como novo lançamento
+846|Ajouter à l'écran d'accueil|Agregar a la pantalla de inicio|Adicionar à tela inicial
+847|Ajouté après impôts :|Agregado después de impuestos:|Adicionado após impostos:
+848|Approuver la connexion|Aprobar la conexión|Aprovar a conexão
+849|Porté au compte ce mois-ci|Cargado este mes|Cobrado este mês
+850|Choisissez la sauvegarde :|Elige el respaldo:|Escolha o backup:
+851|Relier un compte|Conectar una cuenta|Conectar uma conta
+852|Personne-ressource ou adresse|Contacto o dirección|Contato ou endereço
+853|Supprimer cette sauvegarde|Eliminar este respaldo|Excluir este backup
+854|Chaque compte a une|Cada cuenta tiene una|Cada conta tem uma
+855|Inscrivez ce qui se passe|Registra lo que pasa|Registre o que acontece
+856|Entiercement par paiement|Depósito en garantía por pago|Caução por pagamento
+857|Impôt fédéral sur le revenu|Impuesto federal sobre la renta|Imposto de renda federal
+858|Date du premier paiement|Fecha del primer pago|Data do primeiro pagamento
+859|Signaler si incomplet|Marcar si está incompleto|Sinalizar se incompleto
+860|Remonter plus loin|Ir más atrás|Voltar mais
+861|Dans Nextcloud, ouvrez|En Nextcloud, abre|No Nextcloud, abra
+862|La dernière sauvegarde a échoué|Falló el último respaldo|O último backup falhou
+863|Déplacer des comptes de|Mover cuentas de|Mover contas de
+864|Nouveau mot de passe (encore)|Nueva contraseña otra vez|Nova senha novamente
+865|Nextcloud / WebDAV|Nextcloud / WebDAV|Nextcloud / WebDAV
+866|Aucune connexion encore|Aún no hay conexiones|Nenhuma conexão ainda
+867|Aucune opération{}.|No hay movimientos{}.|Nenhum lançamento{}.
+868|Nombre de paiements|Número de pagos|Número de pagamentos
+869|Notre compte chèques conjoint|Nuestra cuenta conjunta|Nossa conta conjunta
+870|Paies à vérifier|Pagos de nómina por revisar|Salários a verificar
+871|Paiement dû le jour|Pago vence el día|Pagamento vence no dia
+872|Reçus et fichiers|Recibos y archivos|Recibos e arquivos
+873|Renommer l'environnement|Renombrar entorno|Renomear ambiente
+874|Enregistrer les notifications|Guardar notificaciones|Salvar notificações
+875|Définir un nouveau mot de passe|Establecer una contraseña nueva|Definir uma nova senha
+876|Tout est affiché|Mostrando todo|Mostrando tudo
+877|Démarrer MoneyThistle|Iniciar MoneyThistle|Iniciar o MoneyThistle
+878|Solde du relevé :|Saldo del estado de cuenta:|Saldo da fatura:
+879|Sommaire fiscal {}|Resumen fiscal {}|Resumo fiscal {}
+880|C'est une paie|Es un pago de nómina|É um salário
+881|Deux fois par mois (24)|Dos veces al mes (24)|Duas vezes por mês (24)
+882|Que faire avec {}|Qué hacer con {}|O que fazer com {}
+883|Où les garder|Dónde guardarlos|Onde guardá-los
+884|Qui dépose l'argent?|¿Quién deposita el dinero?|Quem deposita o dinheiro?
+885|ne sont jamais compensés.|nunca se concilian.|nunca são compensados.
+886|doit être rempli.|debe llenarse.|precisa ser preenchido.
+887|sous une nouvelle écriture,|como un movimiento nuevo,|como um novo lançamento,
+888|{} fichier{} joint|{} archivo{} adjunto|{} arquivo{} anexado
+889|✎ Modifier l'opération|✎ Editar movimiento|✎ Editar lançamento
+890|(s'il est chiffré)|(si está cifrado)|(se estiver criptografado)
+891|+ ajouté après impôts|+ agregado después de impuestos|+ adicionado após impostos
+892|Une nouvelle installation affiche|Una instalación nueva muestra|Uma instalação nova mostra
+893|Compte dans le fichier|Cuenta en el archivo|Conta no arquivo
+894|Ajouter les détails du talon de paie|Agregar detalles del recibo de nómina|Adicionar detalhes do holerite
+895|Tous mes environnements|Todos mis entornos|Todos os meus ambientes
+896|Tous les éléments prévus|Todos los elementos programados|Todos os itens agendados
+897|Entre ces dates|Entre estas fechas|Entre estas datas
+898|Par éléments prévus :|Por elementos programados:|Por itens agendados:
+899|Personnaliser l'accueil avec|Personaliza el inicio con|Personalize o início com

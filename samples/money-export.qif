@@ -1,0 +1,106 @@
+!Option:AutoSwitch
+!Account
+NMain Checking
+TBank
+^
+NStore Card
+TCCard
+^
+NVacation Savings
+TBank
+^
+!Clear:AutoSwitch
+!Type:Cat
+NGroceries
+DFood at home
+E
+^
+NSalary
+I
+^
+NHome:Repairs
+E
+^
+!Account
+NMain Checking
+TBank
+^
+!Type:Bank
+D1/1'26
+U1,000.00
+T1,000.00
+CX
+POpening Balance
+L[Main Checking]
+^
+D1/5'26
+U-82.15
+T-82.15
+C*
+PCorner Market
+LGroceries
+^
+D1/15'26
+U2,400.00
+T2,400.00
+PSample Employer
+LSalary
+^
+D1/20'26
+U-300.00
+T-300.00
+PTransfer to savings
+L[Vacation Savings]
+^
+D1/25'26
+U-120.00
+T-120.00
+PStore Card payment
+L[Store Card]
+^
+D1/28'26
+U-150.00
+T-150.00
+PHardware Barn
+LHome:Repairs
+SHome:Repairs
+EPaint
+$-100.00
+SGroceries
+ESnacks
+$-50.00
+^
+!Account
+NStore Card
+TCCard
+^
+!Type:CCard
+D1/1'26
+U-200.00
+T-200.00
+POpening Balance
+L[Store Card]
+^
+D1/10'26
+U-45.00
+T-45.00
+PCorner Market
+LGroceries
+^
+D1/25'26
+U120.00
+T120.00
+PPayment
+L[Main Checking]
+^
+!Account
+NVacation Savings
+TBank
+^
+!Type:Bank
+D1/20'26
+U300.00
+T300.00
+PTransfer from checking
+L[Main Checking]
+^

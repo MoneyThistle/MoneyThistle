@@ -1,0 +1,218 @@
+# catalog number|French (Canada)|Spanish (Latin America)|Portuguese (Brazil); empty = stays in English
+1659|Mettre fin|Terminar|Encerrar
+1660|Journal|Registro|Log
+1661|Windows|Windows|Windows
+1662|Sombre|Oscuro|Escuro
+1663|Terminé|Listo|Pronto
+1664|Envoyé|Enviado|Enviado
+1665|Consulter|Ver|Ver
+1666|Clair|Claro|Claro
+1667|Photo|Foto|Foto
+1668|Dépensé|Gastado|Gasto
+1669|Aujourd'hui|Hoy|Hoje
+1670|≈ moy.|≈ prom.|≈ média
+1671|Inscrire…|Registrar…|Lançar…
+1672|Dossier|Carpeta|Pasta
+1673|Gotify|Gotify|Gotify
+1674|Payer à|Pagar a|Pagar para
+1675|un fichier|un archivo|um arquivo
+1676|configuré|configurado|configurado
+1677|⟳ auto|⟳ auto|⟳ auto
+1678|Modification|Editando|Editando
+1679|Payé à|Pagado a|Pago a
+1680|Quelqu'un|Alguien|Alguém
+1681|Démarré|Iniciado|Iniciado
+1682|À venir|Por venir|A vir
+1683|sous 0|bajo 0|abaixo de 0
+1684|− Dépensé|− Gastado|− Gasto
+1685|+ partagé|+ compartido|+ compartilhado
+1686|Payé|Pagado|Pago
+1687|Pushover|Pushover|Pushover
+1688|Reçu|Recibido|Recebido
+1689|Transfert|Transferencia|Transferência
+1690|aucun encore|ninguno aún|nenhum ainda
+1691|celui-ci|este|este
+1692|(affiché)|(a la vista)|(à vista)
+1693|Fichiers de l'application|Archivos de la app|Arquivos do app
+1694|Dernier :|Último:|Último:
+1695|Pas admin|No es admin|Não é admin
+1696|ce fichier|este archivo|este arquivo
+1697|cette fois|esta vez|desta vez
+1698|consultation seulement|solo lectura|só visualização
+1699|+ Reçu|+ Recibido|+ Recebido
+1700|Le mois dernier|El mes pasado|Mês passado
+1701|Rendre admin|Hacer admin|Tornar admin
+1702|Fonctionne en tant que|Corriendo como|Rodando como
+1703|Menu Démarrer|Menú Inicio|Menu Iniciar
+1704|arrivé dans|llegó a|chegou em
+1705|le dossier|la carpeta|a pasta
+1706|ils correspondent|coinciden|eles conferem
+1707|· employeur|· empleador|· empregador
+1708|⇄ Transfert|⇄ Transferencia|⇄ Transferência
+1709|(consultation seulement)|(solo lectura)|(só visualização)
+1710|Par devise|Por moneda|Por moeda
+1711|Dossier de données|Carpeta de datos|Pasta de dados
+1712|Au-delà du budget|Sobre el presupuesto|Acima do orçamento
+1713|non inscrit|no registrado|não lançado
+1714|ces fichiers|estos archivos|estes arquivos
+1715|ils diffèrent|son distintos|eles diferem
+1716|· chiffrée|· cifrado|· criptografado
+1717|De (payeur)|De (quién paga)|De (pagador)
+1718|Comment ça marche|Cómo funciona|Como funciona
+1719|Autres endroits|Otros lugares|Outros lugares
+1720|Arrêter le partage|Dejar de compartir|Parar de compartilhar
+1721|Qui vous a payé|Quién te pagó|Quem pagou você
+1722|à choisir|por elegir|a escolher
+1723|pour le changer|para cambiarlo|para alterar
+1724|(ce qui reste)|(lo que queda)|(o que sobra)
+1725|Fichier et note|Archivo y nota|Arquivo e observação
+1726|Paiements de prêt|Pagos de préstamo|Pagamentos de empréstimo
+1727|Sauvegardes locales|Respaldos locales|Backups locais
+1728|Éléments en retard|Elementos vencidos|Itens atrasados
+1729|Remboursement|Reembolso|Reembolso
+1730|SSL/TLS (465)|SSL/TLS (465)|SSL/TLS (465)
+1731|Passer la visite|Saltar el recorrido|Pular o tour
+1732|À quoi ça sert|Para qué es|Para que é
+1733|Où ça va|A dónde va|Para onde vai
+1734|Votre clé d'utilisateur|Tu clave de usuario|Sua chave de usuário
+1735|après les changements|después de cambios|após alterações
+1736|déjà là|ya está|já está lá
+1737|non prévu|no programado|não agendado
+1738|Permettre l'inscription|Permitir registrar|Permitir lançar
+1739|12 derniers mois|Últimos 12 meses|Últimos 12 meses
+1740|Mettre en consultation seulement|Hacer solo lectura|Tornar só visualização
+1741|Plus récentes d'abord ▲|Más recientes primero ▲|Mais recentes primeiro ▲
+1742|Aucune encore.|Ninguno todavía.|Nenhum ainda.
+1743|Plus anciennes d'abord ▼|Más antiguos primero ▼|Mais antigos primeiro ▼
+1744|STARTTLS (587)|STARTTLS (587)|STARTTLS (587)
+1745|Faites-moi visiter|Muéstrame|Me mostre
+1746|Problèmes de sauvegarde|Problemas de respaldo|Problemas de backup
+1747|Catégorie de revenu|Categoría de ingreso|Categoria de receita
+1748|Nouvelle opération|Movimiento nuevo|Novo lançamento
+1749|Partager aussi les factures|Compartir también las facturas|Compartilhar as contas também
+1750|revenus prévus|ingresos previstos|receitas previstas
+1751|Montant parti|Monto que salió|Valor que saiu
+1752|Facture (argent qui sort)|Factura (dinero que sale)|Conta (dinheiro saindo)
+1753|Rien ne correspond.|Nada coincide.|Nada corresponde.
+1754|pas encore accepté|aún no aceptado|ainda não aceito
+1755|dépenses prévues|gastos previstos|gastos previstos
+1756|redémarrer pour appliquer|reinicia para aplicar|reinicie para aplicar
+1757|cette opération|este movimiento|este lançamento
+1758|(une catégorie principale)|(una categoría principal)|(uma categoria principal)
+1759|(le prêteur le garde)|(lo tiene el prestamista)|(o credor guarda)
+1760|Jeton d'application|Token de aplicación|Token do aplicativo
+1761|Catégories de revenus|Categorías de ingresos|Categorias de receitas
+1762|Comme ce navigateur|Como este navegador|Como este navegador
+1763|Comme cet appareil|Como este dispositivo|Como este dispositivo
+1764|Estimation de départ|Estimación inicial|Estimativa inicial
+1765|menu des applications|menú de aplicaciones|menu de aplicativos
+1766|dans le menu Démarrer|en el menú Inicio|no menu Iniciar
+1767|, inscrit pour vous|, registrado por ti|, lançado para você
+1768|Créer et se connecter|Crear e iniciar sesión|Criar e entrar
+1769|Dépôt (argent qui entre)|Depósito (dinero que entra)|Depósito (dinheiro entrando)
+1770|Catégories de dépenses|Categorías de gastos|Categorias de despesas
+1771|Plus que prévu|Más de lo previsto|Mais que o previsto
+1772|Arrêter de partager les factures|Dejar de compartir las facturas|Parar de compartilhar as contas
+1773|montant pas encore fixé|monto aún sin definir|valor ainda não definido
+1774|gardé par le prêteur|lo tiene el prestamista|fica com o credor
+1775|Magasin, personne, facture…|Tienda, persona, factura…|Loja, pessoa, conta…
+1776|(tout est détaillé)|(todo detallado)|(tudo detalhado)
+1777|Ajoutez une photo ou un PDF.|Agrega una foto o un PDF.|Adicione uma foto ou um PDF.
+1778|Se fait automatiquement|Sucede automáticamente|Acontece automaticamente
+1779|(8 caractères ou plus)|(8 caracteres o más)|(8 caracteres ou mais)
+1780|les nouveaux éléments sont ajoutés à|los elementos nuevos se agregan a|os itens novos são adicionados a
+1781|seulement cet ordinateur maintenant|solo esta computadora ahora|só este computador agora
+1782|encore. Tapez-en un ci-dessous|todavía. Escribe uno abajo|ainda. Digite um abaixo
+1783|votre propre serveur Gotify|tu propio servidor Gotify|seu próprio servidor Gotify
+1784|(marqué complet tel quel)|(marcado como completo así)|(marcado como completo assim)
+1785|(enregistré, tapez pour changer)|(guardado, escribe para cambiarlo)|(salvo, digite para alterar)
+1786|Jeton d'accès (facultatif)|Token de acceso (opcional)|Token de acesso (opcional)
+1787|Déductions et dépenses|Deducciones y gastos|Deduções e despesas
+1788|Aucune (relais local seulement)|Ninguno (solo relé local)|Nenhum (só retransmissão local)
+1789|Relevés de carte à inscrire|Estados de cuenta de tarjeta por registrar|Faturas de cartão a lançar
+1790|Inclut les comptes partagés|Incluye cuentas compartidas|Inclui contas compartilhadas
+1791|ouvert à votre réseau maintenant|abierto a tu red ahora|aberto à sua rede agora
+1792|(ou redémarrez l'ordinateur)|(o reinicia la computadora)|(ou reinicie o computador)
+1793|, ou redémarrez l'ordinateur|, o reinicia la computadora|, ou reinicie o computador
+1794|p. ex. garantie 2 ans, impôts|p. ej. garantía 2 años, impuestos|ex.: garantia 2 anos, impostos
+1795|aucune catégorie de ce nom|no hay categoría con ese nombre|nenhuma categoria com esse nome
+1796|(ce qui n'est pas détaillé ci-dessus)|(lo que no se detalla arriba)|(o que não está detalhado acima)
+1797|Déplacé entre vos comptes|Movido entre tus cuentas|Movido entre suas contas
+1798|Fonctionne seulement sur cet ordinateur|Solo funciona en esta computadora|Só funciona neste computador
+1799|enregistré (laissez vide pour garder)|guardado (déjalo vacío para conservarlo)|salvo (deixe vazio para manter)
+1800|Tout (usage général)|Todo (uso general)|Tudo (uso geral)
+1801|Consultation d'une opération : choisissez|Viendo un movimiento: elige|Vendo um lançamento: escolha
+1802|, déchiffrée avec le mot de passe,|, descifrado con la contraseña,|, descriptografado com a senha,
+1803|Passe sous zéro pendant cette période|Baja de cero en este periodo|Fica abaixo de zero neste período
+1804|Rien ne correspond à ces filtres.|Nada coincide con estos filtros.|Nada corresponde a estes filtros.
+1805|Quelque chose ici est rempli|Algo aquí tiene datos|Algo aqui está preenchido
+1806|(ajouté au prochain démarrage)|(se agrega la próxima vez que inicie)|(adicionado na próxima vez que iniciar)
+1807|Inscrit dans son propre environnement|Registrado en su propio entorno|Lançado no próprio ambiente
+1808|peut consulter et inscrire des opérations|puede ver y registrar movimientos|pode ver e lançar
+1809|changements en attente de la prochaine sauvegarde|cambios esperando el próximo respaldo|alterações aguardando o próximo backup
+1810|chaque élément indique son environnement|cada elemento muestra su entorno|cada item mostra seu ambiente
+1811|par le serveur de courriel partagé|por el servidor de correo compartido|pelo servidor de e-mail compartilhado
+1812|· avec ses factures et dépôts|· con sus facturas y depósitos|· com suas contas e depósitos
+1813|, ou la date du paiement si vide|, o la fecha de pago si está vacío|, ou a data do pagamento se vazio
+1814|- moi, un autre de mes environnements|- yo, otro de mis entornos|- eu, outro dos meus ambientes
+1815|Éléments automatiques inscrits pour vous|Elementos automáticos registrados por ti|Itens automáticos lançados para você
+1816|Non comptées (pas encore de taux approximatif) :|No se cuentan (aún sin tipo de cambio aproximado):|Não contadas (ainda sem cotação aproximada):
+1817|Cette copie ne peut pas configurer de démarrage.|Esta copia no puede configurar el inicio.|Esta cópia não pode configurar a inicialização.
+1818|, ou reconnectez-vous à l'ordinateur|, o vuelve a iniciar sesión en la computadora|, ou entre de novo no computador
+1819|Chiffrée avec le mot de passe de sauvegarde|Cifrado con la contraseña de respaldo|Criptografado com a senha do backup
+1820|Chaque catégorie du budget est dans les limites.|Todas las categorías del presupuesto van bien.|Todas as categorias do orçamento estão em dia.
+1821|Mot de passe (un mot de passe d'application est idéal)|Contraseña (lo mejor es una de aplicación)|Senha (o ideal é uma senha de aplicativo)
+1822|Fixé par le calendrier des paiements du prêt|Lo define el calendario de pagos del préstamo|Definido pelo cronograma do empréstimo
+1823|(rien de détaillé encore : c'est correct)|(nada detallado aún: está bien)|(nada detalhado ainda: tudo bem)
+1824|, y compris les comptes partagés avec vous|, incluidas las cuentas compartidas contigo|, inclusive contas compartilhadas com você
+1825|Aucune facture ni dépôt prévu encore.|Aún no hay facturas ni depósitos programados.|Nenhuma conta ou depósito agendado ainda.
+1826|les opérations n'auront pas de catégorie.|los movimientos quedarán sin categoría.|os lançamentos ficarão sem categoria.
+1827|Quand sauvegarder et combien en garder|Cuándo respaldar y cuántos conservar|Quando fazer backup e quantos manter
+1828|Rempli avec votre estimation de départ.|Llenado con tu estimación inicial.|Preenchido com sua estimativa inicial.
+1829|p. ex. télé Costco, garantie, série 12345|p. ej. TV Costco, garantía, serie 12345|ex.: TV Costco, garantia, série 12345
+1830|Montant variable : moyenne des paiements passés|Monto variable: promedio de pagos anteriores|Valor variável: média dos pagamentos anteriores
+1831|capital, intérêts et entiercement ensemble|capital, intereses y depósito en garantía juntos|principal, juros e caução juntos
+1832|L'autre compte est dans une autre devise|La otra cuenta está en otra moneda|A outra conta está em outra moeda
+1833|Fonctionne depuis les autres appareils de votre réseau|Funciona desde otros dispositivos de tu red|Funciona de outros dispositivos da sua rede
+1834|par le serveur SMTP de votre fournisseur de courriel|por el servidor SMTP de tu proveedor de correo|pelo servidor SMTP do seu provedor de e-mail
+1835|Se fait automatiquement (vous l'inscrivez quand même)|Sucede automáticamente (igual lo registras tú)|Acontece automaticamente (você ainda lança)
+1836|Laissez vide pour garder le solde actuel.|Déjalo vacío para conservar el saldo actual.|Deixe vazio para manter o saldo atual.
+1837|Aucun compte payeur défini : inscrivez les paiements avec|No hay cuenta de pago definida: registra los pagos con|Nenhuma conta pagadora definida: registre os pagamentos com
+1838|Entrez le solde du relevé de cette carte|Ingresa el saldo del estado de cuenta de esta tarjeta|Digite o saldo da fatura deste cartão
+1839|pas de courriel : ne peut pas recevoir de lien « mot de passe oublié »|sin correo: no puede recibir un enlace de "olvidé mi contraseña"|sem e-mail: não pode receber um link de "esqueci a senha"
+1840|Factures, paiements de prêt et paiements de carte de crédit.|Facturas, pagos de préstamo y pagos de tarjeta de crédito.|Contas, pagamentos de empréstimo e de cartão de crédito.
+1841|(aucune facture ni dépôt prévu pour ce compte)|(no hay facturas ni depósitos programados para esta cuenta)|(nenhuma conta ou depósito agendado para esta conta)
+1842|(les 500 plus récents : précisez la recherche pour voir les autres)|(los 500 más recientes: afina la búsqueda para ver otros)|(os 500 mais recentes: refine a pesquisa para ver outros)
+1843|Comptes prévus sous zéro (14 prochains jours)|Cuentas que bajarán de cero (próximos 14 días)|Contas previstas abaixo de zero (próximos 14 dias)
+1844|Approximatif : autres devises à vos taux approximatifs|Aproximado: otras monedas a tus tipos de cambio aproximados|Aproximado: outras moedas pelas suas cotações aproximadas
+1845|pushover.net : créez une application pour obtenir son jeton|pushover.net: crea una aplicación para obtener su token|pushover.net: crie um aplicativo para obter o token
+1846|, avec ses factures et dépôts prévus|, junto con sus facturas y depósitos programados|, junto com suas contas e depósitos agendados
+1847|Planifiez une facture ou un dépôt avec les boutons ci-dessus.|Programa una factura o depósito con los botones de arriba.|Agende uma conta ou depósito com os botões acima.
+1848|Tout ce qui a été payé jusqu'ici est dans ce qui était prévu.|Todo lo pagado hasta ahora está dentro de lo previsto.|Tudo o que foi pago até agora está dentro do previsto.
+1849|ntfy.sh ou votre propre serveur; choisissez un sujet difficile à deviner|ntfy.sh o tu propio servidor; elige un tema difícil de adivinar|ntfy.sh ou seu próprio servidor; escolha um tópico difícil de adivinhar
+1850|Inscrit automatiquement à partir d'un élément prévu automatique|Registrado automáticamente desde un elemento programado automático|Lançado automaticamente a partir de um item agendado automático
+1851|Cette copie a été démarrée d'une façon qui ne peut pas se redémarrer.|Esta copia se inició de una forma que no puede reiniciarse sola.|Esta cópia foi iniciada de um jeito que não consegue se reiniciar.
+1852|Ajoutez une catégorie de ce nom sous Catégories pour la compter|Agrega una categoría con este nombre en Categorías para contarla|Adicione uma categoria com este nome em Categorias para contá-la
+1853|Se fait automatiquement; MoneyThistle l'inscrit à sa date|Sucede automáticamente; MoneyThistle lo registra en su fecha|Acontece automaticamente; o MoneyThistle lança na data
+1854|Défini au démarrage de MoneyThistle (--host); changez-le là.|Se definió al iniciar MoneyThistle (--host); cámbialo ahí.|Definido ao iniciar o MoneyThistle (--host); altere lá.
+1855|Ajoutez une photo du reçu, ou un PDF (une facture, un relevé).|Agrega una foto del recibo, o un PDF (una factura, un estado de cuenta).|Adicione uma foto do recibo, ou um PDF (uma nota, um extrato).
+1856|Applique les fichiers mis à jour : il enregistre, sauvegarde au besoin et redémarre.|Aplica los archivos actualizados: guarda, respalda si hace falta y vuelve a iniciar.|Aplica os arquivos atualizados: salva, faz backup se preciso e reinicia.
+1857|Salaires, intérêts, dividendes et autres revenus dans les catégories liées aux impôts.|Sueldos, intereses, dividendos y otros ingresos en categorías de impuestos.|Salários, juros, dividendos e outras receitas em categorias de impostos.
+1858|Dans Docker : les autres appareils le joignent à l'adresse et au port du serveur.|En Docker: otros dispositivos lo alcanzan en la dirección y el puerto del servidor.|No Docker: outros dispositivos o acessam no endereço e na porta do servidor.
+1859|Copiez les nouveaux fichiers dans le dossier de l'application sur le serveur, puis redémarrez pour les utiliser.|Copia los archivos nuevos a la carpeta de la app en el servidor y reinicia para usarlos.|Copie os arquivos novos para a pasta do app no servidor e reinicie para usá-los.
+1860|les changements se font dans l'environnement propre à chaque élément (en choisir un y passe)|los cambios se hacen en el entorno propio de cada elemento (elegir uno cambia a ese)|as alterações são feitas no ambiente de cada item (escolher um muda para ele)
+1861|les lignes de même catégorie s'additionnent. Pour changer les montants, passez à un seul environnement|las líneas con la misma categoría se suman. Para cambiar montos, cambia a un solo entorno|linhas com a mesma categoria se somam. Para alterar valores, mude para um só ambiente
+1862|Inclut les comptes partagés avec vous, comptés sous vos catégories du même nom.|Incluye cuentas compartidas contigo, contadas en tus categorías del mismo nombre.|Inclui contas compartilhadas com você, contadas nas suas categorias de mesmo nome.
+1863|Frais médicaux, dons de bienfaisance, impôts payés, intérêts hypothécaires et autres dépenses liées aux impôts.|Gastos médicos, donativos, impuestos pagados, intereses hipotecarios y otros gastos de impuestos.|Despesas médicas, doações, impostos pagos, juros de financiamento imobiliário e outros gastos de impostos.
+1864|Transferts vers l'épargne et autres : pas des dépenses, donc exclus des totaux ci-dessus.|Transferencias a ahorros y similares: no son gastos, así que quedan fuera de los totales de arriba.|Transferências para poupança e afins: não são gastos, então ficam fora dos totais acima.
+1865|Une différence veut souvent dire que quelque chose n'est pas encore inscrit, ou que le solde d'ouverture doit être vérifié.|Una diferencia suele significar que falta registrar algo, o que hay que revisar el saldo inicial.|Uma diferença geralmente quer dizer que algo ainda não foi lançado, ou que o saldo inicial precisa de revisão.
+1866|Vérifiez le montant réellement arrivé : il est utilisé tel quel, sans chercher de taux de change.|Revisa el monto que realmente llegó: se usa tal cual, sin buscar ningún tipo de cambio.|Confira o valor que realmente chegou: ele é usado como está, sem buscar cotação.
+1867|Il ne démarre plus ainsi : il continue de tourner jusqu'à ce que vous l'arrêtiez ou redémarriez l'ordinateur.|Ya no inicia así: sigue corriendo hasta que lo apagues o reinicies la computadora.|Ele não inicia mais assim: continua rodando até você desligá-lo ou reiniciar o computador.
+1868|mettez l'adresse réseau en favori sur votre téléphone ou d'autres ordinateurs (réseau domestique ou Tailscale seulement)|guarda la dirección de red como marcador en tu teléfono u otras computadoras (solo red de casa o Tailscale)|salve o endereço de rede como favorito no celular ou em outros computadores (só rede de casa ou Tailscale)
+1869|Aucun fichier encore. Joignez un reçu à une écriture (Reçus), ou gardez des papiers avec un compte (Papiers).|Aún no hay archivos. Adjunta un recibo a un movimiento (Recibos), o guarda documentos con una cuenta (Documentos).|Nenhum arquivo ainda. Anexe um recibo a um lançamento (Recibos), ou guarde documentos com uma conta (Documentos).
+1870|Redémarre l'application. Dans ce conteneur, les nouvelles versions exigent de reconstruire l'image (le script d'installation le fait).|Reinicia la app. En este contenedor, las versiones nuevas necesitan reconstruir la imagen (lo hace el script de instalación).|Reinicia o app. Neste contêiner, versões novas exigem reconstruir a imagem (o script de instalação faz isso).
+1871|Ça couvre les environnements dont vous faites partie. Utilisez vos propres services et identifiants; ils sont gardés pour vous seul.|Cubre los entornos en los que estás. Usa tus propios servicios y credenciales; se guardan solo para ti.|Cobre os ambientes em que você está. Use seus próprios serviços e credenciais; eles ficam só para você.
+1872|Rien à appliquer pour l'instant : tout le monde peut redémarrer quand une mise à jour attend; sinon, un administrateur le peut.|Nada que aplicar ahora: cualquiera puede reiniciar cuando hay una actualización esperando; en otros momentos, un administrador.|Nada a aplicar agora: qualquer um pode reiniciar quando há uma atualização esperando; fora disso, um administrador pode.
+1873|Cette configuration est celle des administrateurs et couvre chaque environnement; les autres configurent la leur ici, pour leurs environnements.|Esta configuración es la de los administradores y cubre todos los entornos; los demás configuran la suya aquí, para sus entornos.|Esta configuração é a dos administradores e cobre todos os ambientes; os outros configuram a sua aqui, para os ambientes deles.
+1874|cette adresse ne fonctionne que sur cet ordinateur; pour votre téléphone, activez « Autres appareils » dans les Paramètres (puis redémarrez), ou faites tourner MoneyThistle sur votre serveur|esta dirección solo funciona en esta computadora; para tu teléfono, activa "Otros dispositivos" en Configuración (y reinicia), o ejecuta MoneyThistle en tu servidor|este endereço só funciona neste computador; para o celular, ative "Outros dispositivos" em Configurações (e reinicie), ou rode o MoneyThistle no seu servidor
+1875|Une différence peut être un relevé pas encore inscrit, un paiement fait l'année suivante pour les achats de cette année, ou une dépense sur la carte qui n'était pas pour le HSA.|Una diferencia puede ser un estado de cuenta no registrado, un pago hecho el año siguiente por cargos de este año, o un gasto con la tarjeta que no era para la HSA.|Uma diferença pode ser uma fatura não lançada, um pagamento feito no ano seguinte por compras deste ano, ou um gasto no cartão que não era para a HSA.

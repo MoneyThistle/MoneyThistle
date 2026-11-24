@@ -1,0 +1,87 @@
+# Mechanics sheet
+
+What was read from the original (Money Plus Deluxe "Sunset" installer) and how this rebuild uses it.
+The target file is an IExpress installer; the program files sit in its `CABINET` resource
+(evidence ev_7b7054d3…). They were unpacked to a temporary folder and read there.
+
+## Backups (mnyob99.dll)
+
+| Rule | Value in the original | Where | This rebuild |
+|---|---|---|---|
+| Back up when the program closes | on by default | `FUN_242a8afc` 0x242a8afc (field 0 = 1) | "Back up after I make changes": runs once the app has been idle after a change (default 5 min, **estimated**, a server never "closes") and when the container stops (SIGTERM) |
+| Copies kept of close-time backups | 3 | 0x242a8afc (field 4 = 3) | `keep_change` = 3 |
+| Compress backup files | on | 0x242a8afc (fields 3 and 9 = 1) | gzip, on by default |
+| Scheduled backup | on | 0x242a8afc (field 5 = 1 unless feature set 10 == 5) | `scheduled` = on |
+| Days between scheduled backups | 14 | 0x242a8afc (field 6 = 0xE) | `interval_days` = 14 |
+| Allowed range for days | 1..99 | `FUN_242a92b5` 0x242a92b5 (`GetBarneyInt(L"BackupFDInterval",…,1,99)`) and obres.dll message "Please enter a number between 1 and 99." | same, same wording |
+| Copies kept of scheduled backups | 3 (range 1..99) | 0x242a8afc (field 10 = 3); obres.dll message for 1..99 | `keep_scheduled` = 3 |
+| Last scheduled backup | "never" at start | 0x242a8afc (`SetState(…,2)`) | `last_scheduled` = null |
+| Days since last scheduled backup | -1 when never, 0 when today, else today − last | `FUN_242a3f17` 0x242a3f17 | `days_since_scheduled()` |
+| Order when it runs | close-time backup first, then scheduled if days == -1 or days ≥ interval; then stamp today | `BackupOnDemand` 0x242a83db | `BackupManager.due()` / `run()` |
+| Older backups kept | none beyond the 3 + 3 above | — | **Added on request** (not in the original): also the last backup of each of the latest `keep_daily` = 7 days, `keep_weekly` = 4 weeks and `keep_monthly` = 12 months that have one (`keep_plan()`); 0 turns a tier off. Three busy-day backups can no longer push out yesterday's. Manual backups are never deleted. |
+
+Destinations: the original wrote to a hard-drive path or floppy. This rebuild writes to a folder
+(Docker volume `/backups`) and/or a WebDAV folder (Nextcloud, ownCloud, Synology, Box…), as asked.
+Restore makes a safety copy of the current file first (the original warned that changes since the
+backup are lost: obres.dll "If you restore this backup file, you'll lose any changes…").
+
+## Categories (obres.dll category table, "Espresso Comment: Income and Expense Categories")
+
+Flags in the table: `-` subcategory, `*` tax related, `+` added to the default budget,
+`?n` tax form line, `&` short-list category. The US entries (international placeholders left out)
+are in `moneyapp/defaults.py` with their tax and budget flags. "Not an Expense" is kept as a special
+category that reports leave out.
+
+## Account types (obres.dll 0x32a47188…)
+
+Asset, Cash, Checking, Credit Card, Investment, Liability, Line of Credit, Loan, Other, Retirement,
+Savings. Credit Card, Line of Credit, Liability and Loan count as debts (balance stored negative).
+Investment accounts here hold a balance only; the original's security tracking and quotes are left
+out (they needed the online services).
+
+## Bill frequencies (obres.dll "End of Frequency listing")
+
+Daily, Weekly, Every other week, Twice a month, Every four weeks, Monthly, Every other month,
+Every three months, Twice a year, Yearly, Every other year, Only once.
+"Twice a month" = two dates 15 days apart (anchor day and anchor ± 15) — **estimated**, the exact
+rule was not decompiled. Monthly-type schedules keep their original day and clamp to the month end.
+
+## Other rules
+
+- A file holds at most 63 accounts in the original (obres.dll message). Not enforced here.
+- Payee fill-in: the last category and amount used with a payee are offered again (the original's
+  automatic fill-in idea; exact rules **estimated**).
+- Reconcile ("Balance account"): starting balance = opening balance + reconciled transactions;
+  finishing requires the difference to be zero (**estimated** from the original's workflow text).
+- Budget: follows the original's simple "Essential Budget", which leaves out transfers, loan
+  payments, one-time expenses and savings goals (obres.dll 0x32a16388, evidence ev_edf8904d…).
+  Monthly amount per category; a main category's actual includes subcategories that have no budget
+  line of their own (that roll-up is **estimated**).
+- Reports leave out transfers and "Not an Expense" (**estimated**).
+- Paychecks (the person's design, not the original's): take-home pay alone is enough. With gross
+  pay, Other deductions = gross + added after taxes − take-home − itemized deductions; it can't be
+  below $0. An employer's usual level comes from its latest 6 paychecks (take-home only / gross and
+  take-home / itemized). Flags: usually itemized → "$X not itemized" and usual deductions missing;
+  usually gross → only a missing gross pay; usually take-home only → never. "Complete as is" stops a flag.
+- Currencies (the person's design): each account keeps its own currency (USD default; Americas + EUR).
+  A transfer between two currencies stores what left and what arrived; no exchange rates are fetched.
+  Totals across currencies use rough rates typed in (1 unit ≈ rate × main currency), rounded to the
+  cent, marked approximate; a currency without a rate is left out of combined totals. The tax report
+  covers main-currency accounts only.
+- Category names per language (the person's design): a category is one category with an own name
+  and an optional name in each of English, French, Spanish and Portuguese; screens show the name in the
+  person's language, else the own name. The starting categories get all names once; entries are never
+  rewritten (they point at the category).
+- Paycheck savings (the person's point): a 401(k)/HSA deduction goes to that account when it's kept
+  in MoneyThistle, else to the expense category Savings & Investments (Retirement Plan, HSA/FSA).
+- Split direct deposit (the person's design): a paycheck lists each account it was deposited into with
+  the amount that landed there; take-home pay is their total (paystub or take-home only). The budget
+  counts the whole take-home pay, the schedule and its history what reached the scheduled account.
+- W-2 (the person's decision): not entered; the tax report's Pay section adds up the paystubs to be
+  compared with it (box 1 vs gross less pre-tax deductions; boxes 2, 4, 6 vs the taxes).
+- Scheduled split deposits: each other account is a linked scheduled deposit (own amount, set or
+  average of its own history), on the main one's dates, entered and skipped with it, listed with it.
+- Typed amounts: the last of "," and "." is the decimal mark when both appear; one alone is the decimal
+  mark unless exactly three digits follow (then it groups thousands).
+- Bank connectivity (OFX/online services) is left out on purpose. Files can be imported instead:
+  CSV and QIF.

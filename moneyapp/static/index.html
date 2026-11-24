@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoneyThistle · A Slightly Better Money App</title>
+<meta name="description" content="MoneyThistle: A Slightly Better Money App">
+<meta name="application-name" content="MoneyThistle">
+<meta name="theme-color" content="#12325f">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MoneyThistle">
+<link rel="stylesheet" href="/style.css">
+<script src="/theme-boot.js"></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/" id="brandHome" title="Go to Home" aria-label="MoneyThistle: go to Home" title="MoneyThistle · A Slightly Better Money App"><img class="logo" src="/brand/logo-64.png" srcset="/brand/logo-64.png 1x, /brand/logo-128.png 2x" alt="" width="36" height="36"><span translate="no"><span class="w-money">Money</span><span class="w-thistle">Thistle</span></span></a>
+  <button class="menubtn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="tabs"><span class="bars"></span><span class="mlabel">Menu</span></button>
+  <nav class="tabs" id="tabs">
+    <a href="#/home" data-tab="home">Home</a>
+    <a href="#/accounts" data-tab="accounts">Accounts</a>
+    <a href="#/bills" data-tab="bills">Bills &amp; Deposits</a>
+    <a href="#/budget" data-tab="budget">Budget</a>
+    <a href="#/reports" data-tab="reports">Reports</a>
+    <a href="#/files" data-tab="files" title="Receipts and papers: search by account, keyword, phrase or time">Files</a>
+    <a href="#/settings" data-tab="settings" title="Look, notifications, people, categories, backups, your data, this computer">Settings</a>
+    <a href="#/help" data-tab="help" title="Guides, questions and answers, and what words mean">Help</a>
+  </nav>
+  <div class="envbar" id="envbar"></div>
+  <div class="right" id="backupState"></div>
+</header>
+<main id="view"><div class="empty">Loading…</div></main>
+<footer id="where"></footer>
+<p class="license-note noprint"><a href="#/help/about">About MoneyThistle<span id="aboutVer"></span></a> · free software under the <a href="https://www.gnu.org/licenses/agpl-3.0.html" rel="noopener" target="_blank">GNU AGPL-3.0</a>,
+  with no warranty · <a href="/api/source.zip" title="The program files of exactly this copy, changes included (never your data)">Source code of this version</a></p>
+<a class="fab" id="quickFab" href="#/quick" title="Quick add" aria-label="Quick add: enter a transaction">+</a>
+<dialog id="dlg"><form method="dialog" id="dlgForm"><div class="dhead" id="dlgTitle"></div><div class="dbody" id="dlgBody"></div><div class="dfoot" id="dlgFoot"></div></form></dialog>
+<div id="toast"></div>
+<script src="/i18n.js"></script>
+<script src="/help.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

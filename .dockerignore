@@ -1,0 +1,11 @@
+data/
+backups/
+shots/
+tests/
+unraid/
+build/
+dist/
+installer/
+__pycache__/
+**/__pycache__/
+*.pyc

@@ -1,0 +1,563 @@
+# catalog number|French (Canada)|Spanish (Latin America)|Portuguese (Brazil); empty = stays in English
+900|Supprimer cette sauvegarde?|¿Eliminar este respaldo?|Excluir este backup?
+901|Environnement créé|Entorno creado|Ambiente criado
+902|Remplir le talon de paie|Llenar el recibo de nómina|Preencher o holerite
+903|Revenus et dépenses|Ingresos vs. gastos|Receitas x gastos
+904|Intérêts et croissance|Intereses y crecimiento|Juros e rendimento
+905|Les prévisions montrent|Lo que viene muestra|A previsão mostra
+906|Mensuel (12 par année)|Mensual (12 al año)|Mensal (12 por ano)
+907|Valeur nette dans le temps|Patrimonio neto en el tiempo|Patrimônio líquido ao longo do tempo
+908|Aucun environnement encore|Aún no hay entornos|Nenhum ambiente ainda
+909|Aucune question ne correspond.|Ninguna pregunta coincide.|Nenhuma pergunta corresponde.
+910|Aucune opération encore|Aún no hay movimientos|Nenhum lançamento ainda
+911|Notes et mots-clés :|Notas y palabras clave:|Observações e palavras-chave:
+912|Rien à afficher encore|Nada que mostrar todavía|Nada para mostrar ainda
+913|Notifications enregistrées|Notificaciones guardadas|Notificações salvas
+914|Paie (selon les talons)|Pago (de los recibos de nómina)|Salário (dos holerites)
+915|||
+916|Opérations récentes|Movimientos recientes|Lançamentos recentes
+917|Restaurer à partir d'un fichier|Restaurar desde un archivo|Restaurar de um arquivo
+918|Chercher bénéficiaire, note…|Buscar beneficiario, nota…|Pesquisar favorecido, observação…
+919|Configurer MoneyThistle|Configurar MoneyThistle|Configurar o MoneyThistle
+920|Paramètres → Sécurité|Configuración → Seguridad|Configurações → Segurança
+921|Salaire net|Sueldo neto|Salário líquido
+922|Opération (écriture)|Movimiento|Lançamento
+923|son mot de passe de sauvegarde|su contraseña de respaldo|a senha do backup
+924|||
+925|pour en afficher de nouveau.|para mostrar algunas de nuevo.|para mostrar algumas de novo.
+926|{} : {} opérations|{}: {} movimientos|{}: {} lançamentos
+927|{}{} (partagé par {})|{}{} (compartida por {})|{}{} (compartilhada por {})
+928|220,00 $ non détaillés|$220.00 sin detallar|R$ 220,00 não detalhados
+929|(pas une cotisation)|(no es una aportación)|(não é contribuição)
+930|, donc il compte dans {}|, así que cuenta en {}|, então conta em {}
+931|, sans aucune garantie ·|, sin ninguna garantía ·|, sem nenhuma garantia ·
+932|Adresse de cette application :|Dirección de esta aplicación:|Endereço deste aplicativo:
+933|Sauvegarder dans Nextcloud|Respaldar en Nextcloud|Fazer backup no Nextcloud
+934|||
+935|Compensé / Rapproché|Conciliado|Compensado / Conciliado
+936|Cartes de crédit et prêts|Tarjetas de crédito y préstamos|Cartões de crédito e empréstimos
+937|Remplir le talon de paie…|Llenar el recibo de nómina…|Preencher o holerite…
+938|Combien chaque mois?|¿Cuánto cada mes?|Quanto por mês?
+939|Revenus et dépenses :|Ingresos vs. gastos:|Receitas x gastos:
+940|Installer MoneyThistle|Instalar MoneyThistle|Instalar o MoneyThistle
+941|Prêt : Intérêts sur prêt|Préstamo : Intereses del préstamo|Empréstimo : Juros do empréstimo
+942|Les prévisions couvrent|Lo que viene cubre|A previsão cobre
+943|Valeur nette dans le temps :|Patrimonio neto en el tiempo:|Patrimônio líquido ao longo do tempo:
+944|Aucune opération encore.|Aún no hay movimientos.|Nenhum lançamento ainda.
+945|Rien ne correspond à « {} »|Nada coincide con "{}"|Nada corresponde a "{}"
+946|Imprimer ou enregistrer en PDF|Imprimir o guardar como PDF|Imprimir ou salvar em PDF
+947|Inscrire le salaire net|Registrar sueldo neto|Registrar salário líquido
+948|Redémarrer MoneyThistle|Reiniciar MoneyThistle|Reiniciar o MoneyThistle
+949|Redémarrer ou arrêter|Reiniciar o apagar|Reiniciar ou desligar
+950|Restaurer à partir d'un fichier…|Restaurar desde un archivo…|Restaurar de um arquivo…
+951|Enregistrer les détails du talon|Guardar detalles del recibo|Salvar detalhes do holerite
+952|Paies planifiées :|Pagos de nómina programados:|Salários agendados:
+953|Envoyer à (heure, 0-23)|Enviar a las (hora, 0-23)|Enviar às (hora, 0-23)
+954|Paramètres et mises à jour|Configuración y actualizaciones|Configurações e atualizações
+955|Leur montrer tout|Mostrarles todo|Mostrar tudo a eles
+956|Simple ou Tout|Simple o Todo|Simples ou Tudo
+957|Impôts : Impôt Medicare|Impuestos : Impuesto de Medicare|Impostos : Imposto Medicare
+958|Impôts et retenues|Impuestos y deducciones|Impostos e descontos
+959|Annulé ({} changement{})|Deshecho ({} cambio{})|Desfeito ({} alteração{})
+960|Où va l'argent|A dónde va el dinero|Para onde vai o dinheiro
+961|sauvegarde après changements|respaldo después de cambios|backup após alterações
+962|impôts et retenues|impuestos y deducciones|impostos e descontos
+963|en attente d'approbation|esperando aprobación|aguardando aprovação
+964|{}{} · demandé par {}{}|{}{} · pedido por {}{}|{}{} · pedido por {}{}
+965|(selon ce relevé)|(de este estado de cuenta)|(desta fatura)
+966|(réduit ce que vous devez)|(reduce lo que debes)|(reduz o que você deve)
+967|(sur un retrait) et|(en un retiro) y|(em um saque) e
+968|, l'argent qui sort est orange|, el dinero que sale es naranja|, o dinheiro que sai é laranja
+969|Accepter le compte partagé|Aceptar la cuenta compartida|Aceitar a conta compartilhada
+970|Ajouter un reçu ou un fichier|Agregar un recibo o archivo|Adicionar um recibo ou arquivo
+971|Ajouter les détails plus tard :|Agregar detalles después:|Adicionar detalhes depois:
+972|Un administrateur utilise|Un administrador usa|Um administrador usa
+973|Paramètres de sauvegarde enregistrés|Configuración de respaldo guardada|Configurações de backup salvas
+974|Historique des changements → Annuler|Historial de cambios → Deshacer|Histórico de alterações → Desfazer
+975|Modifier l'élément prévu|Cambiar elemento programado|Alterar item agendado
+976|Jour de fermeture / d'échéance|Día de corte / de pago|Dia de fechamento / vencimento
+977|Compresser les fichiers de sauvegarde|Comprimir archivos de respaldo|Compactar arquivos de backup
+978|Toutes les cartes sont masquées.|Todas las tarjetas están ocultas.|Todos os cartões estão ocultos.
+979|Aux deux mois (6)|Cada dos meses (6)|A cada dois meses (6)
+980|Aux deux semaines (26)|Cada dos semanas (26)|A cada duas semanas (26)
+981|Favori (en tête de liste)|Favorita (primero en la lista)|Favorita (primeiro na lista)
+982|Mot de passe oublié?|¿Olvidaste tu contraseña?|Esqueceu a senha?
+983|De votre environnement|De tu entorno|Do seu ambiente
+984|Historique de cette écriture|Historial de este movimiento|Histórico deste lançamento
+985|J'inscris chaque achat|Registro cada compra|Lanço cada compra
+986|J'ai oublié mon mot de passe.|Olvidé mi contraseña.|Esqueci minha senha.
+987|Dans Docker, c'est le|En Docker es el|No Docker, é o
+988|Taux d'intérêt (TAP %)|Tasa de interés (TAE %)|Taxa de juros (% a.a.)
+989|Gardé avec le compte|Guardado con la cuenta|Guardado com a conta
+990|Marqué complet tel quel|Marcado como completo así|Marcado como completo assim
+991|Monter ({} ce jour-là)|Subir ({} ese día)|Subir ({} nesse dia)
+992|Aucune sauvegarde encore. Cliquez|Aún no hay respaldos. Haz clic en|Nenhum backup ainda. Clique em
+993|Sur un téléphone, le bouton rond|En un teléfono, el botón redondo|No celular, o botão redondo
+994|Payer à / recevoir de|Pagar a / recibir de|Pagar para / receber de
+995|Personnes → Votre connexion|Personas → Tu acceso|Pessoas → Seu acesso
+996|Questions et réponses|Preguntas y respuestas|Perguntas e respostas
+997|Inscrire seulement le salaire net|Registrar solo el sueldo neto|Registrar só o salário líquido
+998|Démarrer et arrêter|Iniciar y detener|Iniciar e parar
+999|Adresse du dossier WebDAV|Dirección de la carpeta WebDAV|Endereço da pasta WebDAV
+1000|dans {} nouveau{} compte{}|en {} cuenta{} nueva{}|em {} conta{} nova{}
+1001|dernier jour du mois|último día del mes|último dia do mês
+1002|la plus récente de celles-ci.|la más reciente de estas.|o mais recente destes.
+1003|affiche les noms d'utilisateur.|muestra los nombres de usuario.|mostra os nomes de usuário.
+1004|(pour celles chiffrées 🔒)|(para los cifrados 🔒)|(para os criptografados 🔒)
+1005|(laisser leur propriétaire choisir)|(que elija su dueño)|(deixar o dono escolher)
+1006|(leur propriétaire le choisit)|(lo elige su dueño)|(o dono escolhe)
+1007|, modifiez-le et choisissez|, cámbialo y elige|, altere e escolha
+1008|, {} catégories à ajouter|, {} categorías por agregar|, {} categorias a adicionar
+1009|Ajouter une note ou des mots-clés|Agregar una nota o palabras clave|Adicionar observação ou palavras-chave
+1010|Ajouter les factures et dépôts|Agregar facturas y depósitos|Adicionar contas e depósitos
+1011|Catégories à ajouter ({})|Categorías por agregar ({})|Categorias a adicionar ({})
+1012|Catégorie ou transfert{}|Categoría o transferencia{}|Categoria ou transferência{}
+1013|Chèque / nº de confirmation|Cheque / nº de confirmación|Cheque / nº de confirmação
+1014|Choisir une photo ou un fichier|Elegir una foto o archivo|Escolher uma foto ou arquivo
+1015|Compter les achats comme|Contar las compras como|Contar as compras como
+1016|Inscrit ici et dans {}|Registrado aquí y en {}|Lançado aqui e em {}
+1017|Aux trois mois (4)|Cada tres meses (4)|A cada três meses (4)
+1018|Placements et biens|Inversiones y bienes|Investimentos e bens
+1019|Dernier rapprochement {} à {}|Última conciliación {} en {}|Última conciliação {} em {}
+1020|Dernier jour du mois :|Último día del mes:|Último dia do mês:
+1021|Prévisions : {} jours|Lo que viene: {} días|Previsão: {} dias
+1022|Aucun compte partagé encore|Aún no hay cuentas compartidas|Nenhuma conta compartilhada ainda
+1023|Non importé : {} {}.|No importado: {} {}.|Não importado: {} {}.
+1024|Paies et talons de paie|Pagos de nómina y recibos|Salários e holerites
+1025|Personnes qui peuvent se connecter|Personas que pueden iniciar sesión|Pessoas que podem entrar
+1026|Activité récente des sauvegardes|Actividad reciente de respaldos|Atividade recente de backups
+1027|Enregistrement et sauvegarde…|Guardando y respaldando…|Salvando e fazendo backup…
+1028|Arrêter MoneyThistle|Apagar MoneyThistle|Desligar o MoneyThistle
+1029|Date de fermeture du relevé|Fecha de corte|Data de fechamento da fatura
+1030|Retirer du budget|Quitar del presupuesto|Tirar do orçamento
+1031|Le maximum annuel pour|El máximo anual para|O máximo anual para
+1032|Où sont gardées mes données?|¿Dónde se guardan mis datos?|Onde meus dados ficam?
+1033|Vous versez (après impôts)|Tú aportas (después de impuestos)|Você deposita (após impostos)
+1034|Votre adresse Nextcloud|Tu dirección de Nextcloud|Seu endereço do Nextcloud
+1035|bouton (ou l'adresse|botón (o la dirección|botão (ou o endereço
+1036|sur la page d'un compte).|en la página de una cuenta).|na página de uma conta).
+1037|afficher, masquer et disposer|mostrar, ocultar y ordenar|mostrar, ocultar e organizar
+1038|le relevé ferme le {}|el corte es el {}|a fatura fecha em {}
+1039|pour faire la première.|para hacer el primero.|para fazer o primeiro.
+1040|{} paiements, {} par année|{} pagos, {} al año|{} pagamentos, {} por ano
+1041|− impôts et retenues|− impuestos y deducciones|− impostos e descontos
+1042|(10 caractères ou plus)|(10 caracteres o más)|(10 caracteres ou mais)
+1043|, dernier jour du mois|, último día del mes|, último dia do mês
+1044|Moyenne des {} derniers :|Promedio de los últimos {}:|Média dos últimos {}:
+1045|{} écritures importées{}|{} movimientos importados{}|{} lançamentos importados{}
+1046|Historique des changements et annulation|Historial de cambios y deshacer|Histórico de alterações e desfazer
+1047|Modifier cette opération|Cambiar este movimiento|Alterar este lançamento
+1048|Compensé et rapproché :|Conciliado:|Compensado e conciliado:
+1049|Cliquez l'écriture, choisissez|Haz clic en el movimiento, elige|Clique no lançamento, escolha
+1050|Supprimer cette opération|Eliminar este movimiento|Excluir este lançamento
+1051|Employeur (qui vous a payé)|Empleador (quién te pagó)|Empregador (quem pagou você)
+1052|Entrez le salaire net|Ingresa el sueldo neto|Digite o salário líquido
+1053|Dernier relevé : {}, {}.|Último estado de cuenta: {}, {}.|Última fatura: {}, {}.
+1054|Montant du prêt (capital)|Monto del préstamo (capital)|Valor do empréstimo (principal)
+1055|Descendre ({} ce jour-là)|Bajar ({} ese día)|Descer ({} nesse dia)
+1056|Rien de joint encore.{}|Nada adjunto todavía.{}|Nada anexado ainda.{}
+1057|Numéro, note et état|Número, nota y estado|Número, observação e situação
+1058|Ouvrez-le dans le navigateur.|Ábrelo en el navegador.|Abra no navegador.
+1059|Aperçu du résumé d'aujourd'hui|Vista previa del resumen de hoy|Prévia do resumo de hoje
+1060|Ajout rapide sur votre téléphone|Agregar rápido en tu teléfono|Lançamento rápido no celular
+1061|Reçus et papiers pour|Recibos y documentos de|Recibos e documentos de
+1062|Voir tous les éléments prévus|Ver todos los elementos programados|Ver todos os itens agendados
+1063|Le relevé ferme le jour|El corte es el día|A fatura fecha no dia
+1064|Le rapport fiscal de fin d'année|El informe fiscal de fin de año|O relatório fiscal de fim de ano
+1065|L'essayer avec des données d'exemple|Probarlo con datos de ejemplo|Experimentar com dados de exemplo
+1066|Tapez pour filtrer la liste|Escribe para filtrar la lista|Digite para filtrar a lista
+1067|Utiliser mon propre serveur de courriel|Usar mi propio servidor de correo|Usar meu próprio servidor de e-mail
+1068|Bienvenue dans MoneyThistle|Bienvenido a MoneyThistle|Bem-vindo ao MoneyThistle
+1069|Oui, supprimer cette sauvegarde|Sí, eliminar este respaldo|Sim, excluir este backup
+1070|le rapport fiscal de fin d'année|el informe fiscal de fin de año|o relatório fiscal de fim de ano
+1071|avec votre nouveau mot de passe.|con tu nueva contraseña.|com sua nova senha.
+1072|{} dépasse 20 Mo|{} pesa más de 20 MB|{} tem mais de 20 MB
+1073|({} en autres retenues)|({} en otras deducciones)|({} em outros descontos)
+1074|Retour à l'apparence par défaut|Volver a la apariencia predeterminada|Voltar à aparência padrão
+1075|Supprimer cette opération?|¿Eliminar este movimiento?|Excluir este lançamento?
+1076|Comptes d'épargne-santé :|Cuentas de ahorro para la salud:|Contas de poupança para saúde:
+1077|Importer de votre banque|Importar desde tu banco|Importar do seu banco
+1078|Ça se fait automatiquement|Sucede automáticamente|Acontece automaticamente
+1079|Laisser tel quel (Échap)|Dejarlo como estaba (Esc)|Deixar como estava (Esc)
+1080|Prêt : Intérêts hypothécaires|Préstamo : Intereses hipotecarios|Empréstimo : Juros do financiamento imobiliário
+1081|MoneyThistle dans le {}{}|MoneyThistle en el {}{}|MoneyThistle no {}{}
+1082|MoneyThistle : aller à l'accueil|MoneyThistle: ir al inicio|MoneyThistle: ir para o início
+1083|Aucun changement inscrit encore.|Aún no hay cambios registrados.|Nenhuma alteração registrada ainda.
+1084|Rien n'est entré ni sorti en {}.|Nada entró ni salió en {}.|Nada entrou nem saiu em {}.
+1085|Mot de passe ou mot de passe d'application|Contraseña o contraseña de aplicación|Senha ou senha de aplicativo
+1086|Choisissez-en une (la plus récente d'abord) :|Elige uno (el más reciente primero):|Escolha um (o mais recente primeiro):
+1087|Reçus et autres fichiers|Recibos y otros archivos|Recibos e outros arquivos
+1088|Redémarrage de MoneyThistle…|Reiniciando MoneyThistle…|Reiniciando o MoneyThistle…
+1089|Rechercher (bénéficiaire, compte…)|Buscar (beneficiario, cuenta…)|Pesquisar (favorecido, conta…)
+1090|Paramètres → Cet ordinateur|Configuración → Esta computadora|Configurações → Este computador
+1091|Passé à la prochaine date|Se pasó a la próxima fecha|Pulado para a próxima data
+1092|Solde de fin du relevé|Saldo final del estado de cuenta|Saldo final da fatura
+1093|Impôts : Impôt provincial sur le revenu|Impuestos : Impuesto estatal sobre la renta|Impostos : Imposto de renda estadual
+1094|Ce que ça veut dire pour vous.|Qué significa para ti.|O que isso significa para você.
+1095|||
+1096|({}) demande à se relier à|({}) pide conectarse con|({}) pede para conectar com
+1097|Les comptes et le registre|Las cuentas y el registro|As contas e o extrato
+1098|Factures et dépôts bientôt dus|Facturas y depósitos por vencer|Contas e depósitos a vencer
+1099|Puis-je l'utiliser sur mon téléphone?|¿Puedo usarlo en mi teléfono?|Posso usar no celular?
+1100|Entrez le montant reçu|Ingresa el monto recibido|Digite o valor recebido
+1101|Langue, argent et dates|Idioma, dinero y fechas|Idioma, dinheiro e datas
+1102|MoneyThistle est arrêté|MoneyThistle está apagado|O MoneyThistle está desligado
+1103|Restaurer la sauvegarde choisie|Restaurar el respaldo elegido|Restaurar o backup escolhido
+1104|L'afficher dans mon environnement|Mostrarla en mi entorno|Mostrar no meu ambiente
+1105|Le solde de la banque le {} :|El saldo del banco al {}:|O saldo do banco em {}:
+1106|Le relevé de {} est payé.|El estado de cuenta de {} está pagado.|A fatura de {} está paga.
+1107|Site Web pour se connecter ou payer|Sitio web para entrar o pagar|Site para entrar ou pagar
+1108|facultatif, p. ex. période de paie|opcional, p. ej. periodo de pago|opcional, ex.: período de pagamento
+1109|démarré avec l'ordinateur|iniciado con la computadora|iniciado com o computador
+1110|le dernier jour du mois|el último día del mes|o último dia do mês
+1111|· logiciel libre sous la|· software libre bajo la|· software livre sob a
+1112|, avec {} élément{} prévu{}|, con {} elemento{} programado{}|, com {} item{} agendado{}
+1113|Les garder aussi dans un dossier|Guardarlos también en una carpeta|Guardar também numa pasta
+1114|Porté aux cartes (en attente)|Cargado a tarjetas (pendiente)|Cobrado nos cartões (pendente)
+1115|Télécharger le tableur (CSV)|Descargar hoja de cálculo (CSV)|Baixar planilha (CSV)
+1116|Comment restaurer une sauvegarde?|¿Cómo restauro un respaldo?|Como restaurar um backup?
+1117|Comment tenez-vous cette carte?|¿Cómo llevas esta tarjeta?|Como você controla este cartão?
+1118|Prêteur (bénéficiaire des paiements)|Prestamista (beneficiario de los pagos)|Credor (favorecido dos pagamentos)
+1119|Sur la page de connexion, choisissez|En la página de inicio de sesión, elige|Na página de login, escolha
+1120|Payer le relevé de {} : {}{}|Pagar el estado de cuenta de {}: {}{}|Pagar a fatura de {}: {}{}
+1121|Planifier une facture ou un dépôt|Programar una factura o depósito|Agendar uma conta ou depósito
+1122|Simple : extras repliés|Simple: extras plegados|Simples: extras recolhidos
+1123|Impôts : Impôt fédéral sur le revenu|Impuestos : Impuesto federal sobre la renta|Impostos : Imposto de renda federal
+1124|Salaires et traitements : Salaire brut|Sueldos y salarios : Sueldo bruto|Salários e ordenados : Salário bruto
+1125|Ce qui manque est signalé :|Lo que falta se marca:|O que falta é sinalizado:
+1126|D'où vient l'argent|De dónde viene el dinero|De onde vem o dinheiro
+1127|sur votre W-2, case 12 code W|en tu W-2, casilla 12 código W|no seu W-2, quadro 12 código W
+1128|{} sur {} incomplets|{} de {} incompletos|{} de {} incompletos
+1129|Une appli d'argent un peu meilleure|Una app de dinero un poco mejor|Um app de finanças um pouco melhor
+1130|Ajoutez votre premier compte avec|Agrega tu primera cuenta con|Adicione sua primeira conta com
+1131|Déjà en marche et configuré?|¿Ya está funcionando y configurado?|Já está rodando e configurado?
+1132|Vérifiez les Paramètres et les Sauvegardes.|Revisa Configuración y Respaldos.|Verifique Configurações e Backups.
+1133|Supprimer cet élément prévu?|¿Eliminar este elemento programado?|Excluir este item agendado?
+1134|Déplacer vers un autre environnement|Mover a otro entorno|Mover para outro ambiente
+1135|Photos du reçu, PDF|Fotos del recibo, PDF|Fotos do recibo, PDFs
+1136|Code source de cette version|Código fuente de esta versión|Código-fonte desta versão
+1137|Partir plutôt d'une sauvegarde|Empezar desde un respaldo|Começar de um backup
+1138|Impôts : Cotisations à la sécurité sociale|Impuestos : Impuesto de seguridad social|Impostos : Contribuição previdenciária
+1139|Les transferts se modifient dans {}|Las transferencias se cambian en {}|As transferências são alteradas em {}
+1140|À quoi sert cette carte?|¿Para qué se usa esta tarjeta?|Para que serve este cartão?
+1141|dans son dossier (avec Docker :|en su carpeta (con Docker:|na pasta dele (com Docker:
+1142|en choisit une que vous avez déjà.|elige una que ya tienes.|escolhe uma que você já tem.
+1143|arrêtez MoneyThistle, puis lancez|detén MoneyThistle y ejecuta|pare o MoneyThistle e rode
+1144|· défini dans les détails de la carte|· definido en los detalles de la tarjeta|· definido nos detalhes do cartão
+1145|(facultatif, pour le retrouver plus tard)|(opcional, para encontrarlo después)|(opcional, para encontrar depois)
+1146|). La poubelle le supprime.|). El bote de basura lo elimina.|). A lixeira exclui.
+1147|; ce registre ce jour-là :|; este registro ese día:|; este extrato nesse dia:
+1148|Sauvegarder après mes changements|Respaldar después de mis cambios|Fazer backup após minhas alterações
+1149|Refuser ce compte partagé?|¿Rechazar esta cuenta compartida?|Recusar esta conta compartilhada?
+1150|Rédacteur : peut inscrire et modifier|Editor: puede registrar y cambiar|Editor: pode lançar e alterar
+1151|Employeur / paie (avant impôts)|Empleador / nómina (antes de impuestos)|Empregador / folha (antes dos impostos)
+1152|Exporter en QIF, tous les comptes.|Exportar a QIF, todas las cuentas.|Exportar para QIF, todas as contas.
+1153|Comment revoir la visite?|¿Cómo veo el recorrido otra vez?|Como ver o tour de novo?
+1154|Configurons votre fichier d'argent|Configuremos tu archivo de dinero|Vamos configurar seu arquivo de finanças
+1155|Emménager depuis un autre programme|Mudarse desde otro programa|Trazer tudo de outro programa
+1156|Déplacer vers un autre environnement…|Mover a otro entorno…|Mover para outro ambiente…
+1157|Nouveau solde du relevé|Nuevo saldo del estado de cuenta|Novo saldo da fatura
+1158|Nouveau mot de passe (8 caractères ou plus)|Nueva contraseña (8 caracteres o más)|Nova senha (8 caracteres ou mais)
+1159|Le dernier jour du mois|El último día del mes|No último dia do mês
+1160|Papiers gardés avec un compte :|Documentos guardados con una cuenta:|Documentos guardados com uma conta:
+1161|Partagé par {} depuis leur {}{}|Compartida por {} desde su {}{}|Compartilhada por {} do {}{} dele
+1162|Partagé avec cet environnement|Compartida con este entorno|Compartilhada com este ambiente
+1163|Estimation de départ (facultatif)|Estimación inicial (opcional)|Estimativa inicial (opcional)
+1164|Arrêté. Votre travail est enregistré.|Detenido. Tu trabajo está guardado.|Parado. Seu trabalho está salvo.
+1165|Ceci ajoute l'opération à|Esto agrega el movimiento a|Isto adiciona o lançamento a
+1166|Pour le redémarrer, utilisez {}{}.|Para iniciarlo de nuevo, usa {}{}.|Para iniciar de novo, use {}{}.
+1167|Total des comptes cochés|Total de las cuentas marcadas|Total das contas marcadas
+1168|Lecteur : peut consulter, pas modifier|Lector: puede ver, no cambiar|Leitor: pode ver, não alterar
+1169|En attente de son retour.|Esperando a que vuelva.|Esperando voltar.
+1170|Oui, c'est le même montant chaque fois|Sí, es el mismo monto cada vez|Sim, é o mesmo valor toda vez
+1171|vérifie n'importe quelle sauvegarde sur demande.|revisa cualquier respaldo cuando lo pidas.|verifica qualquer backup quando você pedir.
+1172|déductible, formulaire 8889 ligne 2|deducible, formulario 8889 línea 2|dedutível, formulário 8889 linha 2
+1173|{} Payé à {} depuis ce CSS :|{} Pagado a {} desde esta HSA:|{} Pago a {} desta HSA:
+1174|{} capital · {} intérêts{}|{} capital · {} intereses{}|{} principal · {} juros{}
+1175|(j'inscrirai les paiements moi-même)|(registraré los pagos yo mismo)|(vou registrar os pagamentos eu mesmo)
+1176|(pour les liens « mot de passe oublié »)|(para los enlaces de "olvidé mi contraseña")|(para os links de "esqueci a senha")
+1177|(capital, intérêts, entiercement)|(capital, intereses, depósito en garantía)|(principal, juros, caução)
+1178|+ Quelque chose ajouté après impôts|+ Algo agregado después de impuestos|+ Algo adicionado após impostos
+1179|; porté à cette carte en {} :|; cargado a esa tarjeta en {}:|; cobrado nesse cartão em {}:
+1180|Ajouter une catégorie au budget…|Agregar una categoría al presupuesto…|Adicionar uma categoria ao orçamento…
+1181|Choisissez d'abord le fichier de sauvegarde.|Elige primero el archivo de respaldo.|Escolha primeiro o arquivo de backup.
+1182|Complet tel quel : ne pas le signaler|Completo así: no marcarlo|Completo assim: não sinalizar
+1183|Comptes d'épargne-santé (HSA)|Cuentas de ahorro para la salud (HSA)|Contas de poupança para saúde (HSA)
+1184|Associer à votre écriture : {} {} {}|Emparejar con tu movimiento: {} {} {}|Associar ao seu lançamento: {} {} {}
+1185|MoneyThistle sur cet ordinateur|MoneyThistle en esta computadora|MoneyThistle neste computador
+1186|Rien de prévu ce mois-ci.|Nada programado este mes.|Nada agendado este mês.
+1187|Chercher bénéficiaire, catégorie, note…|Buscar beneficiario, categoría, nota…|Pesquisar favorecido, categoria, observação…
+1188|Les deux mots de passe ne correspondent pas|Las dos contraseñas no coinciden|As duas senhas não conferem
+1189|Transferts entre mes comptes|Transferencias entre mis cuentas|Transferências entre minhas contas
+1190|À qui vous avez payé ou qui vous a payé.|A quién pagaste o quién te pagó.|Para quem você pagou ou quem pagou você.
+1191|en haut de cette page d'aide.|arriba en esta página de ayuda.|no topo desta página de ajuda.
+1192|dû le {} (non prévu)|vence el {} (no programado)|vence em {} (não agendado)
+1193|||
+1194|sur un téléphone) avant d'inscrire.|en un teléfono) antes de registrar.|no celular) antes de registrar.
+1195|{} passe sous zéro : au plus bas {}|{} baja de cero: mínimo {}|{} fica abaixo de zero: mínimo {}
+1196|{} associées à des écritures existantes|{} emparejados con movimientos que ya tenías|{} associados a lançamentos que você já tinha
+1197|, et ses sauvegardes non plus.|, y sus respaldos tampoco.|, nem os backups dele.
+1198|Une sauvegarde est faite d'abord. Choisissez|Primero se hace un respaldo. Elige|Primeiro é feito um backup. Escolha
+1199|Une photo ou un PDF (jusqu'à 20 Mo)|Una foto o un PDF (hasta 20 MB)|Uma foto ou um PDF (até 20 MB)
+1200|Sauvegardes → Restaurer à partir d'un fichier…|Respaldos → Restaurar desde un archivo…|Backups → Restaurar de um arquivo…
+1201|Choisissez d'abord le fichier exporté|Elige primero el archivo exportado|Escolha primeiro o arquivo exportado
+1202|Téléchargez-la et vérifiez qu'elle s'ouvre|Descárgalo y revisa que abra|Baixe e verifique se abre
+1203|Historique de cet élément prévu|Historial de este elemento programado|Histórico deste item agendado
+1204|Comment il a été fait : « vibe coding ».|Cómo se hizo: "vibe coding".|Como foi feito: "vibe coding".
+1205|Emménager depuis un autre programme|Mudarse desde otro programa|Trazendo tudo de outro programa
+1206|Aucune opération dans cette période|No hay movimientos en este periodo|Nenhum lançamento neste período
+1207|Aucune catégorie de {} dans le budget|No hay categorías de {} en el presupuesto|Nenhuma categoria de {} no orçamento
+1208|Ouvrir le site de la carte pour payer|Abrir el sitio de la tarjeta para pagar|Abrir o site do cartão para pagar
+1209|Paiement (capital + intérêts)|Pago (capital + intereses)|Pagamento (principal + juros)
+1210|Ajout rapide : inscrire une opération|Agregar rápido: registrar un movimiento|Lançamento rápido: registrar um lançamento
+1211|Restauré. Connectez-vous comme avant{}.|Restaurado. Inicia sesión como antes{}.|Restaurado. Entre como antes{}.
+1212|Total des comptes choisis|Total de las cuentas elegidas|Total das contas escolhidas
+1213|Consultation seulement : {} gère celui-ci|Solo lectura: {} administra esta|Só visualização: {} gerencia esta
+1214|cliquez-la dans le registre, puis|haz clic en él en el registro y luego|clique nele no extrato e depois
+1215|heures supplémentaires, prime, commission...|horas extra, bono, comisión...|horas extras, bônus, comissão...
+1216|la consulter et inscrire des opérations|verla y registrar movimientos|ver e registrar lançamentos
+1217|; prochain paiement prévu maintenant {}|; próximo pago programado ahora {}|; próximo pagamento agendado agora {}
+1218|Une carte pour un seul type de dépense|Una tarjeta para un solo tipo de gasto|Um cartão para um só tipo de gasto
+1219|Factures et dépôts (le calendrier)|Facturas y depósitos (el calendario)|Contas e depósitos (a agenda)
+1220|Compte dans {} de votre budget|Cuenta para {} en tu presupuesto|Conta para {} no seu orçamento
+1221|Télécharger toutes les opérations (CSV)|Descargar todos los movimientos (CSV)|Baixar todos os lançamentos (CSV)
+1222|Chiffrer les sauvegardes avec un mot de passe|Cifrar los respaldos con una contraseña|Criptografar os backups com uma senha
+1223|Tout ce qui est dans les catégories marquées|Todo lo que está en categorías marcadas|Tudo nas categorias marcadas
+1224|Exporter toutes les opérations en CSV.|Exportar todos los movimientos como CSV.|Exportar todos os lançamentos em CSV.
+1225|Ce que MoneyThistle vous montre|Cuánto te muestra MoneyThistle|Quanto o MoneyThistle mostra
+1226|Rien de dû dans les {} prochains jours|Nada vence en los próximos {} días|Nada vence nos próximos {} dias
+1227|Remettre comme c'était avant ceci|Dejarlo como estaba antes de esto|Voltar como estava antes disto
+1228|Afficher le total en pointillé|Mostrar el total como línea punteada|Mostrar o total como linha tracejada
+1229|Quand je me connecte à cet ordinateur|Cuando inicio sesión en esta computadora|Quando eu entro neste computador
+1230|Où est allé l'argent ce mois-ci|A dónde se fue el dinero este mes|Para onde foi o dinheiro este mês
+1231|pour qu'il ne cache pas une retenue.|para que no oculte una deducción.|para não esconder um desconto.
+1232|{} reçu{} ou fichier{} joint{}|{} recibo{} o archivo{} adjunto{}|{} recibo{} ou arquivo{} anexado{}
+1233|||
+1234|Moyenne des {} dernier{} paiement{}|Promedio de los últimos {} pago{}|Média dos últimos {} pagamento{}
+1235|Factures dues d'ici (jours, 0 = non)|Facturas que vencen en (días, 0 = no)|Contas que vencem em (dias, 0 = não)
+1236|Changer l'ordre du registre|Cambiar el orden del registro|Alterar a ordem do extrato
+1237|Connexions entre environnements|Conexiones entre entornos|Conexões entre ambientes
+1238|Refuser cette demande de connexion?|¿Rechazar esta solicitud de conexión?|Recusar este pedido de conexão?
+1239|Dans le registre d'un compte, choisissez|En el registro de una cuenta, elige|No extrato de uma conta, escolha
+1240|Rester connecté sur cet appareil|Mantener la sesión en este dispositivo|Manter conectado neste dispositivo
+1241|Aucun compte choisi pour le graphique|No hay cuentas elegidas para el gráfico|Nenhuma conta escolhida para o gráfico
+1242|Paie avant impôts et retenues.|Sueldo antes de impuestos y deducciones.|Salário antes dos impostos e descontos.
+1243|Paie inscrite : salaire net|Pago de nómina registrado: sueldo neto|Salário registrado: líquido
+1244|Personnes, environnements et partage|Personas, entornos y compartir|Pessoas, ambientes e compartilhamento
+1245|Partagé (ou en attente d'approbation)|Compartida (o esperando aprobación)|Compartilhada (ou aguardando aprovação)
+1246|Démarrer MoneyThistle dans son dossier|Iniciar MoneyThistle en su carpeta|Iniciar o MoneyThistle na pasta dele
+1247|Transferts vers des comptes hors de {}.|Transferencias a cuentas fuera de {}.|Transferências para contas fora de {}.
+1248|Quand je me connecte à cet ordinateur :|Cuando inicio sesión en esta computadora:|Quando eu entro neste computador:
+1249|les applique. Vos données sont gardées.|los aplica. Tus datos se conservan.|aplica. Seus dados são mantidos.
+1250|||
+1251|Numéro de compte (4 derniers chiffres)|Número de cuenta (últimos cuatro dígitos)|Número da conta (últimos quatro dígitos)
+1252|Rester connecté sur cet appareil :|Mantener la sesión en este dispositivo:|Manter conectado neste dispositivo:
+1253|Rien de dû dans les {} prochains jours{}|Nada vence en los próximos {} días{}|Nada vence nos próximos {} dias{}
+1254|Les notifications n'ont pas pu être chargées.|No se pudieron cargar las notificaciones.|Não foi possível carregar as notificações.
+1255|La devise de ce compte|La moneda de esta cuenta|A moeda desta conta
+1256|mois par mois pour la dernière année.|mes a mes durante el último año.|mês a mês no último ano.
+1257|sauvegardes planifiées les plus récentes. {}|respaldos programados más recientes. {}|backups agendados mais recentes. {}
+1258|{} · un paiement fait de {} parties|{} · un pago hecho de {} partes|{} · um pagamento feito de {} partes
+1259|· changements en attente de la prochaine sauvegarde|· cambios esperando el próximo respaldo|· alterações aguardando o próximo backup
+1260|· {} versés à vos autres comptes|· {} enviados a tus otras cuentas|· {} enviados para suas outras contas
+1261|Faire aussi une sauvegarde planifiée chaque|Hacer también un respaldo programado cada|Fazer também um backup agendado a cada
+1262|Pour mettre de l'argent dans l'entreprise|Para meter dinero al negocio|Para colocar dinheiro na empresa
+1263|Déplacer de l'argent entre vos comptes|Mover dinero entre tus cuentas|Mover dinheiro entre suas contas
+1264|||
+1265|Connexion et mots de passe oubliés|Inicio de sesión y contraseñas olvidadas|Login e senhas esquecidas
+1266|Démarrer et arrêter MoneyThistle|Iniciar y detener MoneyThistle|Iniciar e parar o MoneyThistle
+1267|Où va / d'où vient l'argent :|A dónde va / de dónde viene el dinero:|Para onde vai / de onde vem o dinheiro:
+1268|Qui a ajouté, modifié ou supprimé quoi|Quién agregó, cambió o eliminó qué|Quem adicionou, alterou ou excluiu o quê
+1269|Votre banque a traité l'écriture.|Tu banco procesó el movimiento.|Seu banco processou o lançamento.
+1270|un mot de passe perdu ne peut pas être récupéré|una contraseña perdida no se puede recuperar|uma senha perdida não pode ser recuperada
+1271|tout exporter dans un fichier QIF.|exportar todo a un archivo QIF.|exportar tudo para um arquivo QIF.
+1272|(facultatif, pour le budget par catégorie)|(opcional, para el presupuesto por categoría)|(opcional, para o orçamento por categoria)
+1273|Une opération s'est inscrite toute seule. Pourquoi?|Un movimiento se registró solo. ¿Por qué?|Um lançamento se registrou sozinho. Por quê?
+1274|Déjà inscrit pour un mois plus tard.|Ya registrado para un mes posterior.|Já registrado para um mês posterior.
+1275|||
+1276|Mon conjoint et moi pouvons-nous partager des comptes?|¿Mi pareja y yo podemos compartir cuentas?|Meu cônjuge e eu podemos compartilhar contas?
+1277|Cliquez pour marquer ce jour sur le graphique|Haz clic para marcar este día en el gráfico|Clique para marcar este dia no gráfico
+1278|Clic : vide → compensé → rapproché|Clic: vacío → conciliado → verificado|Clique: vazio → compensado → conciliado
+1279|Demandes de connexion qui vous attendent|Solicitudes de conexión esperándote|Pedidos de conexão aguardando você
+1280|Comment exporter de votre ancien programme|Cómo exportar desde tu programa anterior|Como exportar do seu programa antigo
+1281|Nouveau mot de passe (8 caractères ou plus)|Nueva contraseña (8 caracteres o más)|Nova senha (8 caracteres ou mais)
+1282|Note pour l'autre propriétaire (facultatif)|Nota para el otro dueño (opcional)|Observação para o outro dono (opcional)
+1283|Rien de dû dans les {} prochains jours. {}|Nada vence en los próximos {} días. {}|Nada vence nos próximos {} dias. {}
+1284|Ou directement depuis Nextcloud / WebDAV|O directamente desde Nextcloud / WebDAV|Ou direto do Nextcloud / WebDAV
+1285|Le seul administrateur, bloqué dehors :|El único administrador, sin acceso:|O único administrador, sem acesso:
+1286|Quels environnements afficher ensemble|Qué entornos mostrar juntos|Quais ambientes mostrar juntos
+1287|dans le registre de chaque compte, ou avec|en el registro de cada cuenta, o con|no extrato de cada conta, ou com
+1288|dans le registre; ouvrez-la et choisissez|en el registro; ábrelo y elige|no extrato; abra e escolha
+1289|: Windows demande la permission là-bas.|: Windows pide permiso ahí.|: o Windows pede permissão lá.
+1290|Concilié : {} opérations rapprochées|Conciliado: {} movimientos conciliados|Conciliado: {} lançamentos conciliados
+1291|La fermer et commencer une nouvelle opération|Cerrarlo y empezar un movimiento nuevo|Fechar e começar um novo lançamento
+1292|Tout ici est déjà concilié.|Todo aquí ya está conciliado.|Tudo aqui já está conciliado.
+1293|Pour le dernier jour du mois, entrez|Para el último día del mes, ingresa|Para o último dia do mês, digite
+1294|Garder le paiement de la carte dans mon calendrier|Mantener el pago de la tarjeta en mi calendario|Manter o pagamento do cartão na minha agenda
+1295|Seulement quand je le démarre (avec son icône)|Solo cuando lo inicio (desde su ícono)|Só quando eu iniciar (pelo ícone)
+1296|Voir plusieurs environnements ensemble|Ver varios entornos juntos|Ver vários ambientes juntos
+1297|Qui l'a inscrite et modifiée, et quand|Quién lo registró y cambió, y cuándo|Quem lançou e alterou, e quando
+1298|{} paiements restants · {} d'intérêts à venir|{} pagos restantes · {} de intereses por pagar|{} pagamentos restantes · {} de juros a pagar
+1299|(le dossier de sauvegarde que MoneyThistle utilisait)|(la carpeta de respaldos que usaba MoneyThistle)|(a pasta de backups que o MoneyThistle usava)
+1300|; fermer le navigateur ne l'arrête jamais.|; cerrar el navegador nunca lo detiene.|; fechar o navegador nunca o para.
+1301|Couleurs et symboles : l'argent qui entre est vert|Colores y símbolos: el dinero que entra es verde|Cores e símbolos: o dinheiro que entra é verde
+1302|MoneyThistle se connecte-t-il à ma banque?|¿MoneyThistle se conecta a mi banco?|O MoneyThistle se conecta ao meu banco?
+1303|Inscrire un achat, un dépôt ou un transfert|Registrar una compra, depósito o transferencia|Registrar uma compra, depósito ou transferência
+1304|Accueil remis à la disposition standard|Inicio de vuelta al diseño estándar|Início de volta ao layout padrão
+1305|Ne l'ouvrez jamais à l'Internet public.|Nunca lo abras al internet público.|Nunca o abra para a internet pública.
+1306|Talon enregistré{} : {} net sur {}{}|Recibo guardado{}: {} neto de {}{}|Holerite salvo{}: {} líquido de {}{}
+1307|Afficher la valeur nette sous la liste des comptes|Mostrar el patrimonio neto bajo la lista de cuentas|Mostrar o patrimônio líquido abaixo da lista de contas
+1308|Cochez d'abord « Oui, supprimer cette sauvegarde ».|Marca primero "Sí, eliminar este respaldo".|Marque primeiro "Sim, excluir este backup".
+1309|pour un tableur ou un autre programme|para una hoja de cálculo u otro programa|para uma planilha ou outro programa
+1310|quand quelque chose dedans a une valeur.|cuando algo adentro tiene un valor.|quando algo dentro tem um valor.
+1311|(idéal : ils portent les identifiants de la banque),|(lo mejor: traen los identificadores del banco),|(melhor: trazem os identificadores do banco),
+1312|Ajoutez des comptes pour transférer entre eux.|Agrega cuentas para transferir entre ellas.|Adicione contas para transferir entre elas.
+1313|Choisissez quelles cartes s'affichent ici et où|Elige qué tarjetas se muestran aquí y dónde|Escolha quais cartões aparecem aqui e onde
+1314|Rien à suivre (le prêteur le garde)|Nada que seguir (lo tiene el prestamista)|Nada a acompanhar (o credor guarda)
+1315|Sur un serveur sans navigateur sous la main :|En un servidor sin navegador a la mano:|Num servidor sem navegador à mão:
+1316|Mettre une icône MoneyThistle sur le bureau|Poner un ícono de MoneyThistle en el escritorio|Colocar um ícone do MoneyThistle na área de trabalho
+1317|Estimation de départ du salaire net (facultatif)|Estimación inicial del sueldo neto (opcional)|Estimativa inicial do salário líquido (opcional)
+1318|C'est un compte d'épargne-santé (HSA)|Es una cuenta de ahorro para la salud (HSA)|É uma conta de poupança para saúde (HSA)
+1319|Notez le mot de passe dans un endroit sûr|Anota la contraseña en un lugar seguro|Anote a senha num lugar seguro
+1320|||
+1321|Fermer l'onglet du navigateur ne l'arrête pas|Cerrar la pestaña del navegador no lo detiene|Fechar a aba do navegador não o para
+1322|Comment corriger une erreur dans le registre?|¿Cómo corrijo un error en el registro?|Como corrigir um erro no extrato?
+1323|J'ai oublié le mot de passe de chiffrement des sauvegardes.|Olvidé la contraseña de cifrado de los respaldos.|Esqueci a senha de criptografia dos backups.
+1324|Aucune sauvegarde MoneyThistle dans ce dossier.|No hay respaldos de MoneyThistle en esa carpeta.|Nenhum backup do MoneyThistle nessa pasta.
+1325|rassemble tout ce qui est dans les catégories marquées|reúne todo lo que está en categorías marcadas|reúne tudo nas categorias marcadas
+1326|vous guide pour faire correspondre un relevé.|te guía para cuadrar un estado de cuenta.|guia você para conferir um extrato.
+1327|si elle est chiffrée) et, si elle est chiffrée,|si está cifrado) y, si está cifrado,|se estiver criptografado) e, se estiver criptografado,
+1328|{} fichier{} à joindre à l'inscription ({}) ·|{} archivo{} para adjuntar al registrar ({}) ·|{} arquivo{} para anexar ao lançar ({}) ·
+1329|Des comptes partagés, pas dans votre budget|De cuentas compartidas, fuera de tu presupuesto|De contas compartilhadas, fora do seu orçamento
+1330|J'inscris le solde du relevé chaque mois|Registro el saldo del estado de cuenta cada mes|Lanço o saldo da fatura todo mês
+1331|Est-ce habituellement le même montant chaque fois?|¿Suele ser el mismo monto cada vez?|Costuma ser o mesmo valor toda vez?
+1332|Rien dans une catégorie liée aux impôts en {}.|Nada en una categoría de impuestos en {}.|Nada numa categoria de impostos em {}.
+1333|Enregistré. Redémarrez MoneyThistle pour l'appliquer.|Guardado. Reinicia MoneyThistle para aplicarlo.|Salvo. Reinicie o MoneyThistle para aplicar.
+1334|et avance le calendrier à la prochaine date.|y mueve el calendario a la próxima fecha.|e passa a agenda para a próxima data.
+1335|||
+1336|qui a ajouté, modifié ou supprimé quoi; annuler|quién agregó, cambió o eliminó qué; deshacer|quem adicionou, alterou ou excluiu o quê; desfazer
+1337|{} fichier{} à joindre à l'inscription ({}) ·|{} archivo{} para adjuntar al registrar ({}) ·|{} arquivo{} para anexar ao registrar ({}) ·
+1338|(ajoutez d'abord un compte chèques ou d'épargne)|(agrega primero una cuenta corriente o de ahorros)|(adicione primeiro uma conta corrente ou poupança)
+1339|Tout importer d'un autre programme…|Traer todo desde otro programa…|Trazer tudo de outro programa…
+1340|Compte d'épargne-santé : dans le rapport fiscal|Cuenta de ahorro para la salud: en el informe fiscal|Conta de poupança para saúde: no relatório fiscal
+1341|Détails du talon de paie : salaire brut et retenues|Detalles del recibo de nómina: sueldo bruto y deducciones|Detalhes do holerite: salário bruto e descontos
+1342|Chercher dans l'aide (p. ex. relevé, HSA, sauvegarde)|Buscar en la ayuda (p. ej. estado de cuenta, HSA, respaldo)|Pesquisar na ajuda (ex.: fatura, HSA, backup)
+1343|fichier : {} compte{}, {} opérations{}. {}|archivo: {} cuenta{}, {} movimientos{}. {}|arquivo: {} conta{}, {} lançamentos{}. {}
+1344|choisissez l'écriture dans le registre et choisissez|elige el movimiento en el registro y elige|escolha o lançamento no extrato e escolha
+1345|, les déplacements entre vos comptes sont bleus|, los movimientos entre tus cuentas son azules|, as movimentações entre suas contas são azuis
+1346|Remplir le montant du dernier relevé|Llenar el monto del último estado de cuenta|Preencher o valor da última fatura
+1347|Laissez vide pour prévoir ce qui est planifié : {}|Déjalo vacío para esperar lo programado: {}|Deixe vazio para esperar o agendado: {}
+1348|MoneyThistle · Une appli d'argent un peu meilleure|MoneyThistle · Una app de dinero un poco mejor|MoneyThistle · Um app de finanças um pouco melhor
+1349|Le relevé {} a fermé le {} : entrez son solde.|El estado de cuenta {} cerró el {}: ingresa su saldo.|A fatura {} fechou em {}: digite o saldo.
+1350|Mettre aussi une icône MoneyThistle sur le bureau|Poner también un ícono de MoneyThistle en el escritorio|Colocar também um ícone do MoneyThistle na área de trabalho
+1351|Il est signalé de nouveau quand quelque chose manque|Se marca otra vez cuando falte algo|Volta a ser sinalizado quando faltar algo
+1352|Inscrivez une paie avec ce que vous savez.|Registra un pago de nómina con lo que sepas.|Registre um salário com o que você souber.
+1353|Chercher notes, mots-clés, bénéficiaires, noms de fichiers…|Buscar notas, palabras clave, beneficiarios, nombres de archivo…|Pesquisar observações, palavras-chave, favorecidos, nomes de arquivo…
+1354|Une paie inscrite avec son salaire net{}|Un pago de nómina registrado con su sueldo neto{}|Um salário registrado com o líquido{}
+1355|Vous arrivez d'un autre ordinateur ou serveur?|¿Vienes de otra computadora o servidor?|Vindo de outro computador ou servidor?
+1356|L'inscrire dans le registre pour moi à sa date|Registrarlo por mí en su fecha|Lançar no extrato para mim na data
+1357|pour Apparence et Langue, argent et dates|para Apariencia e Idioma, dinero y fechas|para Aparência e Idioma, dinheiro e datas
+1358|assurance maladie, REER/401(k), HSA, cotisations syndicales...|seguro médico, 401(k), HSA, cuotas sindicales...|plano de saúde, previdência, HSA, contribuição sindical...
+1359|(paiement automatique, virement automatique, dépôt direct)|(pago automático, transferencia automática, depósito directo)|(débito automático, transferência automática, depósito direto)
+1360|Tout ce que vous avez moins tout ce que vous devez.|Todo lo que tienes menos todo lo que debes.|Tudo o que você tem menos tudo o que deve.
+1361|Le même montant chaque mois (le montant ci-dessus)|El mismo monto cada mes (el monto de arriba)|O mesmo valor todo mês (o valor acima)
+1362|Cochez deux comptes ou plus pour voir leur total|Marca dos o más cuentas para ver su total|Marque duas ou mais contas para ver o total
+1363|pour revenir sans courriel.|para volver a entrar sin correo.|para voltar a entrar sem e-mail.
+1364|pas dans ces fichiers : gardez une note sur chaque écriture|no en estos archivos: deja una nota en cada movimiento|não nestes arquivos: deixe uma observação em cada lançamento
+1365|Détails du compte → Déplacer vers un autre environnement…|Detalles de la cuenta → Mover a otro entorno…|Detalhes da conta → Mover para outro ambiente…
+1366|Après les changements : quand l'application est calme depuis|Después de cambios: cuando la app lleva quieta|Após alterações: quando o app ficar parado por
+1367|Moins de détails que d'habitude pour cet employeur|Menos datos de lo habitual para este empleador|Menos preenchido que o normal para este empregador
+1368|sauvegardes automatiques, Nextcloud / WebDAV, restauration|respaldos automáticos, Nextcloud / WebDAV, restaurar|backups automáticos, Nextcloud / WebDAV, restaurar
+1369|||
+1370|{} sur {} paiements déjà faits; dû maintenant environ|{} de {} pagos ya hechos; adeudo actual aprox.|{} de {} pagamentos já feitos; devido agora cerca de
+1371|Garder aussi la dernière sauvegarde de chacun des derniers|Guardar también el último respaldo de cada uno de los últimos|Manter também o último backup de cada um dos últimos
+1372|Rempli avec la moyenne des {} derniers ({}).|Llenado con el promedio de los últimos {} ({}).|Preenchido com a média dos últimos {} ({}).
+1373|Propriétaire : tout, plus les membres et les connexions|Dueño: todo, más miembros y conexiones|Dono: tudo, mais membros e conexões
+1374|Mettez les factures et paies régulières au calendrier|Pon las facturas y pagos de nómina regulares en el calendario|Coloque contas e salários regulares na agenda
+1375|Mettre à jour votre écriture automatique {} {} de {} à {}|Actualizar tu movimiento automático {} {} de {} a {}|Atualizar seu lançamento automático {} {} de {} para {}
+1376|est plus rapide et laisse tout le reste tel quel.|es más rápido y deja todo lo demás igual.|é mais rápido e deixa todo o resto como está.
+1377|(fait au début de {} : compte pour {} sauf si vous dites {})|(hecho a inicios de {}: cuenta para {} a menos que digas {})|(feito no início de {}: conta para {} a menos que você diga {})
+1378|, choisissez-en une (la plus récente en premier) et restaurez-la.|, elige uno (el más reciente primero) y restáuralo.|, escolha um (o mais recente primeiro) e restaure.
+1379|Ajouter ou modifier des catégories (Paramètres › Catégories)|Agregar o cambiar categorías (Configuración › Categorías)|Adicionar ou alterar categorias (Configurações › Categorias)
+1380|Remplissez le montant, le taux et le nombre de paiements.|Llena el monto, la tasa y el número de pagos.|Preencha o valor, a taxa e o número de pagamentos.
+1381|N'exposez jamais MoneyThistle à l'Internet public|Nunca expongas MoneyThistle al internet público|Nunca exponha o MoneyThistle à internet pública
+1382|Une partie vient de comptes partagés avec vous|Parte de esto viene de cuentas compartidas contigo|Parte disto vem de contas compartilhadas com você
+1383|Cette carte sert seulement à ce type de dépense|Esta tarjeta se usa solo para este tipo de gasto|Este cartão é usado só para este tipo de gasto
+1384|||
+1385|importe chaque compte et son historique d'un coup.|trae cada cuenta y su historial de una vez.|traz cada conta e o histórico de uma vez.
+1386|quand des fichiers plus récents sont en place, un avis apparaît;|cuando hay archivos más nuevos, aparece un aviso;|quando há arquivos mais novos, aparece um aviso;
+1387|{} écriture{} automatique{} mise{} à jour au montant de la banque|{} movimiento{} automático{} actualizado{} al monto del banco|{} lançamento{} automático{} atualizado{} para o valor do banco
+1388|(si elle est chiffrée avec un autre mot de passe que maintenant)|(si está cifrado con otra contraseña que la actual)|(se estiver criptografado com outra senha que a atual)
+1389|Ajoutez d'abord un compte, puis planifiez ses factures.|Agrega primero una cuenta y luego programa sus facturas.|Adicione primeiro uma conta e depois agende as contas dela.
+1390|Les changements s'affichent tout de suite; cliquez Enregistrer pour les garder.|Los cambios se ven de inmediato; haz clic en Guardar para conservarlos.|As alterações aparecem na hora; clique em Salvar para mantê-las.
+1391|Salaire brut, impôts et retenues du talon de paie|Sueldo bruto, impuestos y deducciones del recibo de nómina|Salário bruto, impostos e descontos do holerite
+1392|Au démarrage de l'ordinateur, même si personne ne se connecte|Al encender la computadora, aunque nadie inicie sesión|Quando o computador ligar, mesmo que ninguém entre
+1393|Oui : chaque compte, catégorie et opération. Voir|Sí: cada cuenta, categoría y movimiento. Ver|Sim: cada conta, categoria e lançamento. Veja
+1394|sur la page de connexion, demandez à un administrateur, ou voir|en la página de inicio de sesión, pide a un administrador, o ver|na página de login, peça a um administrador, ou veja
+1395|{} argent qui entre {} argent qui sort {} entre vos comptes|{} dinero que entra {} dinero que sale {} entre tus cuentas|{} dinheiro que entra {} dinheiro que sai {} entre suas contas
+1396|Entrez le salaire net : ce qui est arrivé dans votre compte|Ingresa el sueldo neto: lo que llegó a tu cuenta|Digite o salário líquido: o que chegou na sua conta
+1397|Guides, questions et réponses, et ce que les mots veulent dire|Guías, preguntas y respuestas, y qué significan las palabras|Guias, perguntas e respostas, e o que as palavras significam
+1398|Est-il sécuritaire d'ouvrir MoneyThistle depuis Internet?|¿Es seguro abrir MoneyThistle desde internet?|É seguro abrir o MoneyThistle pela internet?
+1399|Non : gardez-le sur votre réseau domestique ou Tailscale. Voir|No: mantenlo en tu red de casa o en Tailscale. Ver|Não: mantenha na sua rede de casa ou no Tailscale. Veja
+1400|Rien à signaler aujourd'hui : aucun résumé ne serait envoyé.|Nada que reportar hoy: no se enviaría ningún resumen.|Nada a informar hoje: nenhum resumo seria enviado.
+1401|Une ligne dans un registre : de l'argent qui entre ou sort à une date.|Una línea en un registro: dinero que entra o sale en una fecha.|Uma linha no extrato: dinheiro que entra ou sai numa data.
+1402|Ceux-ci comptent dans le mois de leur date, pas en {} :|Estos cuentan en el mes de su fecha, no en {}:|Estes contam no mês da data deles, não em {}:
+1403|Au démarrage de l'ordinateur, même si personne ne se connecte :|Al encender la computadora, aunque nadie inicie sesión:|Quando o computador ligar, mesmo que ninguém entre:
+1404|montre l'essentiel au quotidien. Les extras sont repliés sous|muestra lo de todos los días. Los extras están plegados en|mostra o dia a dia. Os extras ficam recolhidos em
+1405|arrête le signalement pour une paie qui n'aura pas plus de détails.|deja de marcar un pago que no tendrá más detalle.|para de sinalizar um salário que não terá mais detalhes.
+1406|||
+1407|; ses cotisations et retraits s'affichent alors ici.|; sus aportaciones y retiros se muestran entonces aquí.|; os depósitos e saques dela aparecem aqui.
+1408|Les comptes partagés avec cet environnement sont inclus.|Se incluyen las cuentas compartidas con este entorno.|As contas compartilhadas com este ambiente estão incluídas.
+1409|Pourquoi quelque chose n'apparaît pas dans le budget de ce mois?|¿Por qué algo no aparece en el presupuesto de este mes?|Por que algo não aparece no orçamento deste mês?
+1410|sur l'ordinateur ou le serveur où MoneyThistle tourne, lancez|en la computadora o servidor donde corre MoneyThistle, ejecuta|no computador ou servidor onde o MoneyThistle roda, rode
+1411|||
+1412|Cliquez une catégorie pour la renommer, la déplacer ou la supprimer.|Haz clic en una categoría para renombrarla, moverla o eliminarla.|Clique numa categoria para renomear, mover ou excluir.
+1413|Chaque carte est tenue de l'une de deux façons (Détails du compte →|Cada tarjeta se lleva de una de dos formas (Detalles de la cuenta →|Cada cartão é controlado de um de dois jeitos (Detalhes da conta →
+1414|Rien dans l'aide ne mentionne « {} ». Essayez un autre mot.|Nada en la ayuda menciona "{}". Prueba otra palabra.|Nada na ajuda menciona "{}". Tente outra palavra.
+1415|Autres retenues : calculées dès qu'il y a un salaire brut.|Otras deducciones: se calculan cuando hay sueldo bruto.|Outros descontos: calculados quando houver salário bruto.
+1416|Repartir d'une sauvegarde (nouvel ordinateur ou serveur)|Empezar desde un respaldo (computadora o servidor nuevo)|Recomeçar de um backup (computador ou servidor novo)
+1417|Quelle est la différence entre une facture et un transfert?|¿Cuál es la diferencia entre una factura y una transferencia?|Qual a diferença entre uma conta e uma transferência?
+1418|et choisissez un fichier téléchargé du site de votre banque :|y elige un archivo descargado del sitio de tu banco:|e escolha um arquivo baixado do site do seu banco:
+1419|{} partage{} dans {} prennent fin : le compte est maintenant là-bas.|{} compartido{} en {} terminan: la cuenta ahora está ahí.|{} compartilhamento{} em {} terminam: a conta agora está lá.
+1420|Après aujourd'hui{}. Déjà payé? Utilisez le jour du paiement.|Después de hoy{}. ¿Ya pagado? Usa el día en que se pagó.|Depois de hoje{}. Já pago? Use o dia em que foi pago.
+1421|Masquer les comptes à solde nul dans la liste des comptes|Ocultar cuentas con saldo cero en la lista de cuentas|Ocultar contas com saldo zero na lista de contas
+1422|Non, le montant varie : prévoir la moyenne des derniers|No, el monto varía: esperar el promedio de los últimos|Não, o valor varia: esperar a média dos últimos
+1423|Cette paie n'aura pas plus de détails : arrêter de la signaler|Este pago no tendrá más detalle: dejar de marcarlo|Este salário não terá mais detalhes: parar de sinalizar
+1424|Ce qui arrive dans votre compte après impôts et retenues.|Lo que llega a tu cuenta después de impuestos y deducciones.|O que chega na sua conta após impostos e descontos.
+1425|au-dessus de la ligne d'inscription. Seul le salaire net est requis.|arriba de la línea de registro. Solo el sueldo neto es obligatorio.|acima da linha de lançamento. Só o salário líquido é obrigatório.
+1426|{} sur {} · cliquez une colonne pour trier, une ligne pour la modifier|{} de {} · haz clic en una columna para ordenar, en una fila para cambiarla|{} de {} · clique numa coluna para ordenar, numa linha para alterar
+1427|Un {} correspondant est ajouté au registre de {} automatiquement.|Se agrega automáticamente un {} correspondiente al registro de {}.|Um {} correspondente é adicionado ao extrato de {} automaticamente.
+1428|Cochez un compte dans la liste ci-dessous pour voir sa prévision.|Marca una cuenta en la lista de abajo para ver su pronóstico.|Marque uma conta na lista abaixo para ver a previsão dela.
+1429|Windows demande la permission sur l'écran de cet ordinateur…|Windows pide permiso en la pantalla de esta computadora…|O Windows pede permissão na tela deste computador…
+1430|Supprimer cet environnement? Il ne doit plus avoir de comptes.|¿Eliminar este entorno? No debe tener cuentas.|Excluir este ambiente? Ele não pode ter contas.
+1431|Un fichier, ou plusieurs choisis ensemble (un par compte).|Un archivo, o varios elegidos juntos (uno por cuenta).|Um arquivo, ou vários escolhidos juntos (um por conta).
+1432|Pour changer son démarrage, ouvrez MoneyThistle dans un navigateur|Para cambiar cómo inicia, abre MoneyThistle en un navegador|Para mudar como ele inicia, abra o MoneyThistle num navegador
+1433|pour MoneyThistle. Le dossier est créé s'il n'existe pas.|para MoneyThistle. La carpeta se crea si no existe.|para o MoneyThistle. A pasta é criada se não existir.
+1434|(soins admissibles HSA, dons, une entreprise) : choisissez-la sous|(gastos elegibles de HSA, donativos, un negocio): elígela en|(despesas elegíveis à HSA, doações, uma empresa): escolha em
+1435|Chaque personne choisit ce que MoneyThistle lui montre, dans|Cada persona elige cuánto le muestra MoneyThistle, en|Cada pessoa escolhe quanto o MoneyThistle mostra, em
+1436|MoneyThistle s'y met lui-même la première fois qu'il démarre :|MoneyThistle se coloca ahí la primera vez que inicia:|O MoneyThistle se coloca lá na primeira vez que inicia:
+1437|Dois-je inscrire chaque achat par carte ou seulement le relevé?|¿Registro cada compra con tarjeta o solo el estado de cuenta?|Devo lançar cada compra no cartão ou só a fatura?
+1438|⚑ Cette paie : {} (comparé à l'habituel pour {}).|⚑ Este pago: {} (comparado con lo habitual de {}).|⚑ Este salário: {} (comparado com o normal de {}).
+1439|Ce compte n'est plus partagé avec cet environnement.|Esa cuenta ya no está compartida con este entorno.|Essa conta não está mais compartilhada com este ambiente.
+1440|Ce que le relevé d'une carte dit que vous devez à sa date de fermeture.|Lo que el estado de cuenta de una tarjeta dice que debes a la fecha de corte.|O que a fatura de um cartão diz que você deve na data de fechamento.
+1441|Windows a démarré cette copie quand l'ordinateur s'est allumé. {}|Windows inició esta copia al encender la computadora. {}|O Windows iniciou esta cópia quando o computador ligou. {}
+1442|une paie inscrite avec seulement son salaire net est marquée|un pago de nómina registrado solo con su sueldo neto se marca|um salário registrado só com o líquido é marcado
+1443|clair ou sombre, couleur d'accent, style de date, symbole monétaire.|claro u oscuro, color de acento, formato de fecha, símbolo de moneda.|claro ou escuro, cor de destaque, formato de data, símbolo da moeda.
+1444|). Le dossier de sauvegarde là-bas est créé s'il n'existe pas.|). La carpeta de respaldos allí se crea si no existe.|). A pasta de backup lá é criada se não existir.
+1445|Fichier → Exporter → Exporter les opérations en CSV (tous les comptes).|Archivo → Exportar → Exportar movimientos a CSV (todas las cuentas).|Arquivo → Exportar → Exportar lançamentos para CSV (todas as contas).
+1446|le calendrier prévoit la moyenne des derniers inscrits.|el calendario espera el promedio de los últimos registrados.|a agenda espera a média dos últimos lançados.
+1447|(un autre serveur WebDAV, ou votre propre adresse Nextcloud)|(otro servidor WebDAV, o tu propia dirección de Nextcloud)|(outro servidor WebDAV, ou seu próprio endereço do Nextcloud)
+1448|MoneyThistle est un petit serveur; votre navigateur ne fait que l'afficher.|MoneyThistle es un pequeño servidor; tu navegador solo lo muestra.|O MoneyThistle é um pequeno servidor; seu navegador só o mostra.
+1449|Mon employeur, ou par la paie avant impôts (c'est sur mon W-2)|Mi empleador, o por nómina antes de impuestos (está en mi W-2)|Meu empregador, ou pela folha antes dos impostos (está no meu W-2)
+1450|dans {} est supprimée pour de bon : elle ne peut plus être restaurée.|en {} se elimina para siempre: no se puede restaurar después.|em {} é excluído de vez: não pode ser restaurado depois.
+1451|Puis-je apporter mon historique de Microsoft Money ou Quicken?|¿Puedo traer mi historial de Microsoft Money o Quicken?|Posso trazer meu histórico do Microsoft Money ou Quicken?
+1452|||
+1453|Mêmes comptes que Rapports → Prévisions; cochez-en d'autres là-bas.|Las mismas cuentas que Informes → Lo que viene; marca otras ahí.|As mesmas contas de Relatórios → Previsão; marque outras lá.
+1454|Passez d'un ensemble de comptes dont vous êtes membre à l'autre.|Cambia entre los grupos de cuentas de los que eres miembro.|Alterne entre os grupos de contas dos quais você é membro.
+1455|Le solde complet que doit la carte (idéal si les achats sont suivis)|El saldo total que debe la tarjeta (mejor si registras las compras)|O saldo total que o cartão deve (melhor com as compras lançadas)
+1456|Pourquoi elle est gardée : récente, ou la dernière de son jour, sa semaine ou son mois|Por qué se guarda: reciente, o el último de su día, semana o mes|Por que é mantido: recente, ou o último do dia, semana ou mês
+1457|||
+1458|tout ce que vous avez moins tout ce que vous devez, mois par mois.|todo lo que tienes menos todo lo que debes, mes a mes.|tudo o que você tem menos tudo o que deve, mês a mês.
+1459|il démarre tout seul en arrière-plan chaque fois que vous vous connectez.|se inicia solo en segundo plano cada vez que inicias sesión.|ele inicia sozinho em segundo plano toda vez que você entra.
+1460|une fois le premier inscrit (ou donnez une estimation de départ).|una vez registrado el primero (o da una estimación inicial).|depois que o primeiro for lançado (ou dê uma estimativa inicial).
+1461|{} et {} sont dans des devises différentes : entrez combien {} {}.|{} y {} están en monedas distintas: ingresa cuánto {} {}.|{} e {} estão em moedas diferentes: digite quanto {} {}.

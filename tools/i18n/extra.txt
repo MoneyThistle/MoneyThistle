@@ -1,0 +1,254 @@
+# English text not in the catalog (longer text, and text added by hand): @English|French (Canada)|Spanish (Latin America)|Portuguese (Brazil)
+# "{}" stands for a number, amount, date or name. "{} : {}" translates each half of a category's full name.
+@{} : {}|{} : {}|{} : {}|{} : {}
+@{} not itemized|{} non détaillés|{} sin detallar|{} não detalhados
+@missing: {}|manquant : {}|falta: {}|falta: {}
+@missing gross pay and deductions|salaire brut et retenues manquants|faltan el sueldo bruto y las deducciones|faltam o salário bruto e os descontos
+@Like this browser|Comme ce navigateur|Como este navegador|Como este navegador
+@By currency|Par devise|Por moneda|Por moeda
+@arrived|arrivé|llegó|chegou
+@left|parti|salió|saiu
+@Sent|Envoyé|Enviado|Enviado
+@Amount that left|Montant parti|Monto que salió|Valor que saiu
+@Usually arrives|Arrive habituellement|Suele llegar|Costuma chegar
+@The other account is in another currency|L'autre compte est dans une autre devise|La otra cuenta está en otra moneda|A outra conta está em outra moeda
+@Check the amount that actually arrived: it's used as it is, with no exchange rate looked up.|Vérifiez le montant réellement arrivé : il est utilisé tel quel, sans chercher de taux de change.|Revisa el monto que realmente llegó: se usa tal cual, sin buscar ningún tipo de cambio.|Confira o valor que realmente chegou: ele é usado como está, sem buscar cotação.
+@Approximate: other currencies at your rough rates|Approximatif : autres devises à vos taux approximatifs|Aproximado: otras monedas a tus tipos de cambio aproximados|Aproximado: outras moedas pelas suas cotações aproximadas
+@Not counted (no rough rate yet):|Non comptées (pas encore de taux approximatif) :|No se cuentan (aún sin tipo de cambio aproximado):|Não contadas (ainda sem cotação aproximada):
+@Just for you. French, Spanish and Portuguese were translated by AI and haven't been checked by a native speaker yet; anything not translated yet shows in English.|Juste pour vous. Le français, l'espagnol et le portugais ont été traduits par une IA et n'ont pas encore été vérifiés par une personne de langue maternelle; ce qui n'est pas encore traduit s'affiche en anglais.|Solo para ti. El francés, el español y el portugués los tradujo una IA y aún no los ha revisado un hablante nativo; lo que todavía no está traducido aparece en inglés.|Só para você. Francês, espanhol e português foram traduzidos por IA e ainda não foram revisados por um falante nativo; o que ainda não foi traduzido aparece em inglês.
+@For everyone in|Pour tous dans|Para todos en|Para todos em
+@. Each account has its own currency (in its details); totals, the budget and the tax report are in the main one.|. Chaque compte a sa propre devise (dans ses détails); les totaux, le budget et le rapport fiscal sont dans la devise principale.|. Cada cuenta tiene su propia moneda (en sus detalles); los totales, el presupuesto y el informe fiscal están en la moneda principal.|. Cada conta tem sua própria moeda (nos detalhes); totais, orçamento e relatório fiscal ficam na moeda principal.
+@Only for totals like net worth, which are then marked approximate. Leave one empty and that currency's accounts aren't counted in them. Transfers always use the amount that actually arrived.|Seulement pour les totaux comme la valeur nette, qui sont alors marqués approximatifs. Laissez-en un vide et les comptes de cette devise n'y sont pas comptés. Les transferts utilisent toujours le montant réellement arrivé.|Solo para totales como el patrimonio neto, que entonces se marcan como aproximados. Deja uno vacío y las cuentas de esa moneda no se cuentan en ellos. Las transferencias siempre usan el monto que realmente llegó.|Só para totais como o patrimônio líquido, que então ficam marcados como aproximados. Deixe uma vazia e as contas dessa moeda não entram neles. As transferências sempre usam o valor que realmente chegou.
+@All your accounts are in {}. Give an account another currency in its details and a rough rate can be set here.|Tous vos comptes sont en {}. Donnez une autre devise à un compte dans ses détails et un taux approximatif pourra être défini ici.|Todas tus cuentas están en {}. Dale otra moneda a una cuenta en sus detalles y aquí podrás poner un tipo de cambio aproximado.|Todas as suas contas estão em {}. Dê outra moeda a uma conta nos detalhes dela e uma cotação aproximada pode ser definida aqui.
+@Accounts in other currencies aren't in this report|Les comptes dans d'autres devises ne sont pas dans ce rapport|Las cuentas en otras monedas no están en este informe|As contas em outras moedas não estão neste relatório
+@: a tax return needs official exchange rates, so add those amounts yourself.|: une déclaration de revenus exige des taux de change officiels, alors ajoutez ces montants vous-même.|: una declaración de impuestos necesita tipos de cambio oficiales, así que agrega esos montos tú mismo.|: uma declaração de imposto precisa de cotações oficiais, então some esses valores você mesmo.
+@{} and {} are in different currencies: enter what actually arrived in {}.|{} et {} sont dans des devises différentes : entrez ce qui est réellement arrivé dans {}.|{} y {} están en monedas distintas: ingresa lo que realmente llegó a {}.|{} e {} estão em moedas diferentes: digite o que realmente chegou em {}.
+@{} and {} are in different currencies: enter how much arrived in {}.|{} et {} sont dans des devises différentes : entrez combien est arrivé dans {}.|{} y {} están en monedas distintas: ingresa cuánto llegó a {}.|{} e {} estão em moedas diferentes: digite quanto chegou em {}.
+@{} and {} are in different currencies: enter how much left {}.|{} et {} sont dans des devises différentes : entrez combien est sorti de {}.|{} y {} están en monedas distintas: ingresa cuánto salió de {}.|{} e {} estão em moedas diferentes: digite quanto saiu de {}.
+@{} files to attach when recorded ({}) ·|{} fichiers à joindre à l'inscription ({}) ·|{} archivos para adjuntar al registrar ({}) ·|{} arquivos para anexar ao registrar ({}) ·
+@1 file to attach when recorded ({}) ·|1 fichier à joindre à l'inscription ({}) ·|1 archivo para adjuntar al registrar ({}) ·|1 arquivo para anexar ao registrar ({}) ·
+@Recorded with {} file|Inscrit avec {} fichier|Registrado con {} archivo|Registrado com {} arquivo
+@Recorded with {} files|Inscrit avec {} fichiers|Registrado con {} archivos|Registrado com {} arquivos
+@Recorded|Inscrit|Registrado|Registrado
+@The money this account is kept in|La devise de ce compte|La moneda de esta cuenta|A moeda desta conta
+@Currency|Devise|Moneda|Moeda
+@Currencies|Devises|Monedas|Moedas
+@Main currency|Devise principale|Moneda principal|Moeda principal
+@Rough rates|Taux approximatifs|Tipos de cambio aproximados|Cotações aproximadas
+@Save currencies|Enregistrer les devises|Guardar monedas|Salvar moedas
+@Currencies saved|Devises enregistrées|Monedas guardadas|Moedas salvas
+@Language|Langue|Idioma|Idioma
+@Language, money and dates|Langue, argent et dates|Idioma, dinero y fechas|Idioma, dinheiro e datas
+@Example|Exemple|Ejemplo|Exemplo
+@Two currencies|Deux devises|Dos monedas|Duas moedas
+@Amount received|Montant reçu|Monto recibido|Valor recebido
+@Enter the amount received|Entrez le montant reçu|Ingresa el monto recibido|Digite o valor recebido
+@Net worth ≈|Valeur nette ≈|Patrimonio neto ≈|Patrimônio líquido ≈
+@Transfer from {}|Transfert de {}|Transferencia desde {}|Transferência de {}
+@Transfer to {}|Transfert vers {}|Transferencia a {}|Transferência para {}
+@In {} days|Dans {} jours|En {} días|Em {} dias
+@Spent {}|Dépensé {}|Gastado {}|Gasto {}
+@of {}|sur {}|de {}|de {}
+@of {} expected|sur {} prévus|de {} previstos|de {} previstos
+@Bills & deposits due in {} days|Factures et dépôts dus d'ici {} jours|Facturas y depósitos que vencen en {} días|Contas e depósitos que vencem em {} dias
+@Bills & Deposits|Factures et dépôts|Facturas y depósitos|Contas e depósitos
+@Backed up {}|Sauvegardé {}|Respaldado {}|Backup feito {}
+@changes waiting for next backup|changements en attente de la prochaine sauvegarde|cambios esperando el próximo respaldo|alterações aguardando o próximo backup
+@Every budget category is on track.|Chaque catégorie du budget est dans les limites.|Todas las categorías del presupuesto van bien.|Todas as categorias do orçamento estão em dia.
+@From your scheduled bills, deposits and transfers; bills whose amount varies count at their average.|D'après vos factures, dépôts et transferts prévus; les factures dont le montant varie comptent à leur moyenne.|Según tus facturas, depósitos y transferencias programados; las facturas de monto variable cuentan por su promedio.|Com base nas suas contas, depósitos e transferências agendados; contas de valor variável contam pela média.
+@(this computer)|(cet ordinateur)|(esta computadora)|(este computador)
+@statement closed {}: enter its balance.|relevé fermé le {} : entrez son solde.|estado de cuenta cerrado el {}: ingresa su saldo.|fatura fechada em {}: digite o saldo.
+@into {} new account{}|dans {} nouveau(x) compte(s)|en {} cuenta(s) nueva(s)|em {} conta(s) nova(s)
+@, with {} scheduled item{}|, avec {} élément(s) prévu(s)|, con {} elemento(s) programado(s)|, com {} item(ns) agendado(s)
+@{} receipt{} or file{} attached|{} reçu(s) ou fichier(s) joint(s)|{} recibo(s) o archivo(s) adjunto(s)|{} recibo(s) ou arquivo(s) anexado(s)
+@Average of the last {} payment{}|Moyenne des {} dernier(s) paiement(s)|Promedio de los últimos {} pago(s)|Média dos últimos {} pagamento(s)
+@{} automatic entr{} updated to the bank's amount|{} écriture(s) automatique(s) mise(s) à jour au montant de la banque|{} movimiento(s) automático(s) actualizado(s) al monto del banco|{} lançamento(s) automático(s) atualizado(s) para o valor do banco
+@{} other backup{} stay{} there. The newest one is a copy of everything as of {}.|{1} autre(s) sauvegarde(s) y reste(nt). La plus récente est une copie de tout en date du {4}.|{1} otro(s) respaldo(s) se queda(n) ahí. El más reciente es una copia de todo al {4}.|{1} outro(s) backup(s) fica(m) lá. O mais recente é uma cópia de tudo em {4}.
+@🗂 {} only ▾|🗂 Seulement {} ▾|🗂 Solo {} ▾|🗂 Só {} ▾
+@🗂 All my environments ▾|🗂 Tous mes environnements ▾|🗂 Todos mis entornos ▾|🗂 Todos os meus ambientes ▾
+@{} only|Seulement {}|Solo {}|Só {}
+@gross {} · {} taxes & deductions{}|brut {} · {} impôts et retenues{}|bruto {} · {} impuestos y deducciones{}|bruto {} · {} impostos e descontos{}
+@({} principal & interest{}). {} Next payment {}.|({} capital et intérêts{}). {} Prochain paiement {}.|({} capital e intereses{}). {} Próximo pago {}.|({} principal e juros{}). {} Próximo pagamento {}.
+@{} new · {} matched · {} automatic entr{} to update · {} already there|{1} nouvelles · {2} associées · {3} écriture(s) automatique(s) à mettre à jour · {5} déjà là|{1} nuevos · {2} emparejados · {3} movimiento(s) automático(s) por actualizar · {5} ya están|{1} novos · {2} associados · {3} lançamento(s) automático(s) a atualizar · {5} já estão lá
+@Share related Bills & Deposits|Partager les factures et dépôts liés|Compartir las facturas y depósitos relacionados|Compartilhar as contas e depósitos relacionados
+@People & access|Personnes et accès|Personas y acceso|Pessoas e acesso
+@Set by the container (environment variable)|Défini par le conteneur (variable d'environnement)|Lo define el contenedor (variable de entorno)|Definido pelo contêiner (variável de ambiente)
+@Password|Mot de passe|Contraseña|Senha
+@Category or transfer|Catégorie ou transfert|Categoría o transferencia|Categoria ou transferência
+@edit|modifier|editar|editar
+@later|plus tard|más tarde|depois
+@earlier|plus tôt|antes|antes
+@deposit|dépôt|depósito|depósito
+@bill|facture|factura|conta
+@transfer|transfert|transferencia|transferência
+@automatic|automatique|automático|automático
+@loan payment|paiement de prêt|pago de préstamo|pagamento de empréstimo
+@money in|argent qui entre|dinero que entra|dinheiro que entra
+@money out|argent qui sort|dinero que sale|dinheiro que sai
+@between your accounts|entre vos comptes|entre tus cuentas|entre suas contas
+@Show the next|Afficher les prochains|Mostrar los próximos|Mostrar os próximos
+@{} days|{} jours|{} días|{} dias
+@{} day|{} jour|{} día|{} dia
+@net {}|net {}|neto {}|líquido {}
+@net|net|neto|líquido
+@Deposits|Dépôts|Depósitos|Depósitos
+@Transfers|Transferts|Transferencias|Transferências
+@Bills|Factures|Facturas|Contas
+@Next|Suivant|Siguiente|Próximo
+@{} time|{} fois|{} vez|{} vez
+@{} times|{} fois|{} veces|{} vezes
+@{} entered|{} inscrit(s)|{} registrado(s)|{} lançado(s)
+@Paid out {}|Payé {}|Pagado {}|Pago {}
+@of {} scheduled|sur {} prévus|de {} programados|de {} agendados
+@received {}|reçu {}|recibido {}|recebido {}
+@paid {}|payé {}|pagado {}|pago {}
+@spent {}|dépensé {}|gastado {}|gasto {}
+@scheduled {}|prévu {}|programado {}|agendado {}
+@so far {}|jusqu'ici {}|hasta ahora {}|até agora {}
+@{} moved to your other accounts|{} versés à vos autres comptes|{} enviados a tus otras cuentas|{} enviados para suas outras contas
+@Loan payment: {}|Paiement de prêt : {}|Pago de préstamo: {}|Pagamento de empréstimo: {}
+@Loan payment: {} (principal, interest, escrow)|Paiement de prêt : {} (capital, intérêts, entiercement)|Pago de préstamo: {} (capital, intereses, depósito en garantía)|Pagamento de empréstimo: {} (principal, juros, caução)
+@Card payment to {} (full balance)|Paiement de carte à {} (solde complet)|Pago de tarjeta a {} (saldo total)|Pagamento do cartão {} (saldo total)
+@Card payment to {}|Paiement de carte à {}|Pago de tarjeta a {}|Pagamento do cartão {}
+@set in the card's details|défini dans les détails de la carte|definido en los detalles de la tarjeta|definido nos detalhes do cartão
+@{} principal · {} interest{}|{} capital · {} intérêts{}|{} capital · {} intereses{}|{} principal · {} juros{}
+@{} principal|{} capital|{} capital|{} principal
+@{} interest|{} intérêts|{} intereses|{} juros
+@{} income {}|{} revenus {}|{} ingresos {}|{} receitas {}
+@{} spending {}|{} dépenses {}|{} gastos {}|{} gastos {}
+@): a tax return needs official exchange rates, so add those amounts yourself.|) : une déclaration de revenus exige des taux de change officiels, alors ajoutez ces montants vous-même.|): una declaración de impuestos necesita tipos de cambio oficiales, así que agrega esos montos tú mismo.|): uma declaração de imposto precisa de cotações oficiais, então some esses valores você mesmo.
+@{} paystubs, {} – {} · take-home pay into {}|{} talons de paie, {} – {} · salaire net dans {}|{} recibos de nómina, {} – {} · sueldo neto a {}|{} holerites, {} – {} · salário líquido em {}
+@{} paystub, {} – {} · take-home pay into {}|{} talon de paie, {} – {} · salaire net dans {}|{} recibo de nómina, {} – {} · sueldo neto a {}|{} holerite, {} – {} · salário líquido em {}
+@take-home pay into {}|salaire net dans {}|sueldo neto a {}|salário líquido em {}
+@Where it went|Où c'est allé|A dónde fue|Para onde foi
+@→ to {}|→ vers {}|→ a {}|→ para {}
+@to {}|vers {}|a {}|para {}
+@All taxes and deductions|Tous les impôts et retenues|Todos los impuestos y deducciones|Todos os impostos e descontos
+@Check these against your W-2: box 1 is usually gross pay less pre-tax deductions (401(k), HSA, health insurance), and boxes 2, 4 and 6 should match the federal income tax, Social Security and Medicare above.|Comparez-les à votre W-2 : la case 1 est habituellement le salaire brut moins les retenues avant impôts (401(k), HSA, assurance maladie), et les cases 2, 4 et 6 devraient correspondre à l'impôt fédéral, à la sécurité sociale et à Medicare ci-dessus.|Compáralos con tu W-2: la casilla 1 suele ser el sueldo bruto menos las deducciones antes de impuestos (401(k), HSA, seguro médico), y las casillas 2, 4 y 6 deben coincidir con el impuesto federal, el Seguro Social y Medicare de arriba.|Compare com seu W-2: o quadro 1 costuma ser o salário bruto menos os descontos antes dos impostos (401(k), HSA, plano de saúde), e os quadros 2, 4 e 6 devem bater com o imposto de renda federal, a Previdência Social e o Medicare acima.
+@deductions itemized|retenues détaillées|deducciones detalladas|descontos detalhados
+@take-home only|net seulement|solo neto|só líquido
+@gross and take-home|brut et net|bruto y neto|bruto e líquido
+@usually {}|habituellement {}|normalmente {}|normalmente {}
+@(or open the paystub), or|(ou ouvrez le talon de paie), ou|(o abre el recibo de nómina), o|(ou abra o holerite), ou
+@when that's all it will have.|quand c'est tout ce qu'il aura.|cuando eso es todo lo que tendrá.|quando é tudo o que ele vai ter.
+@e.g. {}|p. ex. {}|p. ej. {}|ex.: {}
+@all|tout|todo|tudo
+@Put in / taken out|Versé / retiré|Aportado / retirado|Depositado / retirado
+@counts for|compte pour|cuenta para|conta para
+@Contributions counted for {}|Cotisations comptées pour {}|Aportaciones contadas para {}|Depósitos contados para {}
+@Withdrawals in {}|Retraits en {}|Retiros en {}|Saques em {}
+@matches|correspond|coincide|confere
+@Paid to {} from this HSA:|Payé à {} depuis ce HSA :|Pagado a {} desde esta HSA:|Pago a {} desta HSA:
+@Date|Date|Fecha|Data
+@Like this device ({})|Comme cet appareil ({})|Como este dispositivo ({})|Como este dispositivo ({})
+@administrators|administrateurs|administradores|administradores
+@administrator|administrateur|administrador|administrador
+@(optional)|(facultatif)|(opcional)|(opcional)
+@owner|propriétaire|dueño|dono
+@editor|rédacteur|editor|editor
+@viewer|lecteur|lector|leitor
+@tax|impôts|impuestos|impostos
+@budget|budget|presupuesto|orçamento
+@days|jours|días|dias
+@scheduled|planifiée|programado|agendado
+@recent scheduled|planifiée récente|programado reciente|agendado recente
+@scheduled → folder|planifiée → dossier|programado → carpeta|agendado → pasta
+@after changes → folder|après changements → dossier|después de cambios → carpeta|após alterações → pasta
+@manual|manuelle|manual|manual
+@done|terminé|listo|concluído
+@verified|vérifiée|verificado|verificado
+@failed|échec|falló|falhou
+@Program on this computer (not Docker)|Programme sur cet ordinateur (pas Docker)|Programa en esta computadora (no Docker)|Programa neste computador (não Docker)
+@on {}|sur {}|en {}|em {}
+@private|privé|privado|privado
+@and|et|y|e
+@MoneyThistle (automatic)|MoneyThistle (automatique)|MoneyThistle (automático)|MoneyThistle (automático)
+@Added entry: {}|Écriture ajoutée : {}|Movimiento agregado: {}|Lançamento adicionado: {}
+@Changed entry: {}|Écriture modifiée : {}|Movimiento cambiado: {}|Lançamento alterado: {}
+@Deleted entry: {}|Écriture supprimée : {}|Movimiento eliminado: {}|Lançamento excluído: {}
+@Added scheduled item: {}|Élément prévu ajouté : {}|Elemento programado agregado: {}|Item agendado adicionado: {}
+@Changed scheduled item: {}|Élément prévu modifié : {}|Elemento programado cambiado: {}|Item agendado alterado: {}
+@Deleted scheduled item: {}|Élément prévu supprimé : {}|Elemento programado eliminado: {}|Item agendado excluído: {}
+@Added account: {}|Compte ajouté : {}|Cuenta agregada: {}|Conta adicionada: {}
+@Changed account: {}|Compte modifié : {}|Cuenta cambiada: {}|Conta alterada: {}
+@Deleted account: {}|Compte supprimé : {}|Cuenta eliminada: {}|Conta excluída: {}
+@Added category: {}|Catégorie ajoutée : {}|Categoría agregada: {}|Categoria adicionada: {}
+@Changed category: {}|Catégorie modifiée : {}|Categoría cambiada: {}|Categoria alterada: {}
+@Deleted category: {}|Catégorie supprimée : {}|Categoría eliminada: {}|Categoria excluída: {}
+@Moved account {} ({} entries) to {}|Compte {} déplacé ({} écritures) vers {}|Cuenta {} movida ({} movimientos) a {}|Conta {} movida ({} lançamentos) para {}
+@Moved account {} ({} entries) here from {}|Compte {} déplacé ({} écritures) ici depuis {}|Cuenta {} movida ({} movimientos) aquí desde {}|Conta {} movida ({} lançamentos) para cá de {}
+@connected|connecté|conectado|conectado
+@ended|terminé|terminado|encerrado
+@made when the account moved|créé lors du déplacement du compte|creada al mover la cuenta|criada quando a conta foi movida
+@made through a shared account (ends when the share ends)|créé par un compte partagé (prend fin avec le partage)|creada por una cuenta compartida (termina cuando termina el compartir)|criada por uma conta compartilhada (termina quando o compartilhamento terminar)
+@asked by {} on {}|demandé par {} le {}|pedido por {} el {}|pedido por {} em {}
+@new items are added to {}|les nouveaux éléments sont ajoutés à {}|los elementos nuevos se agregan a {}|os itens novos são adicionados a {}
+@Showing {} together|{} affichés ensemble|Mostrando {} juntos|Mostrando {} juntos
+@From account|Du compte|De la cuenta|Da conta
+@To account|Vers le compte|A la cuenta|Para a conta
+@In the budget a paycheck counts as its take-home pay.|Dans le budget, une paie compte à son salaire net.|En el presupuesto, un pago de nómina cuenta por su sueldo neto.|No orçamento, um salário conta pelo valor líquido.
+@into {}|dans {}|a {}|em {}
+@Whatever isn't itemized is recorded as|Ce qui n'est pas détaillé est inscrit comme|Lo que no se detalla se registra como|O que não for detalhado é registrado como
+@Accounts in other currencies aren't in this report|Les comptes dans d'autres devises ne sont pas dans ce rapport|Las cuentas en otras monedas no están en este informe|As contas em outras moedas não estão neste relatório
+@Open the entry in its register and choose|Ouvrez l'écriture dans son registre et choisissez|Abre el movimiento en su registro y elige|Abra o lançamento no extrato e escolha
+@Help: {}|Aide : {}|Ayuda: {}|Ajuda: {}
+@Paycheck Deductions|Retenues sur la paie|Deducciones de nómina|Descontos em folha
+@⚠ Never open it to the public internet: use it on your home network or through Tailscale.|⚠ Ne l'ouvrez jamais à l'Internet public : utilisez-le sur votre réseau domestique ou par Tailscale.|⚠ Nunca lo abras al internet público: úsalo en tu red de casa o a través de Tailscale.|⚠ Nunca o abra para a internet pública: use na sua rede de casa ou pelo Tailscale.
+@· this address works only on this computer; for your phone, turn on "Other devices" in Settings (then restart), or run MoneyThistle on your server|· cette adresse ne fonctionne que sur cet ordinateur; pour votre téléphone, activez « Autres appareils » dans les Paramètres (puis redémarrez), ou faites tourner MoneyThistle sur votre serveur|· esta dirección solo funciona en esta computadora; para tu teléfono, activa "Otros dispositivos" en Configuración (y reinicia), o ejecuta MoneyThistle en tu servidor|· este endereço só funciona neste computador; para o celular, ative "Outros dispositivos" em Configurações (e reinicie), ou rode o MoneyThistle no seu servidor
+@Name in other languages|Nom dans d'autres langues|Nombre en otros idiomas|Nome em outros idiomas
+@Shown to people who use MoneyThistle in that language. Left empty, they see the name above.|Affiché aux personnes qui utilisent MoneyThistle dans cette langue. Laissé vide, elles voient le nom ci-dessus.|Se muestra a quienes usan MoneyThistle en ese idioma. Si queda vacío, ven el nombre de arriba.|Mostrado para quem usa o MoneyThistle nesse idioma. Se ficar vazio, verão o nome acima.
+@A category|Une catégorie|Una categoría|Uma categoria
+@One of my accounts|Un de mes comptes|Una de mis cuentas|Uma das minhas contas
+@Sent to one of my accounts (401(k), HSA, savings...)|Envoyé à un de mes comptes (401(k), HSA, épargne...)|Enviado a una de mis cuentas (401(k), HSA, ahorros...)|Enviado para uma das minhas contas (401(k), HSA, poupança...)
+@Shared with you|Partagé avec vous|Compartido contigo|Compartilhado com você
+@Taxes and other deductions|Impôts et autres retenues|Impuestos y otras deducciones|Impostos e outros descontos
+@Transfer between my accounts|Transfert entre mes comptes|Transferencia entre mis cuentas|Transferência entre minhas contas
+@Transfer to another environment|Transfert vers un autre environnement|Transferencia a otro entorno|Transferência para outro ambiente
+@Transfer with a shared account|Transfert avec un compte partagé|Transferencia con una cuenta compartida|Transferência com uma conta compartilhada
+@No other accounts: use Savings & Investments for a 401(k) or HSA|Aucun autre compte : utilisez Épargne et placements pour un 401(k) ou un HSA|No hay otras cuentas: usa Ahorros e inversiones para un 401(k) o HSA|Nenhuma outra conta: use Poupança e investimentos para um 401(k) ou HSA
+@(choose the account)|(choisissez le compte)|(elige la cuenta)|(escolha a conta)
+@Part of the take-home pay into another account|Une partie de la paie nette dans un autre compte|Parte del pago neto a otra cuenta|Parte do salário líquido em outra conta
+@The rest of the take-home pay goes into the account above.|Le reste de la paie nette va dans le compte ci-dessus.|El resto del pago neto va a la cuenta de arriba.|O resto do salário líquido vai para a conta acima.
+@Direct deposit split between accounts: a set amount into one, the rest into another|Dépôt direct réparti entre des comptes : un montant fixe dans l'un, le reste dans l'autre|Depósito directo dividido entre cuentas: un monto fijo a una, el resto a otra|Depósito dividido entre contas: um valor fixo numa, o resto na outra
+@+ Part of it goes into another account|+ Une partie va dans un autre compte|+ Una parte va a otra cuenta|+ Uma parte vai para outra conta
+@To split the take-home pay between accounts, enter the gross pay too (under Paystub details).|Pour répartir la paie nette entre des comptes, entrez aussi la paie brute (sous Détails du talon de paie).|Para dividir el pago neto entre cuentas, ingresa también el pago bruto (en Detalles del recibo de nómina).|Para dividir o salário líquido entre contas, informe também o salário bruto (em Detalhes do holerite).
+@The parts going into other accounts come to {} more than the take-home pay.|Les parties versées dans d'autres comptes dépassent la paie nette de {}.|Las partes que van a otras cuentas suman {} más que el pago neto.|As partes que vão para outras contas somam {} a mais que o salário líquido.
+@The parts deposited into other accounts come to more than the take-home pay|Les parties déposées dans d'autres comptes dépassent la paie nette|Las partes depositadas en otras cuentas suman más que el pago neto|As partes depositadas em outras contas somam mais que o salário líquido
+@Choose the other account {} went into|Choisissez l'autre compte où {} est allé|Elige la otra cuenta a la que fue {}|Escolha a outra conta para onde foi {}
+@that part|cette partie|esa parte|essa parte
+@Direct deposit|Dépôt direct|Depósito directo|Depósito direto
+@Account it went into|Compte où il est allé|Cuenta a la que fue|Conta para onde foi
+@into {} (the rest)|dans {} (le reste)|a {} (el resto)|em {} (o resto)
+@Take-home pay is what reached your account (all of it, when part goes into another account). Only have that? It's enough: add the paystub later from the register.|La paie nette est ce qui est arrivé dans votre compte (en entier, quand une partie va dans un autre compte). Vous n'avez que ça? C'est suffisant : ajoutez le talon de paie plus tard depuis le registre.|El pago neto es lo que llegó a tu cuenta (todo, cuando una parte va a otra cuenta). ¿Solo tienes eso? Es suficiente: agrega el recibo de nómina después desde el registro.|O salário líquido é o que chegou na sua conta (todo ele, quando uma parte vai para outra conta). Só tem isso? Já basta: adicione o holerite depois pelo extrato.
+@Move up (Alt+↑)|Monter (Alt+↑)|Subir (Alt+↑)|Mover para cima (Alt+↑)
+@Move down (Alt+↓)|Descendre (Alt+↓)|Bajar (Alt+↓)|Mover para baixo (Alt+↓)
+@Move this line up|Monter cette ligne|Subir esta línea|Mover esta linha para cima
+@Move this line down|Descendre cette ligne|Bajar esta línea|Mover esta linha para baixo
+@Goes into (the rest)|Va dans (le reste)|Va a (el resto)|Vai para (o resto)
+@Take-home pay split between accounts|Paie nette répartie entre des comptes|Pago neto dividido entre cuentas|Salário líquido dividido entre contas
+@The rest|Le reste|El resto|O resto
+@Take-home pay is the whole net pay, also when part of it goes into another account. Only have that? It's enough: add the paystub later from the register.|La paie nette est toute la paie nette, aussi quand une partie va dans un autre compte. Vous n'avez que ça? C'est suffisant : ajoutez le talon de paie plus tard depuis le registre.|El pago neto es todo el neto, también cuando una parte va a otra cuenta. ¿Solo tienes eso? Es suficiente: agrega el recibo de nómina después desde el registro.|O salário líquido é todo o líquido, também quando uma parte vai para outra conta. Só tem isso? Já basta: adicione o holerite depois pelo extrato.
+@Deposited into|Déposé dans|Depositado en|Depositado em
+@+ Add an account|+ Ajouter un compte|+ Agregar una cuenta|+ Adicionar uma conta
+@Pay split between accounts by direct deposit: enter what reached each one|Paie répartie entre des comptes par dépôt direct : entrez ce qui est arrivé dans chacun|Pago dividido entre cuentas por depósito directo: ingresa lo que llegó a cada una|Salário dividido entre contas por depósito: informe o que chegou em cada uma
+@Enter what reached each account: the take-home pay is their total. Only have that? It's enough: add the paystub later from the register.|Entrez ce qui est arrivé dans chaque compte : la paie nette est leur total. Vous n'avez que ça? C'est suffisant : ajoutez le talon de paie plus tard depuis le registre.|Ingresa lo que llegó a cada cuenta: el pago neto es su total. ¿Solo tienes eso? Es suficiente: agrega el recibo de nómina después desde el registro.|Informe o que chegou em cada conta: o salário líquido é o total delas. Só tem isso? Já basta: adicione o holerite depois pelo extrato.
+@Enter how much reached the account|Entrez combien est arrivé dans le compte|Ingresa cuánto llegó a la cuenta|Informe quanto chegou na conta
+@The other accounts come to {} more than the take-home pay.|Les autres comptes dépassent la paie nette de {}.|Las otras cuentas suman {} más que el pago neto.|As outras contas somam {} a mais que o salário líquido.
+@Choose the account that amount went into|Choisissez le compte où ce montant est allé|Elige la cuenta a la que fue ese monto|Escolha a conta para onde foi esse valor
+@Choose the other account that amount went into|Choisissez l'autre compte où ce montant est allé|Elige la otra cuenta a la que fue ese monto|Escolha a outra conta para onde foi esse valor
+@Take-home pay (total)|Paie nette (total)|Pago neto (total)|Salário líquido (total)
+@Remove this account|Retirer ce compte|Quitar esta cuenta|Remover esta conta
+@Amount|Montant|Monto|Valor
+@Also deposited into|Aussi déposé dans|También depositado en|Também depositado em
+@Each time|Chaque fois|Cada vez|Cada vez
+@Set amount|Montant fixe|Monto fijo|Valor fixo
+@Average|Moyenne|Promedio|Média
+@Average so far|Moyenne jusqu'ici|Promedio hasta ahora|Média até agora
+@estimate|estimation|estimado|estimativa
+@Starting estimate, until the first one is recorded|Estimation de départ, jusqu'au premier enregistré|Estimado inicial, hasta que se registre el primero|Estimativa inicial, até o primeiro ser registrado
+@Paid into more than one account (direct deposit split between accounts)|Versé dans plus d'un compte (dépôt direct réparti entre des comptes)|Depositado en más de una cuenta (depósito directo dividido entre cuentas)|Depositado em mais de uma conta (depósito dividido entre contas)
+@Choose the other account for each amount|Choisissez l'autre compte pour chaque montant|Elige la otra cuenta para cada monto|Escolha a outra conta para cada valor
+@Each account can be listed once|Chaque compte ne peut figurer qu'une fois|Cada cuenta puede aparecer una sola vez|Cada conta só pode aparecer uma vez
+@Enter the amount for each account (or choose Average)|Entrez le montant pour chaque compte (ou choisissez Moyenne)|Ingresa el monto para cada cuenta (o elige Promedio)|Informe o valor de cada conta (ou escolha Média)
+@Record {}|Enregistrer {}|Registrar {}|Lançar {}
+@Help|Aide|Ayuda|Ajuda

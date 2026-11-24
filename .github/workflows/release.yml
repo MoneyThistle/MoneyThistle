@@ -1,0 +1,73 @@
+# A release: push a tag like v1.0.0 (matching VERSION in moneyapp/version.py and a section in
+# CHANGELOG.md). This tests, builds the Windows setup (MoneyThistle-Setup-<version>.exe), has it
+# signed by SignPath Foundation when signing is set up (free for open-source projects; until
+# then the setup is published unsigned), and publishes a GitHub release with it.
+#
+# Signing, once SignPath approves the project (https://signpath.org/apply): add the repository
+# secret SIGNPATH_API_TOKEN and the variables SIGNPATH_ORGANIZATION_ID, SIGNPATH_PROJECT_SLUG
+# (e.g. moneythistle) and SIGNPATH_POLICY_SLUG (e.g. release-signing).
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Version matches the tag
+        shell: pwsh
+        run: |
+          $v = python -c "import sys; sys.path.insert(0, '.'); from moneyapp.version import VERSION; print(VERSION)"
+          if ("v$v" -ne "${{ github.ref_name }}") { throw "Tag ${{ github.ref_name }} but moneyapp/version.py says $v" }
+          if (-not (Select-String -Path CHANGELOG.md -Pattern "^## $([regex]::Escape($v))\b" -Quiet)) { throw "CHANGELOG.md has no section for $v" }
+          "VERSION=$v" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Tests
+        env:
+          NO_SHORTCUTS: "1"
+        run: python -W ignore -m unittest discover -s tests
+      - name: Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue) -and -not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup -y --no-progress
+          }
+      - name: Build the setup
+        run: python tools/build_windows.py
+      - name: Keep the unsigned setup
+        id: unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-unsigned
+          path: dist/MoneyThistle-Setup-${{ env.VERSION }}.exe
+          if-no-files-found: error
+      - name: Sign (SignPath Foundation)
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: dist-signed
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $file = if (Test-Path "dist-signed/MoneyThistle-Setup-$env:VERSION.exe") { "dist-signed/MoneyThistle-Setup-$env:VERSION.exe" } else { "dist/MoneyThistle-Setup-$env:VERSION.exe" }
+          # The release notes: this version's section of CHANGELOG.md.
+          $lines = Get-Content CHANGELOG.md; $out = @(); $on = $false
+          foreach ($l in $lines) { if ($l -match '^## ') { $on = $l -match "^## $([regex]::Escape($env:VERSION))\b"; if ($on) { continue } } ; if ($on) { $out += $l } }
+          $out -join "`n" | Out-File notes.md -Encoding utf8
+          $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+          "`n`nSHA-256 of the setup: ``$hash``" | Out-File notes.md -Append -Encoding utf8
+          gh release create "${{ github.ref_name }}" $file --title "MoneyThistle $env:VERSION" --notes-file notes.md

@@ -1,0 +1,21 @@
+# Never publish money data, backups or settings with passwords.
+data/
+backups/
+*.db
+*.db-journal
+*.zip.enc
+settings.json
+notify.json
+network.json
+autostart.json
+shortcuts.json
+.control-token
+moneythistle.log
+# Test copies, build output
+shots/
+build/
+dist/
+__pycache__/
+*.pyc
+.venv/
+venv/
