@@ -1095,7 +1095,7 @@ DATA:OFXSGML
         self.system.store(1).save_account({"name": "Checking", "type": "Checking", "opening_balance": "12.34"})
         was = store_mod._SERIALIZE
         try:
-            for flag in (False, True):
+            for flag in ((False, True) if was else (False,)):   # (3.10 can only take the file way)
                 store_mod._SERIALIZE = flag
                 z = zipfile.ZipFile(io.BytesIO(self.system.snapshot_bytes()))
                 money = next(n for n in z.namelist() if n.endswith(".db") and n != "system.db")
