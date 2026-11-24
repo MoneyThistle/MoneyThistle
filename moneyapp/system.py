@@ -588,6 +588,40 @@ class System:
         except OSError:
             pass
 
+    def reset_env(self, env_id):
+        """Start an environment over, as if new: an empty money file with the starting
+        categories takes the place of the one there, which is kept beside it in the data folder
+        (renamed "<file>.before-reset-<date-time>"), never deleted. Its connections and shares
+        with other environments end and its change history goes. People, sign-ins, access,
+        backup settings, other environments and the main currency stay as they are."""
+        env = self.q1("SELECT * FROM environments WHERE id=?", (env_id,))
+        if not env:
+            raise ApiError("No such environment", 404)
+        home = self.store(env_id).money_settings()["home"]
+        with self.lock:
+            st = self.stores.pop(env_id, None)
+            if st:
+                st.close()
+            self.db.execute("UPDATE links SET status='ended', ended=? WHERE (env_a=? OR env_b=?) AND status IN ('pending','active')",
+                            (_now(), env_id, env_id))
+            self.db.execute("UPDATE shares SET status='ended', ended=? WHERE (env_a=? OR env_b=?) AND status IN ('pending','active')",
+                            (_now(), env_id, env_id))
+            try:
+                self.db.execute("DELETE FROM changes WHERE env_id=?", (env_id,))
+            except sqlite3.OperationalError:
+                pass   # (no change history yet)
+            self.db.commit()
+            src = os.path.join(self.data_dir, env["file"])
+            kept = src + ".before-reset-" + time.strftime("%Y%m%d-%H%M%S")
+            for ext in ("", "-wal", "-shm"):
+                if os.path.exists(src + ext):
+                    os.replace(src + ext, kept + ext)
+            st = self.store(env_id)   # a new file, with the starting categories
+            if home != st.money_settings()["home"]:
+                st.set_money_settings({"home": home})
+            self.changed()
+        return {"kept": os.path.basename(kept)}
+
     def set_member(self, env_id, username, role):
         if role not in ROLES:
             raise ApiError("Role must be owner, editor or viewer")

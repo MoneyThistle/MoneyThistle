@@ -1086,6 +1086,35 @@ DATA:OFXSGML
                                                                "lines": [gross("2000"), fed("150")]}, env=1)
         self.assertEqual([x["name"] for x in c.call("GET", f"/api/transactions/{d2['ids'][0]}/attachments", env=1)], ["stub.pdf"])
 
+    def test_start_fresh(self):
+        """Sample data, then Start fresh: an empty file with the starting categories, the old one kept."""
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        env = c.call("GET", "/api/me")["envs"][0]
+        self.assertFalse(env["sample_data"])
+        c.call("PUT", "/api/money", {"home": "CAD"}, env=1)
+        c.call("POST", "/api/sample", {}, env=1)
+        self.assertTrue(c.call("GET", "/api/me")["envs"][0]["sample_data"])
+        self.assertTrue(c.call("GET", "/api/accounts", env=1))
+        # Sample data goes with one click.
+        r = c.call("POST", f"/api/envs/{env['id']}/start-fresh", {})
+        self.assertIn("before-reset", r["kept"])
+        self.assertTrue(os.path.exists(os.path.join(self.dir, r["kept"])))
+        self.assertEqual(c.call("GET", "/api/accounts", env=1), [])
+        self.assertEqual(c.call("GET", "/api/bills", env=1)["bills"], [])
+        cats = c.call("GET", "/api/categories", env=1)
+        cats = cats.get("categories", cats) if isinstance(cats, dict) else cats
+        self.assertTrue(any(x["name"] == "Bills" and x["names"].get("pt") == "Contas" for x in cats))
+        self.assertEqual(c.call("GET", "/api/money", env=1)["home"], "CAD")   # a preference, kept
+        self.assertFalse(c.call("GET", "/api/me")["envs"][0]["sample_data"])
+        # Real data needs the environment's name typed.
+        c.call("POST", "/api/accounts", {"name": "Mine", "type": "Checking", "opening_balance": "10"}, env=1)
+        self.assertEqual(c.status("POST", f"/api/envs/{env['id']}/start-fresh", {"confirm": "nope"}), 400)
+        self.assertTrue(c.call("GET", "/api/accounts", env=1))
+        c.call("POST", f"/api/envs/{env['id']}/start-fresh", {"confirm": env["name"].upper()})
+        self.assertEqual(c.call("GET", "/api/accounts", env=1), [])
+
     def test_category_names(self):
         app, base = self._serve()
         c = Client(base)
@@ -2369,6 +2398,42 @@ class PaystubTests(unittest.TestCase):
         st.delete_bill(bid)
         self.assertFalse(st.q1("SELECT 1 FROM bills WHERE id=?", (child,)))
 
+    def test_update_value(self):
+        """An investment's value typed in: one Change in Value entry, kept out of spending; a monthly reminder."""
+        import datetime as dt
+        st = self.st
+        old = (dt.date.today() - dt.timedelta(days=60)).isoformat()
+        roth = st.save_account({"name": "Roth IRA", "type": "Retirement", "opening_balance": "10000", "opening_date": old})
+        house = st.save_account({"name": "House", "type": "Asset", "opening_balance": "300000", "opening_date": old})
+        chk = st.save_account({"name": "Checking", "type": "Checking", "opening_date": old})
+        due = [x for x in st.statements_due() if x.get("kind") == "value"]
+        self.assertEqual([x["name"] for x in due], ["Roth IRA"])   # assets aren't reminded unless asked
+        with self.assertRaises(ApiError):
+            st.update_value(chk, dt.date.today().isoformat(), "5")
+        t = dt.date.today().isoformat()
+        r = st.update_value(roth, t, "10,750.25")
+        self.assertEqual((r["change"], st.account(roth)["balance"]), (75025, 1075025))
+        cat = st.q1("SELECT category_id FROM transactions WHERE id=?", (r["id"],))["category_id"]
+        self.assertEqual(st.q1("SELECT kind, name FROM categories WHERE id=?", (cat,))["kind"], "none")
+        self.assertEqual(st.category_names()[cat].get("pt"), "Variação de valor")
+        # Again the same day: replaced, not added.
+        st.update_value(roth, t, "10500")
+        self.assertEqual(st.account(roth)["balance"], 1050000)
+        self.assertEqual(st.q1("SELECT COUNT(*) n FROM transactions WHERE account_id=?", (roth,))["n"], 1)
+        self.assertFalse([x for x in st.statements_due() if x.get("kind") == "value"])
+        # Not spending or income.
+        month = dt.date.today().replace(day=1).isoformat()
+        self.assertFalse(any(x.get("category_id") == cat for x in st.spending_by_category(month, t)))
+        self.assertFalse(any(x.get("category_id") == cat for x in st.spending_by_category(month, t, "income")))
+        # Saving the details keeps the last value; the reminder can be turned off, or on for an asset.
+        acc = st.account(roth)
+        st.save_account({"name": "Roth IRA", "type": "Retirement", "opening_balance": "10000", "opening_date": old,
+                         "details": {"value_reminder": False}}, roth)
+        self.assertEqual(st.account(roth)["details"]["last_value"]["value"], 1050000)
+        st.save_account({"name": "House", "type": "Asset", "opening_balance": "300000", "opening_date": old,
+                         "details": {"value_reminder": True}}, house)
+        self.assertEqual([x["name"] for x in st.statements_due() if x.get("kind") == "value"], ["House"])
+
     def test_line_order(self):
         """Deductions keep the order they were put in (the paystub's own), also in the copy."""
         from moneyapp import paystubs
@@ -2401,6 +2466,68 @@ class MigrateTests(unittest.TestCase):
 
     def bal(self, name):
         return next(a["balance"] for a in self.st.accounts() if a["name"] == name)
+
+    def test_qif_moneydance(self):
+        """Moneydance's "All accounts" QIF turns the account list mode on and never off: each
+        account header is still followed by that account's own entries."""
+        text = ("!Option:AutoSwitch\n"
+                "!Account\nNMortgage\nTOth L\n^\n!Type:Oth L\nD01/01/2026\nT-200,000.00\nPOpening Balance\nL[Mortgage]\n^\n"
+                "D02/01/2026\nT1,000.00\nPPayment\nL[Checking]\n^\n"
+                "!Account\nNChecking\nTBank\n^\n!Type:Bank\nD01/01/2026\nT5,000.00\nPOpening Balance\nL[Checking]\n^\n"
+                "D02/01/2026\nT-1,000.00\nPPayment\nL[Mortgage]\n^\nD02/03/2026\nT-45.10\nPGrocer\nLGroceries\n^\n"
+                "!Account\nNSavings\nTBank\n^\n!Type:Bank\nD01/01/2026\nT2,500.00\nPOpening Balance\nL[Savings]\n^\n")
+        from moneyapp import migrate
+        accounts, _kinds, _skipped = migrate.parse_qif_all(text)
+        self.assertEqual(sorted(accounts), ["Checking", "Mortgage", "Savings"])
+        self.assertEqual(accounts["Checking"]["opening"], 500000)
+        self.assertEqual(len(accounts["Checking"]["rows"]), 2)
+        self.assertEqual(accounts["Savings"]["type"], "Savings")
+        self.assertEqual(accounts["Mortgage"]["opening"], -20000000)
+
+    def test_qif_investment_account(self):
+        """An investment account (a Roth IRA in Moneydance) comes in, with the transfers into it,
+        though its buys and dividends aren't brought in."""
+        import base64
+        from moneyapp import migrate
+        text = ("!Option:AutoSwitch\n"
+                "!Account\nNChecking\nTBank\n^\n!Type:Bank\nD01/01/2026\nT5,000.00\nPOpening Balance\nL[Checking]\n^\n"
+                "D02/01/2026\nT-500.00\nPRoth contribution\nL[Roth IRA]\n^\n"
+                "!Account\nNRoth IRA\nTInvst\n^\n!Type:Invst\nD02/01/2026\nNXIn\nT500.00\nL[Checking]\n$500.00\n^\n"
+                "D02/02/2026\nNBuy\nYTotal Market Fund\nI100\nQ5\nT500.00\n^\n")
+        accounts, _k, skipped = migrate.parse_qif_all(text)
+        self.assertEqual(accounts["Roth IRA"]["type"], "Retirement")
+        self.assertEqual(skipped["investment entries"], 1)   # the buy (the transfer in pairs with checking's)
+        data = base64.b64encode(text.encode()).decode()
+        p = migrate.preview(self.st, [{"filename": "moneydance.qif", "content": data}])
+        self.assertEqual(sorted(a["name"] for a in p["accounts"]), ["Checking", "Roth IRA"])
+        self.assertFalse(p.get("missing"))
+        migrate.bring_in(self.st, [{"filename": "moneydance.qif", "content": data}], {})
+        self.assertEqual(self.bal("Roth IRA"), 50000)
+        self.assertEqual(self.bal("Checking"), 450000)
+
+    def test_qif_hsa(self):
+        """An HSA by its name comes in as Savings, marked as an HSA, also when the program kept it as
+        investments; a cash management account as Checking; a mortgage as a Loan. Dividends and
+        interest in investment-format entries come across as income."""
+        import base64
+        from moneyapp import migrate
+        text = ("!Account\nNWork HSA\nTBank\n^\n!Type:Bank\nD01/01/2026\nT800.00\nPOpening Balance\nL[Work HSA]\n^\n"
+                "!Account\nNFidelity HSA\nTInvst\n^\n!Type:Invst\nD01/02/2026\nNXIn\nT1,200.00\nPOpening Balance\n"
+                "L[Fidelity HSA]\n^\nD01/05/2026\nNBuy\nT100.00\n^\nD01/31/2026\nNDiv\nYGovernment Money Market\nT3.12\n^\n"
+                "!Account\nNFidelity Cash Management Account\nTInvst\n^\n!Type:Invst\nD01/01/2026\nNXIn\nT2,000.00\n"
+                "L[Fidelity Cash Management Account]\n^\nD01/31/2026\nNIntInc\nT1.05\n^\n"
+                "!Account\nNMortgage\nTOth L\n^\n!Type:Oth L\nD01/01/2026\nT-200,000.00\nPOpening Balance\nL[Mortgage]\n^\n")
+        data = base64.b64encode(text.encode()).decode()
+        migrate.bring_in(self.st, [{"filename": "hsa.qif", "content": data}], {})
+        accs = {a["name"]: a for a in self.st.accounts()}
+        self.assertEqual((accs["Work HSA"]["type"], accs["Work HSA"]["details"].get("hsa")), ("Savings", True))
+        self.assertEqual((accs["Fidelity HSA"]["type"], accs["Fidelity HSA"]["details"].get("hsa")), ("Savings", True))
+        self.assertEqual(self.bal("Fidelity HSA"), 120312)                  # opening + the dividend
+        self.assertEqual(accs["Fidelity Cash Management Account"]["type"], "Checking")
+        self.assertEqual(self.bal("Fidelity Cash Management Account"), 200105)
+        self.assertEqual(accs["Mortgage"]["type"], "Loan")
+        div = self.st.q1("SELECT c.name FROM transactions t JOIN categories c ON c.id=t.category_id WHERE t.amount=312")
+        self.assertEqual(div["name"], "Dividends")
 
     def test_qif_all_accounts(self):
         from moneyapp import migrate

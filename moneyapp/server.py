@@ -110,6 +110,7 @@ class App:
         r("POST", r"/api/envs", lambda q, b: {"id": self.system.create_env(self.uid, b.get("name"))}, "user")
         r("PUT", r"/api/envs/(\d+)", self.rename_env, "user")
         r("DELETE", r"/api/envs/(\d+)", self.delete_env, "user")
+        r("POST", r"/api/envs/(\d+)/start-fresh", self.start_fresh, "user")
         r("PUT", r"/api/envs/(\d+)/members", self.set_member, "user")
         r("DELETE", r"/api/envs/(\d+)/members/(\d+)", self.remove_member, "user")
         r("GET", r"/api/envs/(\d+)/accounts", self.env_accounts, "user")
@@ -155,6 +156,8 @@ class App:
         r("POST", r"/api/accounts", lambda q, b: {"id": self.store.save_account(b)})
         r("PUT", r"/api/accounts/(\d+)", lambda q, b, i: {"id": self.store.save_account(b, int(i))})
         r("DELETE", r"/api/accounts/(\d+)", self.delete_account)
+        r("POST", r"/api/accounts/(\d+)/value", lambda q, b, i: self.store.update_value(
+            int(i), b.get("date"), b.get("value")), share="write")
         r("POST", r"/api/accounts/(\d+)/reconcile", self.reconcile, share="write")
         # Change history: who changed what, and undo.
         r("GET", r"/api/history", self.history_list, "user")
@@ -661,8 +664,15 @@ class App:
     def me(self, q, b):
         u = self.ctx.user
         links = self.system.links_for(u["id"])
+        envs = self.system.my_envs(u["id"])
+        for e in envs:
+            # (holding the made-up sample data: the screens offer Start fresh)
+            try:
+                e["sample_data"] = bool(self.system.store(e["id"]).get_setting("sample_data"))
+            except ApiError:
+                e["sample_data"] = False
         return {"user": {k: u.get(k) for k in ("id", "username", "display_name", "email", "is_admin")},
-                "envs": self.system.my_envs(u["id"]),
+                "envs": envs,
                 "approvals_waiting": sum(1 for l in links if l["can_approve"]) +
                 sum(1 for s in self.system.shares_for(u["id"]) if s["can_approve"])}
 
@@ -734,6 +744,18 @@ class App:
     def delete_env(self, q, b, i):
         self.system.require(self.uid, int(i), "owner")
         self.system.delete_env(int(i))
+
+    def start_fresh(self, q, b, i):
+        """Start an environment over (owners only). Sample data goes with a click; anything else
+        needs the environment's name typed, so it's never done by accident."""
+        env_id = int(i)
+        self.system.require(self.uid, env_id, "owner")
+        env = self.system.q1("SELECT name FROM environments WHERE id=?", (env_id,))
+        st = self.system.store(env_id)
+        if not st.get_setting("sample_data") and \
+                (b.get("confirm") or "").strip().lower() != (env["name"] or "").strip().lower():
+            raise ApiError("Type the environment's name to confirm", field="confirm")
+        return self.system.reset_env(env_id)
 
     def set_member(self, q, b, i):
         self.system.require(self.uid, int(i), "owner")

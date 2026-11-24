@@ -380,6 +380,15 @@ I18N.helpText({
     { q: "Olvidé mi contraseña.", a: `Usa <i>¿Olvidaste tu contraseña?</i> en la página de inicio de sesión, pide ayuda a un administrador, o ve <a href="#/help/signin">Inicio de sesión y contraseñas olvidadas</a> para la forma de volver a entrar que funciona sin correo.` },
     { q: "¿Puedo traer mi historial de Microsoft Money o Quicken?", a: `Sí: cada cuenta, categoría y transacción. Ver <a href="#/help/move-in">Mudarse desde otro programa</a>.` },
     { q: "¿Cómo veo el recorrido otra vez?", a: `Elige <b>Hacer el recorrido</b> arriba en esta página de Ayuda.` },
+    { q: "¿Cómo quito los datos de ejemplo, o empiezo de cero?", a: `Mientras uses los datos de ejemplo, una barra arriba en
+      cada página ofrece <b>Empezar de cero con mi propio dinero</b>. Más adelante, un propietario puede empezar un entorno de
+      cero en Configuración → Tus datos (escribiendo su nombre para confirmar): se van las cuentas, movimientos, la agenda, el
+      presupuesto y los recibos; las personas, inicios de sesión, la configuración de respaldos y los otros entornos se quedan, y
+      se guarda una copia de lo que había en la carpeta de datos de MoneyThistle.` },
+    { q: "¿Cómo mantengo al día el valor de una inversión?", a: `MoneyThistle no busca valores. Abre la cuenta y elige
+      <b>Actualizar valor</b>, y escribe cuánto vale según su estado de cuenta o su sitio: la diferencia entra como un movimiento de
+      <i>Cambio de valor</i>, fuera de los presupuestos y los informes de gastos. Las cuentas de inversión y jubilación lo
+      recuerdan cada mes (junto a los estados de las tarjetas); apágalo, o enciéndelo para un bien como una casa, en los detalles de la cuenta.` },
   ],
   terms: [
     { term: "Cuenta", def: "Donde se guarda o se debe dinero: cuenta corriente, ahorros, tarjeta de crédito, préstamo, inversión." },

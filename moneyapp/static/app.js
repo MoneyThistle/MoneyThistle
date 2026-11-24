@@ -259,7 +259,50 @@ async function loadBasics() {
   await setLang(S.ui.lang);
   applyTheme(S.ui);
   drawTopBar();
+  sampleBar();
   showAddresses();
+}
+
+// ---------- Start fresh ----------
+// While an environment holds the made-up sample data, a bar on every page says so and offers to
+// start fresh. Settings > Your data can start any environment fresh (its name typed to confirm).
+function curEnv() { return ((S.me && S.me.envs) || []).find(e => e.id === S.env) || {}; }
+function sampleBar() {
+  const old = document.getElementById("sampleBar");
+  if (old) old.remove();
+  const env = curEnv();
+  if (!env.sample_data) return;
+  const bar = document.createElement("div");
+  bar.id = "sampleBar"; bar.className = "samplebar noprint";
+  bar.innerHTML = `<span>You're exploring sample data: made-up accounts and entries.</span>
+    ${envRole() === "owner" ? `<button type="button" class="primary small" id="sampleFresh">Start fresh with my own money</button>`
+      : `<span class="small">An owner of this environment can start it fresh.</span>`}`;
+  document.getElementById("view").before(bar);
+  if (q("#sampleFresh")) q("#sampleFresh").onclick = () => startFresh();
+}
+async function startFresh() {
+  const env = curEnv();
+  let done;
+  if (env.sample_data) {
+    done = await dialog("Start fresh", `<p>The sample data goes, and this environment is ready for your own accounts, as on the
+      first day. Your sign-in and settings stay.</p>`,
+      [{ label: "Cancel", value: false }, { label: "Start fresh", cls: "primary", action: async () => { await api("POST", `/api/envs/${env.id}/start-fresh`, {}); return true; } }]);
+  } else {
+    done = await dialog("Start fresh", `<p>This clears this environment back to a new start: every account, entry, scheduled
+      item, budget amount, receipt and change to its categories. People, sign-ins, backup settings and your other environments
+      stay as they are.</p>
+      <p class="small muted"><span>A copy of what's there now is kept in MoneyThistle's data folder.</span>
+        ${S.me.user.is_admin ? "<span>To be safe, make a backup first (Settings, Backups).</span>" : ""}</p>
+      <div class="form"><div class="wide"><label class="req">Type the environment's name to confirm</label>
+        <input name="confirm" autocomplete="off" spellcheck="false" placeholder="${esc(env.name)}"></div></div>`,
+      [{ label: "Cancel", value: false }, { label: "Start fresh", cls: "danger", action: async root => {
+        await api("POST", `/api/envs/${env.id}/start-fresh`, { confirm: q("[name=confirm]", root).value }); return true; } }]);
+  }
+  if (!done) return;
+  toast("Started fresh");
+  await loadBasics();
+  location.hash = "#/home";
+  render();
 }
 
 // Top bar: which environment, who is signed in.
@@ -1078,6 +1121,9 @@ async function moveAccountsDialog(firstId) {
 // schedule, and whether purchases on the card are tracked.
 const CARD_TYPES = ["Credit Card", "Line of Credit"];
 const BANK_TYPES = ["Checking", "Savings", "Money Market", "CD"];
+// Accounts whose value moves with what they hold: "Update value" (investments are reminded monthly).
+const VALUE_TYPES = ["Investment", "Retirement", "Asset"];
+const VALUE_REMIND_TYPES = ["Investment", "Retirement"];
 function accountDetailsForm(a) {
   const d = a.details || {};
   const has = Object.keys(d).some(k => d[k] !== "" && d[k] !== false && d[k] != null);
@@ -1095,6 +1141,12 @@ function accountDetailsForm(a) {
       <div><label>Interest rate (%)</label><input name="d_interest_rate" class="num" value="${d.interest_rate != null ? esc(d.interest_rate) : ""}"></div>
       <div class="wide" style="grid-column:1/-1"><label>Contact or address</label><input name="d_contact" value="${esc(d.contact || "")}"></div>
     </div>
+    <div class="d-value">
+      <label class="check" style="margin-top:10px"><input type="checkbox" name="d_value_reminder" ${(d.value_reminder != null ? d.value_reminder : VALUE_REMIND_TYPES.includes(a.type || "")) ? "checked" : ""}>
+        Remind me each month to update its value</label>
+      <div class="small muted" style="margin-left:24px">Its value changes with what it holds, and MoneyThistle doesn't look values up: type it in from
+        the statement or website with <b>Update value</b> in the account.</div>
+    </div>
     <div class="d-hsa">
       <label class="check" style="margin-top:10px"><input type="checkbox" name="d_hsa" ${d.hsa ? "checked" : ""}> This is a Health Savings Account (HSA)</label>
       <div class="d-hsa-more" style="margin:4px 0 0 24px">
@@ -1102,6 +1154,8 @@ function accountDetailsForm(a) {
         <label class="check"><input type="radio" name="d_hsa_source" value="personal" ${(d.hsa_source || "personal") === "personal" ? "checked" : ""}> I do, from my own account, after tax (I deduct it on my return)</label>
         <label class="check"><input type="radio" name="d_hsa_source" value="employer" ${d.hsa_source === "employer" ? "checked" : ""}> My employer, or through payroll before tax (it's on my W-2)</label>
         <p class="small muted" style="margin:2px 0 0">The tax report (Reports → Taxes) lists money in and out of every HSA and adds them all up against the year's IRS limit.</p>
+        <p class="small muted" style="margin:2px 0 0">Its type: <b>Savings</b> for an HSA kept as cash (spent with its card), <b>Investment</b> for one that's
+          invested (then update its value now and then). One with both can be two accounts, each marked as an HSA.</p>
       </div>
     </div>
     <div class="d-card">
@@ -1168,22 +1222,54 @@ async function statementDialog(acc, done) {
 function statementsDueNote(list) {
   if (!list || !list.length) return "";
   return `<div class="notice" style="margin-bottom:12px">${list.map(s => `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:2px 0">
+      ${s.kind === "value" ? `<span>📈 <b translate="no">${esc(s.name)}</b>${envTag(s)}: ${esc(tr(s.updated ? "value last updated" : "value not updated since"))} ${niceDate(s.last_date)}.</span>
+      <button class="small primary" data-valacct="${s.account_id}" data-valenv="${s.env_id || ""}">Update value</button>` : `
       <span>🧾 The <b>${esc(s.name)}</b>${envTag(s)} statement closed ${niceDate(s.closing_date)}: enter its balance.</span>
-      <button class="small primary" data-stmt="${s.account_id}" data-stmtenv="${s.env_id || ""}">Enter statement</button>
+      <button class="small primary" data-stmt="${s.account_id}" data-stmtenv="${s.env_id || ""}">Enter statement</button>`}
       ${/^https?:\/\//i.test(s.website || "") ? `<a class="btn small" href="${esc(s.website)}" target="_blank" rel="noopener noreferrer">See it online ↗</a>` : ""}</div>`).join("")}</div>`;
 }
 function wireStatementsDue() {
+  qa("[data-valacct]").forEach(b => b.onclick = async () => {
+    await goEnv(+b.dataset.valenv);
+    const acc = S.accounts.find(a => a.id == b.dataset.valacct);
+    if (acc) valueDialog(acc);
+  });
   qa("[data-stmt]").forEach(b => b.onclick = async () => {
     await goEnv(+b.dataset.stmtenv);   // a card in another of my environments: go there first
     const acc = S.accounts.find(a => a.id == b.dataset.stmt);
     if (acc) statementDialog(acc);
   });
 }
+// An investment's value now, from its statement or website: the difference goes in as one
+// "Change in Value" entry (left out of budgets and spending reports).
+function valueDialog(acc) {
+  const last = (acc.details || {}).last_value;
+  return dialog("Update value: " + acc.name, `<p class="small muted" style="margin-top:0">From the statement or the website. MoneyThistle records
+    the difference as a <b>Change in value</b> entry, left out of budgets and spending reports.</p>
+    <div class="form"><div><label>Date</label><input type="date" name="date" value="${todayISO()}"></div>
+    <div><label class="req">Value on that date</label><input name="value" class="num" inputmode="decimal" placeholder="0.00"></div></div>
+    <p class="small muted">${esc(tr("Balance now"))}: <b>${fmt(acc.balance, true, acc)}</b>${last ? ` · ${esc(tr("last updated"))} ${niceDate(last.date)}` : ""}</p>`,
+    [{ label: "Cancel" }, { label: "Update value", cls: "primary", action: async root => {
+      const f = formData(root);
+      if (!(parseAmount(f.value) >= 0)) { const e = new Error("Enter the value on that date"); e.field = "value"; throw e; }
+      const r = await api("POST", `/api/accounts/${acc.id}/value`, f);
+      toast(r.change ? `${tr("Value updated")}: ${fmt(r.change, true, acc)}` : tr("Value updated: no change"));
+      await loadBasics(); render();
+    } }]);
+}
 function showDetailParts(type) {
   const card = q("#dlgBody .d-card"), bank = q("#dlgBody .d-bank"), hsa = q("#dlgBody .d-hsa");
   if (card) card.style.display = CARD_TYPES.includes(type) ? "" : "none";
   if (bank) bank.style.display = BANK_TYPES.includes(type) ? "" : "none";
   if (hsa) hsa.style.display = (S.meta.liability_types || []).includes(type) ? "none" : "";
+  const val = q("#dlgBody .d-value");
+  if (val) {
+    val.style.display = VALUE_TYPES.includes(type) ? "" : "none";
+    // (a type chosen just now: its usual reminder setting)
+    const cb = q("[name=d_value_reminder]", val);
+    if (cb && !cb.dataset.touched) cb.checked = VALUE_REMIND_TYPES.includes(type);
+    if (cb && !cb.dataset.wired) { cb.dataset.wired = 1; cb.addEventListener("change", () => { cb.dataset.touched = 1; }); }
+  }
 }
 function wireDetailsForm() {
   const hsa = q("#dlgBody [name=d_hsa]"), hsaMore = q("#dlgBody .d-hsa-more");
@@ -1911,7 +1997,7 @@ async function renderAccounts(id, sub) {
   view().innerHTML = `<div class="grid side">${list}<div>
     <div class="toolbar"><h1 style="margin:0">${esc(acc.name)}</h1><span class="pill">${esc(acc.type)}</span><span class="grow"></span>
       <input id="search" placeholder="Search payee, memo…" value="${esc(search)}" style="width:200px">
-      <button id="editAcct">Account details</button>${CARD_TYPES.includes(acc.type) && cardMode(acc.details) === "statement" && !acc._shared ? '<button id="stmtBtn" title="Enter the balance from this card\'s statement">Enter statement</button>' : ""}<button id="recon">Balance account</button>
+      <button id="editAcct">Account details</button>${CARD_TYPES.includes(acc.type) && cardMode(acc.details) === "statement" && !acc._shared ? '<button id="stmtBtn" title="Enter the balance from this card\'s statement">Enter statement</button>' : ""}${VALUE_TYPES.includes(acc.type) && !acc._shared ? '<button id="valBtn" title="Type in what it\'s worth now, from its statement or website">Update value</button>' : ""}<button id="recon">Balance account</button>
       <button id="import">Import file</button><a class="btn" href="/api/export.csv?account=${id}&env=${S.env}">Export CSV</a>${regOrderButton()}
       <button id="acctFiles" title="Receipts and papers kept with this account (not one entry): a purchase on a card, a warranty, a contract">${CLIP_ICON} Papers<span id="acctFilesN"></span></button></div>
     <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>
@@ -1927,6 +2013,7 @@ async function renderAccounts(id, sub) {
   q("#newLoan").onclick = () => editLoan(null);
   q("#editAcct").onclick = () => editAccount(acc);
   if (q("#stmtBtn")) q("#stmtBtn").onclick = () => statementDialog(acc);
+  if (q("#valBtn")) q("#valBtn").onclick = () => valueDialog(acc);
   q("#recon").onclick = () => reconcile(acc);
   q("#import").onclick = () => importFile(acc);
   const filesCount = () => GET(`/api/accounts/${acc.id}/attachments`).then(l => {
@@ -3841,8 +3928,12 @@ function renderDataTab() {
       <span class="small muted">for a spreadsheet, or another program</span></div></div>
     <div class="setrow"><label>History</label><div><a class="btn small" href="#/history">Change history</a> <span class="small muted">who added, changed or deleted what; undo</span></div></div>
     ${S.me.user.is_admin ? `<div class="setrow"><label>Backups</label><div><a class="btn small" href="#/settings/backups">Backups</a> <span class="small muted">automatic backups, Nextcloud / WebDAV, restore</span></div></div>` : ""}
+    ${envRole() === "owner" ? `<div class="setrow"><label>Start fresh</label><div><button class="small danger" id="freshBtn">Start fresh…</button>
+      <div class="small muted" style="margin-top:3px">${curEnv().sample_data ? "Remove the sample data and begin with your own accounts." :
+        "Clear this environment back to a new start (its name typed to confirm). A copy of what's there now is kept."}</div></div></div>` : ""}
   </div>`;
   if (q("#migrateBtn")) q("#migrateBtn").onclick = () => migrateDialog();
+  if (q("#freshBtn")) q("#freshBtn").onclick = () => startFresh();
 }
 async function renderComputerTab() {
   const [vcard, scard] = [await versionCard(), await startupCard()];
@@ -4011,7 +4102,8 @@ async function migrateDialog() {
     const box = q("#migPrev");
     box.innerHTML = `<div class="notice" style="margin:0 0 8px">Found a <b>${esc(prev.format)}</b> file: ${prev.accounts.length} account${prev.accounts.length === 1 ? "" : "s"},
         ${prev.transactions} transactions${prev.new_categories.length ? `, ${prev.new_categories.length} categories to add` : ""}.
-        ${Object.entries(prev.skipped || {}).map(([k, v]) => ` Not brought in: ${v} ${esc(k)}.`).join("")}</div>
+        ${Object.entries(prev.skipped || {}).map(([k, v]) => ` Not brought in: ${v} ${esc(k)}.`).join("")}
+        ${(prev.skipped || {})["investment entries"] ? `<div class="small" style="margin-top:4px">Investment accounts come in with their transfers, dividends and interest; buys and sells aren't entries here. Check each account's type, and update an investment's value afterwards.</div>` : ""}</div>
       <div style="max-height:320px;overflow:auto"><table class="migtable"><tr><th>Account in the file</th><th>Bring it in as</th><th class="num">Entries</th><th class="num">Balance</th></tr>
       ${prev.accounts.map(a => `<tr><td><b>${esc(a.name)}</b><div class="small muted">${a.first ? niceDate(a.first) + " – " + niceDate(a.last) : ""}${a.transfers ? ` · ${a.transfers} transfers` : ""}${a.splits ? ` · ${a.splits} splits` : ""}</div></td>
         <td><select data-migto="${esc(a.key)}"><option value="new">A new account</option>

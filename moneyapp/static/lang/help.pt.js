@@ -379,6 +379,15 @@ I18N.helpText({
     { q: "Esqueci minha senha.", a: `Use <i>Esqueceu a senha?</i> na página de login, peça a um administrador, ou veja <a href="#/help/signin">Login e senhas esquecidas</a> para o caminho de volta que funciona sem e-mail.` },
     { q: "Posso trazer meu histórico do Microsoft Money ou do Quicken?", a: `Sim: cada conta, categoria e lançamento. Veja <a href="#/help/move-in">Trazer tudo de outro programa</a>.` },
     { q: "Como vejo o tour de novo?", a: `Escolha <b>Fazer o tour</b> no topo desta página de Ajuda.` },
+    { q: "Como removo os dados de exemplo, ou começo do zero?", a: `Enquanto os dados de exemplo estiverem em uso, uma barra no
+      topo de cada página oferece <b>Começar do zero com meu próprio dinheiro</b>. Depois, um proprietário pode começar um ambiente
+      do zero em Configurações → Seus dados (digitando o nome para confirmar): saem as contas, lançamentos, a agenda, o orçamento e
+      os recibos; pessoas, logins, configurações de backup e outros ambientes ficam, e uma cópia do que havia fica guardada na
+      pasta de dados do MoneyThistle.` },
+    { q: "Como mantenho o valor de um investimento em dia?", a: `O MoneyThistle não busca valores. Abra a conta e escolha
+      <b>Atualizar valor</b>, e digite quanto vale pelo extrato ou pelo site: a diferença entra como um lançamento de
+      <i>Variação de valor</i>, fora dos orçamentos e dos relatórios de gastos. Contas de investimento e aposentadoria lembram
+      todo mês (junto às faturas dos cartões); desligue, ou ligue para um bem como uma casa, nos detalhes da conta.` },
   ],
   terms: [
     { term: "Conta", def: "Um lugar onde há dinheiro guardado ou devido: conta corrente, poupança, cartão de crédito, empréstimo, investimento." },

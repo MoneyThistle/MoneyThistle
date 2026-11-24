@@ -93,6 +93,8 @@ def write_category_names():
             names[full] = {code: t.strip() for code, t in zip(LANGS, tx) if t.strip()}
     # Categories MoneyThistle adds itself when needed.
     names["Paycheck Deductions"] = {"fr": "Retenues sur la paie", "es": "Deducciones de nómina", "pt": "Descontos em folha"}
+    # Made by MoneyThistle when an investment's value is updated.
+    names["Change in Value"] = {"fr": "Variation de valeur", "es": "Cambio de valor", "pt": "Variação de valor"}
     # Categories added after the first release (defaults.ADDED_CATEGORIES).
     names.update({
         "Insurance : Accident": {"fr": "Accident", "es": "Accidentes", "pt": "Acidentes"},

@@ -632,6 +632,11 @@ class Store:
     DETAIL_TEXT = {"institution": 120, "account_number": 40, "routing_number": 20, "website": 300,
                    "phone": 40, "contact": 300}
     CARD_TYPES = ("Credit Card", "Line of Credit")
+    # Accounts whose value moves with what they hold: their value is typed in now and then
+    # ("Update value"); investment and retirement accounts are reminded about monthly.
+    VALUE_TYPES = ("Investment", "Retirement", "Asset")
+    VALUE_REMIND_TYPES = ("Investment", "Retirement")
+    VALUE_CATEGORY = "Change in Value"
 
     def _clean_details(self, typ, d):
         if not isinstance(d, dict):
@@ -721,6 +726,12 @@ class Store:
                 if mode == "fixed" and not amt:
                     raise ApiError("Enter the amount you pay each month (or choose \"It varies\")", field="pay_amount")
                 out["pay_amount"] = amt
+        if typ in self.VALUE_TYPES:
+            # The monthly reminder to update the value: on for investments unless turned off.
+            if "value_reminder" in d:
+                out["value_reminder"] = bool(d.get("value_reminder"))
+            if isinstance(d.get("last_value"), dict):
+                out["last_value"] = d["last_value"]   # kept as MoneyThistle wrote it
         return out
 
     # ----- credit cards kept by statement balance --------------------------------
@@ -769,6 +780,63 @@ class Store:
             self.changed()
         return tid
 
+    def _value_category(self):
+        """Where changes in an investment's value go: "Change in Value", neither income nor
+        spending (budgets and spending reports leave it out), made the first time it's needed."""
+        r = self.q1("SELECT id FROM categories WHERE name=? COLLATE NOCASE AND parent_id IS NULL AND kind='none'",
+                    (self.VALUE_CATEGORY,))
+        if r:
+            return r["id"]
+        from .category_names import NAMES
+        cid = self.db.execute("INSERT INTO categories(name,parent_id,kind,tax_related,in_budget) VALUES(?,?,?,?,?)",
+                              (self.VALUE_CATEGORY, None, "none", 0, 0)).lastrowid
+        self._set_category_names(cid, NAMES.get(self.VALUE_CATEGORY) or {})
+        return cid
+
+    def update_value(self, aid, date, value):
+        """An investment, retirement or asset account is worth `value` on `date` (from its
+        statement or website): one "Change in Value" entry that day makes its balance that.
+        Updating the same date again replaces it. MoneyThistle never looks values up."""
+        acc = self.account(aid)
+        if acc["type"] not in self.VALUE_TYPES:
+            raise ApiError("Values are updated for investment, retirement and asset accounts")
+        with about("date"):
+            d = parse_date(date, "Date").isoformat()
+        with about("value"):
+            v = to_cents(value, "Value")
+        det = dict(acc["details"])
+        with self.lock:
+            last = det.get("last_value") or {}
+            if last.get("date") == d and last.get("tid") and \
+                    self.q1("SELECT 1 FROM transactions WHERE id=? AND account_id=?", (last["tid"], aid)):
+                self.delete_transaction(last["tid"])
+            change = v - self.balance_on(aid, d)
+            tid = None
+            if change:
+                tid = self.save_transaction({"account_id": aid, "date": d, "payee": "", "memo": "",
+                                             "amount_cents": change, "category_id": self._value_category()})
+            det["last_value"] = {"date": d, "value": v, "tid": tid}
+            self.db.execute("UPDATE accounts SET details=? WHERE id=?", (json.dumps(det), aid))
+            self.db.commit()
+            self.changed()
+        return {"id": tid, "change": change, "value": v}
+
+    def values_due(self, days=30):
+        """Investment and retirement accounts whose value hasn't been updated in `days` (from
+        their opening date when never): a reminder beside the card statements."""
+        out, t = [], today()
+        for a in self.accounts(include_closed=False):
+            d = a["details"] or {}
+            if a["type"] not in self.VALUE_TYPES:
+                continue
+            if not d.get("value_reminder", a["type"] in self.VALUE_REMIND_TYPES):
+                continue
+            last = (d.get("last_value") or {}).get("date") or a["opening_date"]
+            if (t - dt.date.fromisoformat(last)).days >= days:
+                out.append({"kind": "value", "account_id": a["id"], "name": a["name"], "last_date": last,
+                            "updated": bool(d.get("last_value")), "balance": a["balance"]})
+        return out
+
     def statement_due(self, aid):
         """What's left to pay on a card's last entered statement: its balance less the
         payments into the card dated after it closed. None when no statement is entered."""
@@ -798,7 +866,8 @@ class Store:
                 continue
             out.append({"account_id": a["id"], "name": a["name"], "closing_date": closing.isoformat(),
                         "website": d.get("website") or ""})
-        return out
+        return out + [dict(v, website=(self.account(v["account_id"])["details"] or {}).get("website") or "")
+                      for v in self.values_due()]
 
     def _next_due(self, day, after=None):
         """The next date on this day of the month (the month's last day when shorter),
@@ -856,6 +925,8 @@ class Store:
                 prev = json.loads(old["details"] or "{}") if old else {}
                 if prev.get("last_statement") and "last_statement" not in det and typ in self.CARD_TYPES:
                     det["last_statement"] = prev["last_statement"]   # the form doesn't carry it
+                if prev.get("last_value") and "last_value" not in det and typ in self.VALUE_TYPES:
+                    det["last_value"] = prev["last_value"]
             elif aid:
                 old = self.q1("SELECT details FROM accounts WHERE id=?", (aid,))
                 det = json.loads(old["details"] or "{}") if old else {}

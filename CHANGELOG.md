@@ -48,6 +48,15 @@ browser, with no bank connections.
   A paycheck's direct deposit can be split between accounts (a set amount into one, the rest into another).
   Paystub lines can be moved up and down to follow the paystub's own order.
   A scheduled deposit can go into more than one account, each with a set amount or its average.
+- Start fresh: while sample data is in use, every page offers to start fresh with one click; an owner
+  can start any environment fresh under Settings, Your data (its name typed to confirm; a copy is kept).
+- Investment, retirement and asset accounts: Update value records what they're worth now as one
+  "Change in value" entry (left out of budgets and spending reports); investments are reminded monthly.
+- Moving in from Moneydance: its "All accounts" QIF now brings in every account (it was read as one).
+  Investment and retirement accounts (a Roth IRA, a 401(k)) come in with their transfers, dividends
+  and interest (buys and sells aren't entries). Types follow the account's name, not the firm's: an HSA
+  comes in as Savings (marked as an HSA for the tax report), a cash management account as Checking,
+  a mortgage as a Loan.
 - Languages: English, French (Canada), Spanish (Latin America) and Portuguese (Brazil), chosen by each
   person, with dates and amounts in that language's style: every screen, message, Help guide and the
   About page (AI translations, not yet checked by native speakers). Names you typed (environments,

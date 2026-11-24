@@ -9,6 +9,7 @@ from . import loans
 def load_sample(store):
     if store.accounts():
         return False
+    store.set_setting("sample_data", True)   # (Start fresh then needs no typed confirmation)
     rnd = random.Random(7)
     cats = {c["full_name"]: c["id"] for c in store.categories()}
     t = dt.date.today()

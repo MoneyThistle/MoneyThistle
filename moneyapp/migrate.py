@@ -21,10 +21,12 @@ aren't in these files, so they're set up again here.
 
 import base64
 import csv
+import datetime as dt
 import io
 import re
 
 from .fileio import match_category, parse_any_date
+from . import defaults
 from .store import ApiError, to_cents
 
 QIF_TYPES = {"bank": "Checking", "ccard": "Credit Card", "cash": "Cash", "oth a": "Asset", "oth l": "Liability",
@@ -45,11 +47,15 @@ def decode(raw):
 
 
 def guess_type(name, default="Checking"):
+    """An account's type from words in its name (a firm's name says nothing: Fidelity, Schwab
+    and Vanguard keep checking-like cash accounts and HSAs too)."""
     n = (name or "").lower()
     for words, t in ((("visa", "mastercard", "amex", "discover", "credit card", " card"), "Credit Card"),
                      (("mortgage", "loan", "heloc"), "Loan"),
                      (("401k", "401(k)", "403b", " ira", "roth", "retire", "pension", "tsp"), "Retirement"),
-                     (("brokerage", "invest", "stocks", "fidelity", "vanguard", "schwab"), "Investment"),
+                     (("brokerage", "invest", "stocks", " etf", "mutual fund"), "Investment"),
+                     ((" hsa", "health savings"), "Savings"),
+                     (("cash management", "checking", "chequing"), "Checking"),
                      (("saving", "money market", "emergency"), "Savings"),
                      (("cash", "wallet", "petty"), "Cash")):
         if any(w in " " + n for w in words):
@@ -78,11 +84,74 @@ def _new_account(accounts, name, typ=None):
 
 
 # ----- QIF ----------------------------------------------------------------------------
+def _invest_type(name):
+    """The type of an account a program keeps as investments, from its name: Retirement (a Roth
+    IRA, a 401(k)), Savings (an HSA), Checking (a cash management account), else Investment."""
+    t = guess_type(name, "Investment")
+    return t if t in ("Retirement", "Savings", "Checking") else "Investment"
+
+
+# What the investment-format entries ("!Type:Invst") do to the account's cash: income (with its
+# usual category), money in or out (transfers when another account is named). Buys, sells and
+# share moves only change what it holds, so they aren't entries here.
+INVST_INCOME = {"div": "Investment Income : Dividends", "reinvdiv": "Investment Income : Dividends",
+                "intinc": "Investment Income : Interest", "reinvint": "Investment Income : Interest",
+                "cglong": "Investment Income : Capital Gains", "cgshort": "Investment Income : Capital Gains",
+                "cgmid": "Investment Income : Capital Gains", "reinvlg": "Investment Income : Capital Gains",
+                "reinvsh": "Investment Income : Capital Gains", "reinvmd": "Investment Income : Capital Gains",
+                "miscinc": None, "rtrncap": None}
+INVST_IN = ("xin", "contribx", "buyx")
+INVST_OUT = ("xout", "withdrwx", "sellx")
+INVST_EXPENSE = ("miscexp", "margint")
+
+
+def _invst_row(acc, r):
+    """One investment-format entry as a row of the account's cash; None when it only changes
+    holdings (a buy or sell), False when there's nothing to bring in."""
+    action = (r.get("N") or "").strip().lower().replace(" ", "")
+    if "D" not in r:
+        return False
+    if action.endswith("x") and action[:-1] in INVST_INCOME:
+        return None   # income paid out to another account: that account lists it
+    money = r.get("T") or r.get("U") or ((r.get("$") or [""])[0] if isinstance(r.get("$"), list) else r.get("$"))
+    if not money:
+        return None
+    amount = abs(to_cents(money))
+    if not amount:
+        return False
+    date = parse_any_date(r["D"]).isoformat()
+    lab = (r.get("L") or "").strip()
+    transfer = lab[1:lab.index("]")].strip() if lab.startswith("[") and "]" in lab else None
+    cat = None if transfer is not None else (lab.split("/")[0].strip() or None)
+    payee = (r.get("P") or "").strip() or (r.get("Y") or "").strip()
+    memo = r.get("M", "")
+    if action in INVST_INCOME:
+        if transfer is not None:
+            return None
+        return _row(acc["name"], date, amount, payee, memo, "", cat or INVST_INCOME[action], None, _status(r.get("C")))
+    if action in INVST_IN or action in INVST_OUT:
+        sign = 1 if action in INVST_IN else -1
+        if transfer is not None and transfer.lower() == acc["name"].lower():
+            if acc["opening"] is None and sign > 0 and not acc["rows"]:   # its opening balance
+                acc["opening"], acc["opening_date"] = amount, date
+            return False
+        return _row(acc["name"], date, sign * amount, payee, memo, "", None if transfer is not None else cat,
+                    transfer, _status(r.get("C")))
+    if action in INVST_EXPENSE:
+        return _row(acc["name"], date, -amount, payee, memo, "", cat, None, _status(r.get("C")))
+    if action == "cash":
+        signed = to_cents(money)
+        return _row(acc["name"], date, signed, payee, memo, "", None if transfer is not None else cat,
+                    transfer, _status(r.get("C")))
+    return None
+
+
 def parse_qif_all(text, fallback_name="Imported account"):
     """Every account in a QIF file (or the one account of a single-account file)."""
     accounts, kinds, skipped = {}, {}, {"investment entries": 0}
     section, current, in_list, rec = None, None, False, {}
     renamed = [None]
+    last_acc = [None]   # the latest account header (Moneydance never clears AutoSwitch: see below)
 
     def flush():
         nonlocal rec, current
@@ -94,10 +163,20 @@ def parse_qif_all(text, fallback_name="Imported account"):
             name = (r.get("N") or "").strip()
             if not name:
                 return
-            typ = QIF_TYPES.get((r.get("T") or "").strip().lower())
+            qtyp = (r.get("T") or "").strip().lower()
+            typ = QIF_TYPES.get(qtyp)
             if typ == "Checking":
                 typ = guess_type(name)   # QIF calls savings "Bank" too: the name tells them apart
+            elif typ == "Investment":
+                typ = _invest_type(name)  # a Roth IRA, an HSA or a cash account kept as investments
+            elif typ == "Liability" and guess_type(name, "Liability") == "Loan":
+                typ = "Loan"              # a mortgage
             acc = _new_account(accounts, name, typ)
+            if typ in ("Investment", "Retirement") or qtyp in ("invst", "port", "401(k)/403(b)", "mutual"):
+                # Its buys and sells aren't brought in (MoneyThistle keeps investments as
+                # balances), but the account is, with its dividends, interest and transfers.
+                acc["keep"] = True
+            last_acc[0] = acc
             if not in_list:
                 current = acc   # the transactions that follow are this account's
             return
@@ -149,7 +228,14 @@ def parse_qif_all(text, fallback_name="Imported account"):
             acc["rows"].append(_row(acc["name"], date, amount, payee, r.get("M", ""), r.get("N", ""),
                                     None if transfer is not None else (cat or None), transfer, _status(r.get("C")),
                                     splits))
-        elif section in ("invst", "port"):
+        elif section == "invst":
+            acc = current or _new_account(accounts, fallback_name, "Investment")
+            row = _invst_row(acc, r)
+            if row:
+                acc["rows"].append(row)
+            elif row is None:
+                skipped["investment entries"] += 1
+        elif section == "port":
             skipped["investment entries"] += 1
 
     for line in text.splitlines():
@@ -169,8 +255,15 @@ def parse_qif_all(text, fallback_name="Imported account"):
                 t = head[5:].strip()
                 section = {"cat": "cat", "class": "skip", "memorized": "skip", "security": "skip",
                            "prices": "skip", "invitem": "skip", "budget": "skip"}.get(t, t)
-                if section == "invst" and current:
-                    current["type"] = "Investment"
+                # Entries straight after an account header are that account's, even in the
+                # account-list mode (Moneydance turns AutoSwitch on and never clears it).
+                if section in ("bank", "ccard", "cash", "oth a", "oth l", "invst", "port") and last_acc[0]:
+                    current = last_acc[0]
+                last_acc[0] = None
+                if section in ("invst", "port") and current:
+                    if current["type"] not in ("Investment", "Retirement", "Savings", "Checking"):
+                        current["type"] = _invest_type(current["name"])
+                    current["keep"] = True
             else:
                 section = "skip"
             continue
@@ -193,7 +286,7 @@ def parse_qif_all(text, fallback_name="Imported account"):
         else:
             rec[code] = val
     flush()
-    accounts = {k: a for k, a in accounts.items() if a["rows"] or a["opening"]}
+    accounts = {k: a for k, a in accounts.items() if a["rows"] or a["opening"] or a.get("keep")}
     if renamed[0] and list(accounts) == [fallback_name]:
         a = accounts.pop(fallback_name)
         a["name"] = renamed[0]
@@ -541,8 +634,15 @@ def bring_in(store, files, choices, aliases=None):
             name, n = a["name"], 2
             while any(x["name"].lower() == name.lower() for x in store.accounts()):
                 name, n = f"{a['name']} ({n})", n + 1
-            first = min([r["date"] for r in a["rows"]] + ([a["opening_date"]] if a["opening_date"] else []))
-            aid = store.save_account({"name": name, "type": ch.get("type") or a["type"],
+            # (an investment account with none of its own entries starts at the first transfer to it)
+            named = [r["date"] for b in p["accounts"].values() for r in b["rows"]
+                     for part in (r["splits"] or [r]) if (part.get("transfer_to") or "").lower() == a["name"].lower()]
+            first = min([r["date"] for r in a["rows"]] + ([a["opening_date"]] if a["opening_date"] else []) + named
+                        or [dt.date.today().isoformat()])
+            typ = ch.get("type") or a["type"]
+            # (an HSA by its name: marked as one, for the tax report; its details can say more)
+            hsa = any(w in " " + a["name"].lower() for w in (" hsa", "health savings")) and typ not in defaults.LIABILITY_TYPES
+            aid = store.save_account({"name": name, "type": typ, **({"details": {"hsa": True}} if hsa else {}),
                                       "opening_balance": f"{(a['opening'] or 0) / 100:.2f}",
                                       "opening_date": a["opening_date"] or first})
             created.append(name)

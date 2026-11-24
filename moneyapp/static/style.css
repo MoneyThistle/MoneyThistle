@@ -576,3 +576,6 @@ th.sortable { cursor: pointer; user-select: none; }
   .stubline { grid-template-columns: 1fr 1fr auto; }
   .stubline .ln-label { grid-column: 1 / -1; }
 }
+
+/* Sample data: a bar on every page offering to start fresh */
+.samplebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; padding: 8px 14px; background: var(--sel); border-bottom: 1px solid var(--line); font-size: 14px; }

@@ -306,7 +306,10 @@ class Notifier:
                                  f"{' (automatic)' if u.get('auto') else ''} ({u['account_name']})")
             if s["statements"]:
                 for d in st.statements_due():
-                    lines.append(f"Enter the {d['name']} statement (closed {d['closing_date']})")
+                    if d.get("kind") == "value":
+                        lines.append(f"Update the {d['name']} value (last updated {d['last_date']})")
+                    else:
+                        lines.append(f"Enter the {d['name']} statement (closed {d['closing_date']})")
             if s["auto_recorded"]:
                 with self.lock:
                     mine = [r for r in self.recorded if r.get("env_id") == eid and r["at"] > since]

@@ -77,6 +77,24 @@ rule was not decompiled. Monthly-type schedules keep their original day and clam
 - Split direct deposit (the person's design): a paycheck lists each account it was deposited into with
   the amount that landed there; take-home pay is their total (paystub or take-home only). The budget
   counts the whole take-home pay, the schedule and its history what reached the scheduled account.
+- Start fresh (the person's request): an environment's money file is set aside (renamed
+  "<file>.before-reset-<date-time>", never deleted) and a new one with the starting categories takes its
+  place; its links, shares and change history end; the main currency is kept. Sample data: one click;
+  otherwise the environment's name typed. Owners only.
+- QIF accounts: entries right after an account header belong to that account, even when the file never
+  clears AutoSwitch (Moneydance). Investment accounts (QIF Invst/Port) are always kept. Their
+  investment-format entries become cash entries: dividends, interest and capital gains (also reinvested)
+  as income (Investment Income categories), XIn/XOut/ContribX/BuyX/SellX as money in/out (transfers when
+  another account is named), MiscExp/MargInt as spending; buys, sells and share moves are skipped. An
+  account with none starts at the first transfer naming it. Types come from words in the name, never
+  the firm (HSA -> Savings, cash management -> Checking, Roth/IRA/401(k) -> Retirement, mortgage -> Loan).
+- Investment values (the person's design): no lookups and no special entry type. Update value makes one
+  entry on the date (value - balance that day) in the "Change in Value" category (kind none: no budget,
+  no spending/income reports; net worth follows); the same date again replaces it. Investment and
+  retirement accounts are reminded when 30+ days old (opt out per account; assets opt in).
+- HSA account type: any non-debt type with "This is an HSA" ticked. Savings for one kept as cash,
+  Investment for one that's invested (value updates apply); one with both can be two accounts. Imports
+  guess it from the name ("HSA", "Health Savings") and mark it.
 - W-2 (the person's decision): not entered; the tax report's Pay section adds up the paystubs to be
   compared with it (box 1 vs gross less pre-tax deductions; boxes 2, 4, 6 vs the taxes).
 - Scheduled split deposits: each other account is a linked scheduled deposit (own amount, set or

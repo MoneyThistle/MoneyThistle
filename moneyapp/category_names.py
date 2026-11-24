@@ -137,6 +137,11 @@ NAMES = {
         "fr": "Retrait d'argent",
         "pt": "Saque em dinheiro"
     },
+    "Change in Value": {
+        "es": "Cambio de valor",
+        "fr": "Variation de valeur",
+        "pt": "Variação de valor"
+    },
     "Charitable Donations": {
         "es": "Donativos",
         "fr": "Dons de bienfaisance",

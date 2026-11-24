@@ -393,6 +393,15 @@ I18N.helpText({
     { q: "J'ai oublié mon mot de passe.", a: `Utilisez <i>Mot de passe oublié?</i> sur la page de connexion, demandez à un administrateur, ou voyez <a href="#/help/signin">Connexion et mots de passe oubliés</a> pour la façon de revenir qui fonctionne sans courriel.` },
     { q: "Puis-je apporter mon historique de Microsoft Money ou Quicken?", a: `Oui : chaque compte, catégorie et opération. Voir <a href="#/help/move-in">Emménager depuis un autre programme</a>.` },
     { q: "Comment revoir la visite?", a: `Choisissez <b>Faire la visite</b> en haut de cette page d'aide.` },
+    { q: "Comment retirer les données d'exemple, ou recommencer?", a: `Tant que les données d'exemple sont utilisées, une barre
+      en haut de chaque page propose <b>Recommencer à neuf avec mon propre argent</b>. Plus tard, un propriétaire peut remettre un
+      environnement à neuf sous Paramètres → Vos données (en tapant son nom pour confirmer) : les comptes, écritures, la
+      planification, le budget et les reçus partent; les personnes, connexions, paramètres de sauvegarde et autres environnements
+      restent, et une copie de ce qui s'y trouvait est gardée dans le dossier de données de MoneyThistle.` },
+    { q: "Comment garder à jour la valeur d'un placement?", a: `MoneyThistle ne cherche pas les valeurs. Ouvrez le compte et choisissez
+      <b>Mettre la valeur à jour</b>, puis tapez ce qu'il vaut d'après son relevé ou son site : la différence entre comme une
+      écriture de <i>Variation de valeur</i>, laissée hors des budgets et des rapports de dépenses. Les comptes de placement et de
+      retraite le rappellent chaque mois (à côté des relevés de carte); désactivez-le, ou activez-le pour un bien comme une maison, dans les détails du compte.` },
   ],
   terms: [
     { term: "Compte", def: "Un endroit où de l'argent est gardé ou dû : chèques, épargne, carte de crédit, prêt, placement." },

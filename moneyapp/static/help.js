@@ -372,6 +372,14 @@ const HELP = {
     { q: "I forgot my password.", a: `Use <i>Forgot your password?</i> on the sign-in page, ask an administrator, or see <a href="#/help/signin">Signing in and forgotten passwords</a> for the way back in that works without email.` },
     { q: "Can I bring my history over from Microsoft Money or Quicken?", a: `Yes: every account, category and transaction. See <a href="#/help/move-in">Moving in from another program</a>.` },
     { q: "How do I see the tour again?", a: `Choose <b>Take the tour</b> at the top of this Help page.` },
+    { q: "How do I remove the sample data, or start over?", a: `While sample data is in use, a bar at the top of every page offers
+      <b>Start fresh with my own money</b>. Any time later, an owner can start an environment fresh under Settings → Your data
+      (its name typed to confirm): accounts, entries, the schedule, the budget and receipts go; people, sign-ins, backup settings
+      and other environments stay, and a copy of what was there is kept in MoneyThistle's data folder.` },
+    { q: "How do I keep an investment's value current?", a: `MoneyThistle doesn't look values up. Open the account and choose
+      <b>Update value</b>, then type what it's worth from its statement or website: the difference goes in as one
+      <i>Change in value</i> entry, left out of budgets and spending reports. Investment and retirement accounts are reminded
+      about monthly (beside the card statements); turn that off, or on for an asset such as a house, in the account's details.` },
   ],
   terms: [
     { term: "Account", def: "Somewhere money is kept or owed: checking, savings, a credit card, a loan, an investment." },
