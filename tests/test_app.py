@@ -1086,6 +1086,28 @@ DATA:OFXSGML
                                                                "lines": [gross("2000"), fed("150")]}, env=1)
         self.assertEqual([x["name"] for x in c.call("GET", f"/api/transactions/{d2['ids'][0]}/attachments", env=1)], ["stub.pdf"])
 
+    def test_backup_without_serialize(self):
+        """Python 3.10 has no Connection.serialize(): backups copy through a temporary file."""
+        import io
+        import sqlite3
+        import zipfile
+        from moneyapp import store as store_mod
+        self.system.store(1).save_account({"name": "Checking", "type": "Checking", "opening_balance": "12.34"})
+        was = store_mod._SERIALIZE
+        try:
+            for flag in (False, True):
+                store_mod._SERIALIZE = flag
+                z = zipfile.ZipFile(io.BytesIO(self.system.snapshot_bytes()))
+                money = next(n for n in z.namelist() if n.endswith(".db") and n != "system.db")
+                p = os.path.join(self.dir, f"check-{flag}.db")
+                with open(p, "wb") as f:
+                    f.write(z.read(money))
+                con = sqlite3.connect(p)
+                self.assertEqual(con.execute("SELECT opening_balance FROM accounts").fetchone()[0], 1234)
+                con.close()
+        finally:
+            store_mod._SERIALIZE = was
+
     def test_start_fresh(self):
         """Sample data, then Start fresh: an empty file with the starting categories, the old one kept."""
         app, base = self._serve()

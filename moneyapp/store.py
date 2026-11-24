@@ -10,6 +10,7 @@ import json
 import os
 import re
 import sqlite3
+import tempfile
 import threading
 import time
 
@@ -130,6 +131,36 @@ class about:
         if isinstance(err, ApiError) and not err.field:
             err.field = self.field
         return False
+
+
+# Connection.serialize() came with Python 3.11; 3.10 copies through a temporary file instead.
+_SERIALIZE = hasattr(sqlite3.Connection, "serialize")
+
+
+def db_bytes(conn):
+    """A consistent copy of a whole SQLite database, as bytes (for backups)."""
+    if _SERIALIZE:
+        mem = sqlite3.connect(":memory:")
+        try:
+            conn.backup(mem)
+            return bytes(mem.serialize())
+        finally:
+            mem.close()
+    fd, tmp = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    try:
+        dst = sqlite3.connect(tmp)
+        try:
+            conn.backup(dst)
+        finally:
+            dst.close()
+        with open(tmp, "rb") as f:
+            return f.read()
+    finally:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
 
 
 def today():
@@ -426,11 +457,7 @@ class Store:
             # was left behind by mistake: finish it, or the copy below waits for it forever.
             if self.db.in_transaction:
                 self.db.commit()
-            mem = sqlite3.connect(":memory:")
-            self.db.backup(mem)
-            data = mem.serialize()
-            mem.close()
-            return bytes(data)
+            return db_bytes(self.db)
 
     def changed(self):
         now = time.time()

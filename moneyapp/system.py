@@ -28,7 +28,7 @@ import threading
 import time
 import zipfile
 
-from .store import ApiError, Store, to_cents
+from .store import ApiError, Store, db_bytes, to_cents
 
 ROLES = {"viewer": 1, "editor": 2, "owner": 3}
 
@@ -242,10 +242,7 @@ class System:
         with self.lock:
             if self.db.in_transaction:   # (see Store.snapshot_bytes)
                 self.db.commit()
-            mem = sqlite3.connect(":memory:")
-            self.db.backup(mem)
-            files = [("system.db", bytes(mem.serialize()))]
-            mem.close()
+            files = [("system.db", db_bytes(self.db))]
             for env in self.q("SELECT * FROM environments"):
                 files.append((env["file"], self.store(env["id"]).snapshot_bytes()))
             shas = sorted(attachments.in_use(self))
