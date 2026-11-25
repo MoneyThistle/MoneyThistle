@@ -322,3 +322,10 @@
 @The download didn't match its checksum, so it wasn't installed|Le téléchargement ne correspondait pas à sa somme de contrôle, il n'a donc pas été installé|La descarga no coincidía con su suma de verificación, así que no se instaló|O download não correspondeu à soma de verificação, então não foi instalado
 @The update couldn't be downloaded from GitHub. Try again later.|La mise à jour n'a pas pu être téléchargée depuis GitHub. Réessayez plus tard.|No se pudo descargar la actualización de GitHub. Inténtalo más tarde.|Não foi possível baixar a atualização do GitHub. Tente mais tarde.
 @Updates install by themselves only in the Windows program; Docker and Unraid update the container instead|Les mises à jour s'installent toutes seules seulement dans le programme Windows; Docker et Unraid mettent plutôt le conteneur à jour|Las actualizaciones se instalan solas solo en el programa de Windows; Docker y Unraid actualizan el contenedor|As atualizações se instalam sozinhas só no programa do Windows; Docker e Unraid atualizam o contêiner
+@{} parts|{} parties|{} partes|{} partes
+@parts|parties|partes|partes
+@Show or hide its parts|Afficher ou masquer ses parties|Mostrar u ocultar sus partes|Mostrar ou ocultar as partes
+@Save your changes?|Enregistrer vos changements?|¿Guardar tus cambios?|Salvar suas alterações?
+@You changed something here. Save it before closing?|Vous avez changé quelque chose ici. L'enregistrer avant de fermer?|Cambiaste algo aquí. ¿Guardarlo antes de cerrar?|Você mudou algo aqui. Salvar antes de fechar?
+@Keep editing|Continuer à modifier|Seguir editando|Continuar editando
+@Don't save|Ne pas enregistrer|No guardar|Não salvar

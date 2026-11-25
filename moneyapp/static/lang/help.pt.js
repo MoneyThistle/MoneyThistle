@@ -48,6 +48,9 @@ I18N.helpText({
       <ul>
         <li><b>Alterar um lançamento:</b> clique nele no extrato. Ele aparece na linha de baixo, travado; escolha
           <b>Editar lançamento</b>, altere e depois <b>Salvar alterações</b> (ou <b>Cancelar</b>). A lixeira o exclui.</li>
+        <li><b>Holerites e pagamentos divididos</b> aparecem em uma linha; <i>▸ partes</i> mostra cada parte (impostos,
+          descontos, principal e juros), e clicar na linha o abre. Feche qualquer janela com ✕, Esc ou um clique ao lado:
+          se algo mudou, ela pergunta se deve salvar antes.</li>
         <li><b>Transferências:</b> como categoria, escolha "Transferência para …" outra conta. O lançamento correspondente é
           adicionado sozinho à outra conta.</li>
         <li><b>Lançamentos divididos</b> (um pagamento de empréstimo, um holerite) aparecem como uma linha com as partes embaixo.</li>

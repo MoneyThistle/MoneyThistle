@@ -248,9 +248,15 @@ tr.k-move > td:first-child { box-shadow: inset 3px 0 0 var(--move-line); }
 
 dialog { border: none; border-radius: 10px; padding: 0; box-shadow: 0 12px 40px rgba(0,0,0,.3); max-width: 720px; width: 92vw; }
 dialog::backdrop { background: rgba(15,30,55,.45); }
-dialog .dhead { background: var(--navy); color: #fff; padding: 10px 16px; font-weight: 600; }
+dialog .dhead { background: var(--navy); color: #fff; padding: 8px 8px 8px 16px; font-weight: 600; position: sticky; top: 0; z-index: 3;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+dialog .dclose { background: transparent; border: none; color: #fff; font-size: 18px; line-height: 1; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+dialog .dclose:hover, dialog .dclose:focus-visible { background: rgba(255,255,255,.18); }
+/* "Save your changes?" asked over a dialog being closed */
+dialog.ask { max-width: 400px; }
 dialog .dbody { padding: 16px; }
-dialog .dfoot { padding: 10px 16px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--line); background: var(--surface2); }
+dialog .dfoot { padding: 10px 16px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--line); background: var(--surface2);
+  position: sticky; bottom: 0; z-index: 3; }
 
 #toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #1d2733; color: #fff; padding: 9px 16px; border-radius: 6px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 50; }
 #toast.show { opacity: .95; }
@@ -579,3 +585,7 @@ th.sortable { cursor: pointer; user-select: none; }
 
 /* Sample data: a bar on every page offering to start fresh */
 .samplebar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; padding: 8px 14px; background: var(--sel); border-bottom: 1px solid var(--line); font-size: 14px; }
+
+/* Split payments in the register: one line, parts folded out with the parts button */
+.grp-tog { margin-left: 6px; padding: 1px 6px; font-size: 12px; }
+tr.grp-part[hidden] { display: none; }

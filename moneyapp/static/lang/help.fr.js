@@ -50,6 +50,9 @@ I18N.helpText({
       <ul>
         <li><b>Modifier une écriture :</b> cliquez-la dans le registre. Elle s'affiche sur la ligne du bas, verrouillée; choisissez
           <b>Modifier l'opération</b>, changez-la, puis <b>Enregistrer les changements</b> (ou <b>Annuler</b>). La poubelle la supprime.</li>
+        <li><b>Les talons de paie et paiements répartis</b> tiennent sur une ligne; <i>▸ parties</i> montre chaque partie
+          (impôts, retenues, capital et intérêts), et un clic sur la ligne l'ouvre. Fermez toute fenêtre avec ✕, Échap ou un
+          clic à côté : si quelque chose a changé, elle demande d'abord s'il faut enregistrer.</li>
         <li><b>Transferts :</b> comme catégorie, choisissez « Transfert vers … » un autre compte. L'écriture correspondante est
           ajoutée toute seule à l'autre compte.</li>
         <li><b>Écritures ventilées</b> (un paiement de prêt, un talon de paie) s'affichent comme une ligne avec leurs parties dessous.</li>

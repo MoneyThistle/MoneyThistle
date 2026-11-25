@@ -49,6 +49,9 @@ I18N.helpText({
       <ul>
         <li><b>Cambiar un movimiento:</b> haz clic en él en el registro. Aparece en la línea de abajo, bloqueado; elige
           <b>Editar movimiento</b>, cámbialo y luego <b>Guardar cambios</b> (o <b>Cancelar</b>). El bote de basura lo elimina.</li>
+        <li><b>Recibos de nómina y pagos divididos</b> se ven en una línea; <i>▸ partes</i> muestra cada parte (impuestos,
+          deducciones, capital e intereses), y hacer clic en la línea lo abre. Cierra cualquier ventana con ✕, Esc o un clic
+          al lado: si algo cambió, pregunta si guardar antes.</li>
         <li><b>Transferencias:</b> como categoría, elige "Transferencia a …" otra cuenta. El movimiento correspondiente se agrega
           solo a la otra cuenta.</li>
         <li><b>Movimientos divididos</b> (un pago de préstamo, un recibo de nómina) aparecen como una línea con sus partes abajo.</li>

@@ -50,6 +50,9 @@ const HELP = {
       <ul>
         <li><b>Change an entry:</b> click it in the register. It shows in the line at the bottom, locked; choose
           <b>Edit transaction</b>, change it, then <b>Save changes</b> (or <b>Cancel</b>). The trash can deletes it.</li>
+        <li><b>Paystubs and split payments</b> show as one line; <i>▸ parts</i> on it shows each part (taxes,
+          deductions, principal and interest), and clicking the line opens it. Close any window with ✕, Escape or a click
+          beside it: when something was changed, it asks whether to save first.</li>
         <li><b>Transfers:</b> as the category, pick "Transfer to …" another account. The matching entry is
           added to the other account by itself.</li>
         <li><b>Split entries</b> (a loan payment, a paystub) show as one line with their parts beneath.</li>

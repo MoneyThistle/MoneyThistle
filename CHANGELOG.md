@@ -3,7 +3,7 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.0 (2026-11-22)
+## 1.0.0 (2026-11-24)
 
 The first release: a simpler, self-hosted successor to Microsoft Money Plus Sunset, opened in a web
 browser, with no bank connections.
@@ -52,6 +52,8 @@ browser, with no bank connections.
   can start any environment fresh under Settings, Your data (its name typed to confirm; a copy is kept).
 - Investment, retirement and asset accounts: Update value records what they're worth now as one
   "Change in value" entry (left out of budgets and spending reports); investments are reminded monthly.
+- Paystubs and split payments show as one line in the register, their parts a click away (▸).
+  Every window closes with ✕, Escape or a click beside it, asking to save when something changed.
 - Updates: MoneyThistle checks GitHub once a day for a newer version (only its version number is
   sent). Windows installs it with one click, or by itself; Docker and Unraid update the container
   from the published image (ghcr.io/moneythistle/moneythistle), with `latest` or a pinned version.

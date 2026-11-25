@@ -616,8 +616,51 @@ function dialog(title, body, buttons) {
       foot.appendChild(el);
     }
     d.onclose = () => resolve(null);
+    // Closing without the buttons (the ✕, Escape, or a click outside the card): straight
+    // away when nothing was changed; otherwise it asks whether to save first.
+    let changed = false;
+    const bodyEl = q("#dlgBody");
+    const mark = e => { if (e.isTrusted) changed = true; };
+    bodyEl.oninput = mark;
+    bodyEl.onchange = mark;
+    // (buttons inside it add, remove or move lines, or fill something in)
+    bodyEl.onclick = e => { if (e.isTrusted && e.target.closest("button")) changed = true; };
+    const leave = async () => {
+      const save = q("#dlgFoot button.primary");
+      if (!changed || !save) { resolve(null); d.close(); return; }
+      const pick = await askSaveChanges();
+      if (pick === "save") save.click();
+      else if (pick === "discard") { resolve(null); d.close(); }
+    };
+    q("#dlgClose").onclick = leave;
+    d.oncancel = e => { e.preventDefault(); leave(); };   // Escape
+    d.onmousedown = e => { d._downOutside = e.target === d; };
+    d.onclick = e => { if (e.target === d && d._downOutside) leave(); };   // the dimmed area around the card
     d.showModal();
-    const first = q("input,select,textarea", q("#dlgBody")); if (first) first.focus();
+    const first = q("input,select,textarea", bodyEl); if (first) first.focus();
+  });
+}
+// "Save your changes?" over a dialog that's being closed: save, don't save, or keep editing.
+function askSaveChanges() {
+  return new Promise(resolve => {
+    let a = document.getElementById("dlgAsk");
+    if (!a) {
+      a = document.createElement("dialog");
+      a.id = "dlgAsk"; a.className = "ask";
+      document.body.appendChild(a);
+    }
+    a.innerHTML = `<div class="dhead"><span>${esc(tr("Save your changes?"))}</span></div>
+      <div class="dbody">${esc(tr("You changed something here. Save it before closing?"))}</div>
+      <div class="dfoot"><button type="button" data-pick="keep">${esc(tr("Keep editing"))}</button>
+        <button type="button" data-pick="discard">${esc(tr("Don't save"))}</button>
+        <button type="button" class="primary" data-pick="save">${esc(tr("Save"))}</button></div>`;
+    let done = false;
+    const finish = v => { if (done) return; done = true; a.close(); resolve(v); };
+    qa("[data-pick]", a).forEach(b => b.onclick = () => finish(b.dataset.pick));
+    a.oncancel = e => { e.preventDefault(); finish("keep"); };
+    a.onclose = () => finish("keep");
+    a.showModal();
+    q("button.primary", a).focus();
   });
 }
 function formData(root) {
@@ -1500,7 +1543,21 @@ function moveBtns(t) {
   return `<span class="movebtns"><button type="button" class="tiny" data-move="${t.id}:${up}" title="Move up (${up} that day)" aria-label="Move up">▲</button><button type="button" class="tiny" data-move="${t.id}:${down}" title="Move down (${down} that day)" aria-label="Move down">▼</button></span>`;
 }
 
-// Register rows: lines of one split payment (same group) are shown together.
+// Split payments (paystubs, loan payments, splits) opened with ▸ in the register this session.
+const REG_OPEN = new Set();
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-tog]");
+  if (!b) return;
+  e.stopPropagation(); e.preventDefault();   // (not a click on the row: that opens the payment)
+  const gid = b.dataset.tog, open = !REG_OPEN.has(gid);
+  if (open) REG_OPEN.add(gid); else REG_OPEN.delete(gid);
+  qa(`tr[data-part="${gid}"]`).forEach(r => { r.hidden = !open; });
+  b.setAttribute("aria-expanded", String(open));
+  b.textContent = `${open ? "▾" : "▸"} ${qa(`tr[data-part="${gid}"]`).length} ${tr("parts")}`;
+}, true);
+
+// Register rows: lines of one split payment (same group) are shown together, as one line
+// whose parts fold out.
 function registerRows(rows) {
   // How many register lines (a split payment counts once) share each date.
   regDayCount = {};
@@ -1533,12 +1590,15 @@ function registerRows(rows) {
     const summary = stub
       ? `<span class="pill green">Paystub</span> gross ${fmt(g.filter(p => p.amount > 0).reduce((s, p) => s + p.amount, 0), true, top)} · ${g.filter(p => p.amount < 0).length} taxes &amp; deductions${payPills(g.find(p => p.pay_flag) || {})}`
       : `<span class="pill">Split</span> ${g.slice().reverse().map(p => esc(label(p))).join(" · ")}`;
+    // One line; its parts fold out with ▸ (and stay open while the register is used).
+    const open = REG_OPEN.has(String(top.group_id));
     return `<tr class="click" data-group="${top.group_id}"${stub ? ' data-paystub="1"' : ""}><td class="status ${top.status}" data-gst="${top.group_id}" title="Click: blank → cleared → reconciled">${top.status || "·"}</td>
-        <td class="small">${niceDate(top.date)}${moveBtns(top)}</td><td class="small">${esc(top.number)}</td><td>${esc(top.payee)}${top.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}</td>
+        <td class="small">${niceDate(top.date)}${moveBtns(top)}</td><td class="small">${esc(top.number)}</td><td>${esc(top.payee)}${top.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}
+          <button type="button" class="tiny grp-tog" data-tog="${top.group_id}" aria-expanded="${open}" title="Show or hide its parts">${open ? "▾" : "▸"} ${g.length} parts</button></td>
         <td class="small">${summary}</td><td class="small muted"></td>
         <td class="num">${sum < 0 ? fmt(-sum, true, top) : ""}</td><td class="num">${sum > 0 ? fmt(sum, true, top) : ""}</td>
         <td class="num">${top.running_balance == null ? "" : fmt(top.running_balance, false, top)}</td></tr>` +
-      g.slice().reverse().map(p => `<tr class="small muted"><td></td><td></td><td></td><td style="padding-left:22px">↳ ${esc(label(p))}</td>
+      g.slice().reverse().map(p => `<tr class="small muted grp-part" data-part="${top.group_id}"${open ? "" : " hidden"}><td></td><td></td><td></td><td style="padding-left:22px">↳ ${esc(label(p))}</td>
         <td class="small">${esc(p.category_label || "(lender holds it)")}</td><td></td>
         <td class="num">${p.amount < 0 ? fmt(-p.amount, true, p) : ""}</td><td class="num">${p.amount > 0 ? fmt(p.amount, true, p) : ""}</td><td></td></tr>`).join("");
   }).join("");
