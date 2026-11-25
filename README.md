@@ -80,13 +80,18 @@ copied to the server by hand. Until it's listed in Community Applications, add i
    wget -O /boot/config/plugins/dockerMan/templates-user/my-MoneyThistle.xml https://raw.githubusercontent.com/MoneyThistle/MoneyThistle/main/unraid/moneythistle.xml
    ```
 
-2. **Docker → Add Container**, choose **MoneyThistle** under *Template*, check the port, folders,
-   time zone and (optional) first password, and **Apply**.
+2. **Docker → Add Container**, choose **MoneyThistle** under *Template*, check the port, the two
+   folders and the time zone, and **Apply**.
 3. Open `http://TOWER:8080` from any device on your network, or over Tailscale with the server's
-   Tailscale name, e.g. `http://tower.your-tailnet.ts.net:8080`.
+   Tailscale name, e.g. `http://tower.your-tailnet.ts.net:8080`. The first visit creates the
+   administrator's sign-in (do that right away); everything else, such as people, Nextcloud
+   backups, notifications and language, is set up in the app.
 
 Your money file is in `/mnt/user/appdata/moneythistle/data` and local backups in
 `/mnt/user/appdata/moneythistle/backups`, owned by `nobody:users` like other Unraid apps.
+
+If Unraid ends with *No such container: MoneyThistle*, the image couldn't be downloaded (the lines
+above it say why, for example *denied*): check that the server can reach `ghcr.io`, then Apply again.
 
 ### Docker and Docker Compose
 

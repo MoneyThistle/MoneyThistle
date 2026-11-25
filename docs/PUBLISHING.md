@@ -84,7 +84,11 @@ Updating a container never touches the data: it lives in the mapped folders (`/d
 
 1. **After the first release**, open the organization's **Packages** on GitHub, then
    **moneythistle** → **Package settings**, and make it **Public** if it isn't. Until it's public,
-   nobody outside the organization can download the image.
+   nobody outside the organization can download the image: Unraid then ends with *No such
+   container: MoneyThistle* (the download was *denied*), and Docker says *denied* or *unauthorized*.
+
+The Unraid template asks only for what the container needs (the port, the two folders, the time
+zone). Everything else is set up in the app, so keep it that way when changing the template.
 2. **Code signing**: apply at https://signpath.org/apply. Once approved, add the repository secret
    `SIGNPATH_API_TOKEN` and the variables `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_PROJECT_SLUG` and
    `SIGNPATH_POLICY_SLUG` (Settings → Secrets and variables → Actions).
