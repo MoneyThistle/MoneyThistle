@@ -46,6 +46,14 @@ Every three months, Twice a year, Yearly, Every other year, Only once.
 "Twice a month" = two dates 15 days apart (anchor day and anchor ± 15) — **estimated**, the exact
 rule was not decompiled. Monthly-type schedules keep their original day and clamp to the month end.
 
+**Schedule… from a register entry** (MoneyThistle's own, for after moving in): the frequency is
+guessed from the median gap between the same payee's entries in that account, same direction (last
+12 gaps): ≤3 days Daily, ≤10 Weekly, ≤18 Every other week (or Twice a month when every gap isn't
+14 and the recent days of the month repeat), 28 every time Every four weeks, ≤45 Monthly, ≤75 Every
+other month, ≤120 Every three months, ≤250 Twice a year, ≤500 Yearly, longer Every other year.
+"Last day of the month" when the last 6 all fell on a month end. The next date is the first after
+today. Amounts differing among the last 6 make it vary, at their average.
+
 ## Other rules
 
 - A file holds at most 63 accounts in the original (obres.dll message). Not enforced here.

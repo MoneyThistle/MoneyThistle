@@ -200,7 +200,11 @@ I18N.helpText({
       <p>Viene: cuentas, saldos iniciales, categorías, beneficiarios y cada transacción con sus divisiones, transferencias y marcas
       de conciliado. No viene: facturas programadas, presupuestos y posiciones de inversión. Los movimientos que ya están en una
       cuenta que eliges no se agregan dos veces. Haz un respaldo antes; la descarga del banco de una sola cuenta sigue pasando por
-      <a href="#/help/import">Importar archivo</a>.</p>` },
+      <a href="#/help/import">Importar archivo</a>.</p>
+      <p>Para volver a armar tu calendario, abre un registro y haz clic en una factura, un sueldo o una transferencia que se repite, y luego
+      en <b>Programar…</b>. Se llena un nuevo elemento programado a partir de ese movimiento: el beneficiario, la cuenta, la categoría y
+      el monto, y la frecuencia y la próxima fecha según los otros movimientos del mismo beneficiario en esa cuenta (un monto que
+      cambia queda como variable, por su promedio). Revísalo y guárdalo.</p>` },
     history: { title: "Historial de cambios y deshacer", body: `
       <p>MoneyThistle registra cada movimiento, elemento programado, cuenta, categoría y monto del presupuesto que se agrega,
       cambia o elimina: quién lo hizo, cuándo, en qué entorno y cómo estaba antes y después. Se guarda un año y va en cada respaldo.</p>

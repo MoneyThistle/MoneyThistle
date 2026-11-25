@@ -199,7 +199,11 @@ I18N.helpText({
       <p>Vem: contas, saldos iniciais, categorias, favorecidos e cada transação com divisões, transferências e marcas de
       compensado. Não vem: contas agendadas, orçamentos e posições de investimento. Lançamentos que já estão numa conta escolhida
       não são adicionados duas vezes. Faça um backup antes; o download do banco de uma só conta continua passando por
-      <a href="#/help/import">Importar arquivo</a>.</p>` },
+      <a href="#/help/import">Importar arquivo</a>.</p>
+      <p>Para montar sua agenda de novo, abra um registro e clique numa conta, salário ou transferência que se repete, depois em
+      <b>Agendar…</b>. Um novo item agendado é preenchido a partir desse lançamento: o favorecido, a conta, a categoria e o valor, e
+      a frequência e a próxima data pelos outros lançamentos do mesmo favorecido nessa conta (um valor que muda fica variável, pela
+      média). Confira e salve.</p>` },
     history: { title: "Histórico de alterações e desfazer", body: `
       <p>O MoneyThistle registra cada lançamento, item agendado, conta, categoria e valor de orçamento adicionado, alterado ou
       excluído: quem fez, quando, em qual ambiente e como estava antes e depois. Fica guardado por um ano e entra em todo backup.</p>

@@ -163,7 +163,8 @@ and CSV exports from YNAB, GnuCash, Actual Budget, Mint and Firefly III (or any 
 You see a preview and choose, per account, its type and whether it becomes a new account, goes into an
 existing one or is left out. Accounts, opening balances, categories, payees, splits, transfers and cleared
 marks come across, and investment accounts' dividends, interest and transfers; scheduled bills, budgets and
-investment holdings don't.
+investment holdings don't. To set up the schedule again, open a repeating entry in a register and
+click **Schedule…**: it fills in a scheduled item from it, guessing how often from that payee's history.
 
 ### People, sign-in and environments
 

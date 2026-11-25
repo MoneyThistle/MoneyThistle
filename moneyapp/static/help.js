@@ -195,7 +195,11 @@ const HELP = {
       account choose a new account, one you already have, or leave it out. Nothing changes until <b>Bring it in</b>.</p>
       <p>Comes across: accounts, opening balances, categories, payees and every transaction with its splits, transfers and cleared marks.
       Doesn't: scheduled bills, budgets and investment holdings. Entries already in an account you choose aren't added twice.
-      Make a backup first; a single account's bank download still goes through <a href="#/help/import">Import file</a>.</p>` },
+      Make a backup first; a single account's bank download still goes through <a href="#/help/import">Import file</a>.</p>
+      <p>To set up your schedule again, open a register and click a bill, paycheck or transfer that repeats, then <b>Schedule…</b>.
+      It fills in a new scheduled item from that entry: the payee, account, category and amount, and how often and the next
+      date from the same payee's other entries in that account (an amount that changes is set to vary, at its average).
+      Check it and save.</p>` },
     { id: "history", title: "Change history and undo", tab: "history", body: `
       <p>MoneyThistle records every entry, scheduled item, account, category and budget amount that's added, changed or
       deleted: who did it, when, in which environment, and how it looked before and after. It's kept for a year and is

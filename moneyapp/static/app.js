@@ -1635,7 +1635,7 @@ function payPills(t) {
   return h;
 }
 
-async function groupDialog(rows, gid, done) {
+async function groupDialog(rows, gid, done, acc) {
   const g = rows.filter(t => t.group_id == gid);
   const total = g.reduce((s, t) => s + t.amount, 0);
   await dialog("Split payment: " + (g[0].payee || ""), `<p class="small muted">${niceDate(g[0].date)} · one payment made of ${g.length} parts</p>
@@ -1646,6 +1646,11 @@ async function groupDialog(rows, gid, done) {
     [{ label: "Delete payment", cls: "danger", action: async () => {
       if (!(await confirmBox("Delete this whole payment (all parts, including the loan side)?"))) return false;
       await api("DELETE", "/api/transactions/group/" + gid); toast("Payment deleted"); done(); } },
+     ...(acc && canEdit() && !acc._shared && !S.shareCtx ? [{ label: "Schedule…", action: () => {
+      // One scheduled item for the whole payment: its total, in the category of its biggest part.
+      const big = g.filter(p => Math.sign(p.amount) === Math.sign(total)).sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))[0] || g[0];
+      setTimeout(() => scheduleFromEntry(acc, { ...g[0], amount: total, memo: "", transfer_id: null, paystub: false, category_id: big.category_id }), 0);
+     } }] : []),
      { label: "Close" },
      { label: "Save date", cls: "primary", action: async root => {
       const d = q("[name=date]", root).value;
@@ -2130,7 +2135,7 @@ async function renderAccounts(id, sub) {
   });
   qa("tr[data-group]").forEach(r => r.onclick = () => r.dataset.paystub
     ? paystubDialog(acc, +r.dataset.group, () => renderAccounts(id, { q: search }))
-    : groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search })));
+    : groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search }), acc));
   if (loan) {
     q("#loanPay").onclick = () => payLoan(acc.id, loan.bill ? { ...loan.bill, date: loan.bill.next_date } : null);
     q("#loanSched").onclick = () => { const w = q("#schedWrap"); w.style.display = w.style.display === "none" ? "" : "none"; };
@@ -2418,7 +2423,8 @@ function entryForm(acc, tx, done) {
       </div>${!tx ? `<div class="entry-attach small">${attachPickers("ea")}<span id="e_pending" class="muted">${pendingText()}</span></div>` : `<div class="entry-actions">${!editing
           ? `${tx.paycheck != null && canEdit() ? `<button id="e_paydet" title="Gross pay, taxes and deductions from the pay slip">Add paystub details</button>${tx.pay_flag
               ? `<button id="e_paydone" title="This paycheck won't get more detail: stop flagging it">Complete as is</button>`
-              : (tx.paycheck === 2 ? `<button id="e_paydone" data-undo="1" title="Marked complete as is: flag it again if it's missing what's usual">Flag if incomplete</button>` : "")}` : ""}<button id="e_att" title="Photos of the receipt, PDFs">${CLIP_ICON} Receipts${tx.attachments ? ` (${tx.attachments})` : ""}</button><button id="e_hist" title="Who entered and changed it, and when">History</button><button class="primary" id="e_edit" title="Change this transaction">✎ Edit transaction</button><button id="e_new" title="Close it and start a new transaction">Close</button>`
+              : (tx.paycheck === 2 ? `<button id="e_paydone" data-undo="1" title="Marked complete as is: flag it again if it's missing what's usual">Flag if incomplete</button>` : "")}` : ""}<button id="e_att" title="Photos of the receipt, PDFs">${CLIP_ICON} Receipts${tx.attachments ? ` (${tx.attachments})` : ""}</button>${canEdit() && !acc._shared && !S.shareCtx && !tx.xlink_id
+            ? `<button id="e_sched" title="Make a scheduled bill, deposit or transfer from this entry (Bills &amp; Deposits)">Schedule…</button>` : ""}<button id="e_hist" title="Who entered and changed it, and when">History</button><button class="primary" id="e_edit" title="Change this transaction">✎ Edit transaction</button><button id="e_new" title="Close it and start a new transaction">Close</button>`
           : `<button class="primary" id="e_save">Save changes</button><button id="e_cancel" title="Leave it as it was (Esc)">Cancel</button>
              <button class="danger trash" id="e_del" title="Delete this transaction" aria-label="Delete this transaction">${TRASH_ICON} Delete</button>`}</div>`}<datalist id="payeeList">${S.payees.map(p => `<option value="${esc(p.name)}">`).join("")}</datalist>`;
     const cat = q("#e_cat", el), payee = q("#e_payee", el), amtEl = q("#e_amt", el);
@@ -2525,6 +2531,7 @@ function entryForm(acc, tx, done) {
     };
     if (q("#e_edit", el)) q("#e_edit", el).onclick = () => { editing = true; draw(); q("#e_payee", el).focus(); };
     if (q("#e_hist", el)) q("#e_hist", el).onclick = () => entryHistoryDialog("transaction", tx.id, done);
+    if (q("#e_sched", el)) q("#e_sched", el).onclick = () => scheduleFromEntry(acc, tx);
     if (q("#e_new", el)) q("#e_new", el).onclick = () => {
       tx = null; editing = true; kind = "payment"; catVal = ""; qa("tr.sel").forEach(x => x.classList.remove("sel")); draw();
     };
@@ -2644,15 +2651,110 @@ function importReview(acc, filename, text, pv) {
 }
 
 // ---------- BILLS ----------
-async function editBill(bill, kind) {
+// ---------- a scheduled item from a register entry ----------
+// After moving in from another program the schedule is empty: an entry in the register can
+// start one. Who, how much, the category and the account come from the entry; how often and
+// the next date are guessed from the same payee's other entries in this account (an amount
+// that differs from time to time is set to vary, at its average).
+function addFrequency(iso, freq, lastDay) {
+  const d = new Date(iso + "T00:00:00");
+  const iso2 = t => new Date(t.getTime() - t.getTimezoneOffset() * 60000).toISOString().slice(0, 10);   // (the local date)
+  const days = { "Daily": 1, "Weekly": 7, "Every other week": 14, "Every four weeks": 28 }[freq];
+  if (days) { d.setDate(d.getDate() + days); return iso2(d); }
+  if (freq === "Twice a month") {   // about half a month on: the 1st → the 16th → the 1st...
+    const day = d.getDate(), y = d.getFullYear(), m = d.getMonth();
+    const end = new Date(y, m + 1, 0).getDate();
+    return iso2(day < 15 ? new Date(y, m, Math.min(day + 15, end)) : new Date(y, m + 1, Math.max(day - 15, 1)));
+  }
+  const months = { "Monthly": 1, "Every other month": 2, "Every three months": 3, "Twice a year": 6, "Yearly": 12, "Every other year": 24 }[freq] || 1;
+  const day = d.getDate();
+  const t = new Date(d.getFullYear(), d.getMonth() + months, 1);
+  const last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
+  t.setDate(lastDay ? last : Math.min(day, last));
+  return iso2(t);
+}
+function guessSchedule(dates) {
+  // dates: oldest first, one per occurrence
+  if (dates.length < 2) return { frequency: "Monthly", last_day: false };
+  const ms = iso => new Date(iso + "T00:00:00").getTime();
+  const gaps = dates.slice(1).map((d, i) => Math.round((ms(d) - ms(dates[i])) / 86400000)).filter(g => g > 0).slice(-12);
+  if (!gaps.length) return { frequency: "Monthly", last_day: false };
+  const med = gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)];
+  const dayOf = iso => +iso.slice(8, 10);
+  const monthEnd = iso => { const d = new Date(iso + "T00:00:00"); return d.getDate() === new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); };
+  const recent = dates.slice(-6);
+  const lastDay = recent.every(monthEnd);
+  let frequency;
+  if (med <= 3) frequency = "Daily";
+  else if (med <= 10) frequency = "Weekly";
+  else if (med <= 18) frequency = gaps.every(g => g === 14) ? "Every other week"
+    : (new Set(recent.map(dayOf)).size <= 3 ? "Twice a month" : "Every other week");
+  else if (med <= 29 && gaps.every(g => g === 28)) frequency = "Every four weeks";
+  else if (med <= 45) frequency = "Monthly";
+  else if (med <= 75) frequency = "Every other month";
+  else if (med <= 120) frequency = "Every three months";
+  else if (med <= 250) frequency = "Twice a year";
+  else if (med <= 500) frequency = "Yearly";
+  else frequency = "Every other year";
+  return { frequency, last_day: lastDay && ["Monthly", "Every other month", "Every three months", "Twice a year", "Yearly"].includes(frequency) };
+}
+async function scheduleFromEntry(acc, tx) {
+  await loadBasics();
+  const payee = (tx.payee || "").trim();
+  // Already on the schedule? Say so first.
+  const bills = (await GET("/api/bills").catch(() => ({ bills: [] }))).bills || [];
+  const same = payee && bills.find(b => (b.payee || "").trim().toLowerCase() === payee.toLowerCase() &&
+    (b.account_id === acc.id || b.to_account_id === acc.id));
+  if (same && !(await confirmBox(`${payee} is already scheduled (${freqLabel(same)}, next ${niceDate(same.next_date)}). Schedule another one?`))) return;
+  // The same payee's entries in this account, same direction: how often, how much.
+  const found = payee ? await GET(`/api/transactions?account=${acc.id}&q=${encodeURIComponent(payee)}`).catch(() => []) : [];
+  // (a split payment, such as a paystub, counts once, at its total)
+  const groups = {}, rows = [];
+  for (const t of found) {
+    if (!t.group_id) { rows.push(t); continue; }
+    if (!groups[t.group_id]) rows.push(groups[t.group_id] = Object.assign({}, t, { amount: 0 }));
+    groups[t.group_id].amount += t.amount;
+  }
+  let like = rows.filter(t => (t.payee || "").trim().toLowerCase() === payee.toLowerCase() && Math.sign(t.amount) === Math.sign(tx.amount))
+    .sort((a, b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : a.id - b.id));
+  // (entries shaped like this one, single or split, when there are enough: a payee's
+  // take-home-only deposits and its paystubs can follow different patterns)
+  const shaped = like.filter(t => !t.group_id === !tx.group_id);
+  if (shaped.length >= 2) like = shaped;
+  const dates = [...new Set((like.length ? like : [tx]).map(t => t.date))];
+  const g = guessSchedule(dates);
+  let next = dates[dates.length - 1];
+  for (let i = 0; i < 400 && next <= todayISO(); i++) next = addFrequency(next, g.frequency, g.last_day);
+  const amounts = like.slice(-6).map(t => Math.abs(t.amount));
+  const varies = new Set(amounts).size > 1;
+  const avg = varies ? Math.round(amounts.reduce((s, a) => s + a, 0) / amounts.length) : Math.abs(tx.amount);
+  const start = { payee, memo: tx.memo || "", frequency: g.frequency, last_day: g.last_day, next_date: next,
+    amount: avg, estimate: varies ? avg : Math.abs(tx.amount), amount_mode: varies ? "average" : "fixed", average_count: 12,
+    category_id: tx.category_id || null, account_id: acc.id };
+  if (tx.transfer_id) {
+    // A transfer: from the account the money left, to the one it reached.
+    Object.assign(start, { kind: "transfer", category_id: null,
+      account_id: tx.amount < 0 ? acc.id : tx.transfer_account_id, to_account_id: tx.amount < 0 ? tx.transfer_account_id : acc.id });
+  } else {
+    start.kind = tx.amount > 0 ? "deposit" : "bill";
+    // A paycheck: marked as one, a paystub, or pay in Wages & Salary (not the employer's match).
+    const cat = S.cats.find(c => c.id === tx.category_id) || {};
+    const wages = /^Wages & Salary( : (?!Employer Matching).*)?$/.test(cat.full_name || "");
+    if (tx.amount > 0 && (tx.paycheck != null || tx.paystub || wages)) start.paycheck = true;
+  }
+  return editBill(null, start.kind, start);
+}
+
+async function editBill(bill, kind, start) {
   await loadBasics();
   // Accounts shared into this environment for entering, with their bills: they can be
   // scheduled from here too (the item is kept with the shared account).
   const sharedOpts = S.shareCtx ? [] : (await GET("/api/shares/incoming").catch(() => [])).filter(a => a.can_edit && a.include_bills && !a.closed);
   const shOptions = sel => sharedOpts.length ? `<optgroup label="Shared with this environment">${sharedOpts.map(a =>
     `<option value="sh:${a.share_id}" ${sel === "sh:" + a.share_id ? "selected" : ""}>${esc(a.name)} (shared by ${esc(a.shared_by)})</option>`).join("")}</optgroup>` : "";
-  const b = bill || { kind: kind || "bill", payee: "", amount: 0, estimate: 0, amount_mode: "fixed", average_count: 12,
-    frequency: "Monthly", next_date: todayISO(), account_id: (S.accounts[0] || {}).id };
+  // (start: a new item already filled in, e.g. from a register entry)
+  const b = bill || Object.assign({ kind: kind || "bill", payee: "", amount: 0, estimate: 0, amount_mode: "fixed", average_count: 12,
+    frequency: "Monthly", next_date: todayISO(), account_id: (S.accounts[0] || {}).id }, start || {});
   const xb = !!(bill && bill.x_link_id);   // transfer with another environment: its ends stay as they are
   const varies = b.amount_mode === "average";
   const est = b.estimate != null ? b.estimate : b.amount;

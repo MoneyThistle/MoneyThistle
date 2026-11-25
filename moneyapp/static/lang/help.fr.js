@@ -202,7 +202,11 @@ I18N.helpText({
       <p>Ce qui vient : comptes, soldes d'ouverture, catégories, bénéficiaires et chaque opération avec ses ventilations, transferts
       et marques de compensation. Ce qui ne vient pas : factures prévues, budgets et placements détenus. Les écritures déjà dans un
       compte choisi ne sont pas ajoutées deux fois. Faites une sauvegarde d'abord; le téléchargement bancaire d'un seul compte
-      passe toujours par <a href="#/help/import">Importer un fichier</a>.</p>` },
+      passe toujours par <a href="#/help/import">Importer un fichier</a>.</p>
+      <p>Pour refaire votre calendrier, ouvrez un registre et cliquez sur une facture, une paie ou un virement qui revient, puis
+      <b>Planifier…</b>. Un nouvel élément prévu est rempli à partir de cette opération : le bénéficiaire, le compte, la catégorie et
+      le montant, ainsi que la fréquence et la prochaine date d'après les autres opérations du même bénéficiaire dans ce compte
+      (un montant qui change est mis en variable, à sa moyenne). Vérifiez et enregistrez.</p>` },
     history: { title: "Historique des changements et annulation", body: `
       <p>MoneyThistle note chaque écriture, élément prévu, compte, catégorie et montant de budget ajouté, modifié ou supprimé : qui
       l'a fait, quand, dans quel environnement, et comment c'était avant et après. C'est gardé un an et fait partie de chaque sauvegarde.</p>

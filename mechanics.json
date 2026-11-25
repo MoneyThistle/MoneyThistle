@@ -28,6 +28,7 @@
     {"name": "bill amount can vary", "group": "bills", "value": "same each time / the amount varies (with an estimated amount)", "source": "obres.dll bill wizard strings 0x3308fb1a, 0x33092fae ('No, the amount usually varies', 'Estimated amount')"},
     {"name": "varying bill expected amount", "group": "bills", "value": "average of up to the last N recorded amounts; the estimate until the first", "estimated": true},
     {"name": "varying bill default N", "group": "bills", "value": 12, "estimated": true},
+    {"name": "schedule from entry frequency guess", "group": "bills", "value": "median gap of the same payee's entries in the account (last 12): <=3 Daily, <=10 Weekly, <=18 Every other week or Twice a month, all 28 Every four weeks, <=45 Monthly, <=75 Every other month, <=120 Every three months, <=250 Twice a year, <=500 Yearly, else Every other year; varies (average) when the last 6 amounts differ", "estimated": true},
     {"name": "varying bill N range", "group": "bills", "value": "1-99", "estimated": true},
     {"name": "forecast", "group": "forecast", "value": "today's balance + scheduled items at expected amounts, day by day; overdue items count today", "estimated": true},
     {"name": "paystub other deductions", "group": "paychecks", "value": "gross + added after taxes - take-home - itemized deductions, never below 0", "source": "person's request"},

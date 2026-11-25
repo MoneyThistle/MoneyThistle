@@ -7,6 +7,10 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
 
 - Registers listed oldest first open at their end, where the newest entries are; after saving an
   entry the register stays where it was.
+- **Schedule…** on an open register entry starts a new scheduled bill, deposit or transfer from it:
+  payee, account, category and amount filled in, with how often and the next date guessed from the
+  same payee's other entries. Handy for setting up the schedule again after moving in from another
+  program.
 
 ## 1.0.0 (2026-11-24)
 

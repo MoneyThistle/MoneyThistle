@@ -329,3 +329,7 @@
 @You changed something here. Save it before closing?|Vous avez changé quelque chose ici. L'enregistrer avant de fermer?|Cambiaste algo aquí. ¿Guardarlo antes de cerrar?|Você mudou algo aqui. Salvar antes de fechar?
 @Keep editing|Continuer à modifier|Seguir editando|Continuar editando
 @Don't save|Ne pas enregistrer|No guardar|Não salvar
+@Schedule…|Planifier…|Programar…|Agendar…
+@Make a scheduled bill, deposit or transfer from this entry (Bills & Deposits)|Créer une facture, un dépôt ou un virement prévu à partir de cette opération (Factures et dépôts)|Crear una factura, un depósito o una transferencia programada a partir de este movimiento (Facturas y depósitos)|Criar uma conta, um depósito ou uma transferência agendada a partir deste lançamento (Contas e depósitos)
+@{} is already scheduled ({}, next {}). Schedule another one?|{} est déjà prévu ({}, prochain le {}). En prévoir un autre?|{} ya está programado ({}, el próximo {}). ¿Programar otro?|{} já está agendado ({}, próximo em {}). Agendar outro?
+@Split payment: {}|Paiement ventilé : {}|Pago dividido: {}|Pagamento dividido: {}
