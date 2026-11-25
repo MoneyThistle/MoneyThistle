@@ -82,7 +82,7 @@ copied to the server by hand. Until it's listed in Community Applications, add i
 
 2. **Docker → Add Container**, choose **MoneyThistle** under *Template*, check the port, the two
    folders and the time zone, and **Apply**. To choose other folders with Unraid's folder browser,
-   empty the box first, then click it: the browser can't open a folder that doesn't exist yet
+   empty the box first, then click it: in newer Unraid versions the browser can't open a folder that doesn't exist yet
    (it shows *Root filesystem directory not set*). The folders are made on Apply.
 3. Open `http://TOWER:8080` from any device on your network, or over Tailscale with the server's
    Tailscale name, e.g. `http://tower.your-tailnet.ts.net:8080`. The first visit creates the
