@@ -197,6 +197,10 @@ class App:
         r("GET", r"/api/links/usable", lambda q, b: [] if self.share else self.system.usable_links(self.env_id, int(q.get("account", 0))), share="read")
         r("GET", r"/api/shares/incoming", lambda q, b: self.system.incoming_shares(self.uid, self.env_id))
         r("POST", r"/api/loans/preview", lambda q, b: loans.preview(self.store, b))
+        # The loan calculator and a loan's "what if": arithmetic only, nothing is saved.
+        # (GET, so people who may only look can use them too)
+        r("GET", r"/api/loans/calculate", lambda q, b: loans.calculate(q), share="read")
+        r("GET", r"/api/loans/(\d+)/what-if", lambda q, b, i: self.loan_what_if(int(i), q), share="read")
         r("POST", r"/api/loans", lambda q, b: {"id": loans.save(self.store, b)})
         r("GET", r"/api/loans/(\d+)", lambda q, b, i: self.get_loan(int(i)), share="read")
         r("PUT", r"/api/loans/(\d+)", lambda q, b, i: {"id": loans.save(self.store, b, int(i))})
@@ -388,6 +392,13 @@ class App:
             if i not in seen:
                 raise ApiError("That loan isn't shared with you", 403)
         return loans.get(self.store, i)
+
+    def loan_what_if(self, i, b):
+        if self.share:
+            seen, _ = self._share_sets()
+            if i not in seen:
+                raise ApiError("That loan isn't shared with you", 403)
+        return loans.what_if(self.store, i, b)
 
     def list_accounts(self, q, b):
         rows = self.store.accounts()

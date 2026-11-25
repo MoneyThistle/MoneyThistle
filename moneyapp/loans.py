@@ -44,20 +44,123 @@ def split_payment(owed, apr, ppy, payment):
     return principal, interest
 
 
-def schedule(owed, apr, ppy, payment, start_date, anchor_day, limit=1200):
-    """Payments from start_date until the loan is paid off."""
+def schedule(owed, apr, ppy, payment, start_date, anchor_day, limit=1200,
+             extra_each=0, extra_once=0, extra_once_date=None):
+    """Payments from start_date until the loan is paid off.
+
+    extra_each: more principal paid with every payment; extra_once: more principal paid once,
+    with the first payment on or after extra_once_date (the first payment when not given).
+    A row's "extra" is that additional principal; "payment" includes it."""
     freq = FREQ_BY_PPY.get(ppy, "Monthly")
-    rows, d, n = [], start_date, 0
+    rows, d, n, once_left = [], start_date, 0, extra_once
     while owed > 0 and n < limit:
         principal, interest = split_payment(owed, apr, ppy, payment)
-        if principal <= 0:
+        extra = extra_each
+        if once_left and (extra_once_date is None or d >= extra_once_date):
+            extra, once_left = extra + once_left, 0
+        extra = max(0, min(extra, owed - principal))
+        if principal + extra <= 0:
             break  # payment doesn't cover the interest: it would never end
-        owed -= principal
+        owed -= principal + extra
         rows.append({"n": n + 1, "date": d.isoformat(), "principal": principal, "interest": interest,
-                     "payment": principal + interest, "balance": owed})
+                     "extra": extra, "payment": principal + interest + extra, "balance": owed})
         d = next_occurrence(d, freq, anchor_day)
         n += 1
     return rows
+
+
+def principal_for(payment_cents, apr, ppy, n):
+    """The most that can be borrowed for this payment (principal + interest) over n payments."""
+    if n <= 0:
+        raise ApiError("Number of payments must be at least 1")
+    r = period_rate(apr, ppy)
+    if r == 0:
+        return int(payment_cents * n)
+    return int(payment_cents * (1 - (1 + r) ** -n) / r)
+
+
+def _summary(rows, owed):
+    """Payments left, payoff date and what is still to be paid, for a schedule."""
+    return {"payments_left": len(rows), "payoff_date": rows[-1]["date"] if rows else None,
+            "interest": sum(r["interest"] for r in rows), "total": sum(r["payment"] for r in rows),
+            "never_ends": owed > 0 and (not rows or rows[-1]["balance"] > 0)}
+
+
+def _apr_ppy_n(data, need_n=True):
+    try:
+        apr = float(str(data.get("apr") or 0).replace("%", ""))
+        ppy = int(data.get("payments_per_year") or 12)
+        years = float(str(data.get("years") or 0).replace(",", "."))
+    except ValueError:
+        raise ApiError("Rate, payments per year and years must be numbers")
+    if not 0 <= apr <= 100:
+        raise ApiError("APR must be between 0 and 100")
+    if ppy not in FREQ_BY_PPY:
+        raise ApiError("Payments per year must be 1, 2, 4, 6, 12, 24, 26 or 52")
+    n = int(round(years * ppy))
+    if need_n and not 1 <= n <= 1200:
+        raise ApiError("Enter how many years, up to 100")
+    return apr, ppy, n
+
+
+def calculate(data):
+    """The loan calculator: nothing is saved.
+
+    mode "payment": the price (less a down payment or trade-in) is borrowed; gives the payment.
+    mode "amount": the payment you can afford; gives what you can borrow, and with the down
+    payment, the price you can afford."""
+    apr, ppy, n = _apr_ppy_n(data)
+    down = abs(to_cents(data.get("down") or 0, "down payment"))
+    if (data.get("mode") or "payment") == "amount":
+        payment = abs(to_cents(data.get("payment"), "payment"))
+        if not payment:
+            raise ApiError("Enter the payment you can afford")
+        amount = principal_for(payment, apr, ppy, n)
+        price = amount + down
+    else:
+        price = abs(to_cents(data.get("price"), "price"))
+        if not price:
+            raise ApiError("Enter the price or loan amount")
+        amount = max(0, price - down)
+        payment = calc_payment(amount, apr, ppy, n) if amount else 0
+    rows = schedule(amount, apr, ppy, payment, dt.date.today(), dt.date.today().day, limit=n + 1) if amount else []
+    interest = sum(r["interest"] for r in rows)
+    return {"apr": apr, "payments_per_year": ppy, "num_payments": n, "payment": payment, "amount": amount,
+            "down": down, "price": price, "interest": interest, "total": amount + interest}
+
+
+def converted_payment(payment, ppy, new_ppy):
+    """The payment for paying new_ppy times a year instead of ppy: the same amount a year,
+    except monthly to every other week, which pays half the monthly payment each time
+    (26 halves: one extra monthly payment a year, the usual "biweekly" plan)."""
+    if ppy == 12 and new_ppy == 26:
+        return int(round(payment / 2))
+    return int(round(payment * ppy / new_ppy))
+
+
+def what_if(store, aid, data):
+    """The loan as it is against the same loan with other payments; nothing is saved."""
+    loan, owed, start, anchor, _ = _plan(store, aid)
+    apr, ppy, pay = loan["apr"], loan["payments_per_year"], loan["payment"]
+    try:
+        new_ppy = int(data.get("payments_per_year") or ppy)
+    except ValueError:
+        raise ApiError("Payments per year must be a number")
+    if new_ppy not in FREQ_BY_PPY:
+        raise ApiError("Payments per year must be 1, 2, 4, 6, 12, 24, 26 or 52")
+    new_pay = abs(to_cents(data["payment"], "payment")) if data.get("payment") not in (None, "") \
+        else (pay if new_ppy == ppy else converted_payment(pay, ppy, new_ppy))
+    extra_each = abs(to_cents(data.get("extra_each") or 0, "extra with every payment"))
+    extra_once = abs(to_cents(data.get("extra_once") or 0, "one-time extra payment"))
+    once_date = parse_date(data["extra_once_date"], "date of the extra payment") if data.get("extra_once_date") else None
+    now = schedule(owed, apr, ppy, pay, start, anchor)
+    then = schedule(owed, apr, new_ppy, new_pay, start, anchor, extra_each=extra_each,
+                    extra_once=extra_once, extra_once_date=once_date)
+    return {"owed": owed, "apr": apr, "start": start.isoformat(),
+            "now": {**_summary(now, owed), "payment": pay, "payments_per_year": ppy},
+            "then": {**_summary(then, owed), "payment": new_pay, "payments_per_year": new_ppy,
+                     "extra_once_applied": not extra_once or any(r["extra"] > extra_each for r in then)},
+            "schedule": then[:1200]}
 
 
 def payment_dates_until(first, ppy, until):
@@ -174,20 +277,25 @@ def _sync_bill(store, aid, t, next_date):
                          vals[:4] + (next_date.isoformat(), vals[4], aid))
 
 
-def get(store, aid):
+def _plan(store, aid):
+    """The loan's terms, what is owed now, its next payment date and payment day, its bill."""
     loan = store.q1("SELECT * FROM loans WHERE account_id=?", (aid,))
     if not loan:
         raise ApiError("This account has no loan details", 404)
-    acc = store.account(aid)
-    owed = max(0, -acc["balance"])
+    owed = max(0, -store.account(aid)["balance"])
     bill = store.q1("SELECT * FROM bills WHERE kind='loan' AND loan_account_id=? AND active=1", (aid,))
     if bill:
         start = dt.date.fromisoformat(bill["next_date"])
     else:
         _, start = payment_dates_until(dt.date.fromisoformat(loan["first_payment"]), loan["payments_per_year"],
                                       dt.date.today() - dt.timedelta(days=1))
-    first = dt.date.fromisoformat(loan["first_payment"])
-    rows = schedule(owed, loan["apr"], loan["payments_per_year"], loan["payment"], start, first.day)
+    return loan, owed, start, dt.date.fromisoformat(loan["first_payment"]).day, bill
+
+
+def get(store, aid):
+    loan, owed, start, anchor, bill = _plan(store, aid)
+    acc = store.account(aid)
+    rows = schedule(owed, loan["apr"], loan["payments_per_year"], loan["payment"], start, anchor)
     principal, interest = split_payment(owed, loan["apr"], loan["payments_per_year"], loan["payment"])
     paid = store.q1(
         "SELECT COALESCE(SUM(CASE WHEN t.category_id=? THEN -t.amount END),0) AS interest, "

@@ -6,7 +6,8 @@
 
 A simple personal money manager that opens in your web browser. It runs as a program on Windows,
 as a container on Docker or Unraid, and on macOS or Linux with Python. Accounts and registers,
-Bills & Deposits, paychecks and paystubs, budgets, reports and a year-end tax report, receipts,
+Bills & Deposits, paychecks and paystubs, loans (with "what if" payments and a loan calculator),
+budgets, reports and a year-end tax report, receipts,
 and automatic backups to a folder and to Nextcloud (or any WebDAV server). No bank connection: type
 transactions in, or import the files your bank lets you download. In English, French, Spanish and
 Portuguese.

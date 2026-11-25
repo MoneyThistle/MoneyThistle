@@ -398,6 +398,12 @@ I18N.helpText({
       <b>Actualizar valor</b>, y escribe cuánto vale según su estado de cuenta o su sitio: la diferencia entra como un movimiento de
       <i>Cambio de valor</i>, fuera de los presupuestos y los informes de gastos. Las cuentas de inversión y jubilación lo
       recuerdan cada mes (junto a los estados de las tarjetas); apágalo, o enciéndelo para un bien como una casa, en los detalles de la cuenta.` },
+    { q: "¿Puedo ver qué haría un pago extra a mi préstamo?", a: `Sí. Abre la cuenta del préstamo y elige <b>¿Y si…?</b> en su tarjeta Préstamo.
+      Prueba un pago extra al capital una vez (con el pago de la fecha que elijas), un extra en cada pago, o pagar dos veces
+      al mes o cada dos semanas en lugar de mensualmente. Muestra cuándo quedaría pagado y cuántos intereses costaría, junto a
+      cómo está ahora. No se guarda nada; pregunta a tu prestamista antes de cambiar cómo pagas. Para calcular un préstamo que
+      aún no tienes, como cuánto auto puede comprar un pago mensual, usa la <b>Calculadora de préstamos</b> debajo de la lista
+      de cuentas en la página Cuentas; <b>Crear este préstamo…</b> empieza uno nuevo a partir de ella.` },
   ],
   terms: [
     { term: "Cuenta", def: "Donde se guarda o se debe dinero: cuenta corriente, ahorros, tarjeta de crédito, préstamo, inversión." },

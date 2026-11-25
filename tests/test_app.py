@@ -1684,6 +1684,52 @@ DATA:OFXSGML
         self.assertTrue(100 < p["payments_made"] < 360)
         self.assertTrue(0 < p["balance_now"] < 20000000)
 
+    def test_loan_what_if_and_calculator(self):
+        from moneyapp import loans
+        first = (dt.date.today().replace(day=1) + dt.timedelta(days=40)).replace(day=1)
+        lid = loans.save(self.store, {"name": "Mortgage", "original_amount": "200000", "apr": "6",
+                                      "payments_per_year": 12, "num_payments": 360,
+                                      "first_payment": first.isoformat()})
+        before = loans.get(self.store, lid)
+        # Nothing changed: the same as the loan itself.
+        same = loans.what_if(self.store, lid, {})
+        self.assertEqual(same["now"]["payments_left"], 360)
+        self.assertEqual(same["then"]["payments_left"], 360)
+        self.assertEqual(same["now"]["interest"], before["total_interest_left"])
+        # A one-time 10,000 toward principal with the third payment: paid off sooner, less interest.
+        once = loans.what_if(self.store, lid, {"extra_once": "10000",
+                                               "extra_once_date": loans.schedule(20000000, 6, 12, 119910, first, 1)[2]["date"]})
+        self.assertEqual(once["schedule"][2]["extra"], 1000000)
+        self.assertEqual(once["schedule"][1]["extra"], 0)
+        self.assertTrue(once["then"]["extra_once_applied"])
+        self.assertLess(once["then"]["payments_left"], 360)
+        self.assertLess(once["then"]["interest"], once["now"]["interest"])
+        # Every other week at half the monthly payment: one more monthly payment a year.
+        bw = loans.what_if(self.store, lid, {"payments_per_year": 26})
+        self.assertEqual(bw["then"]["payment"], 59955)
+        self.assertLess(bw["then"]["payoff_date"], bw["now"]["payoff_date"])
+        self.assertLess(bw["then"]["interest"], bw["now"]["interest"])
+        # Twice a month: the same amount a year, half each time.
+        tm = loans.what_if(self.store, lid, {"payments_per_year": 24})
+        self.assertEqual(tm["then"]["payment"], 59955)
+        # Extra with every payment.
+        ex = loans.what_if(self.store, lid, {"extra_each": "100"})
+        self.assertTrue(all(r["extra"] == 10000 for r in ex["schedule"][:-1]))
+        self.assertLess(ex["then"]["payments_left"], 360)
+        # Nothing saved.
+        self.assertEqual(loans.get(self.store, lid)["payments_left"], 360)
+        self.assertEqual(loans.get(self.store, lid)["payment"], 119910)
+        # The calculator: the payment for a price, and what a payment can borrow.
+        c = loans.calculate({"price": "30000", "down": "5000", "apr": "6.5", "years": "5"})
+        self.assertEqual((c["amount"], c["num_payments"]), (2500000, 60))
+        self.assertEqual(c["payment"], loans.calc_payment(2500000, 6.5, 12, 60))
+        a = loans.calculate({"mode": "amount", "payment": str(c["payment"] / 100), "down": "5000", "apr": "6.5", "years": "5"})
+        self.assertTrue(abs(a["amount"] - 2500000) < 100)     # back to about the same loan
+        self.assertEqual(a["price"], a["amount"] + 500000)
+        self.assertEqual(loans.calculate({"mode": "amount", "payment": "100", "apr": "0", "years": "1"})["amount"], 120000)
+        with self.assertRaises(ApiError):
+            loans.calculate({"price": "1000", "apr": "6", "years": "0"})
+
     def test_budget_by_scheduled_items(self):
         # For people who don't sort every purchase: paychecks in; bills, loan and card
         # payments out; transfers to savings aside; card purchases not counted.

@@ -397,6 +397,12 @@ I18N.helpText({
       <b>Atualizar valor</b>, e digite quanto vale pelo extrato ou pelo site: a diferença entra como um lançamento de
       <i>Variação de valor</i>, fora dos orçamentos e dos relatórios de gastos. Contas de investimento e aposentadoria lembram
       todo mês (junto às faturas dos cartões); desligue, ou ligue para um bem como uma casa, nos detalhes da conta.` },
+    { q: "Posso ver o que um pagamento extra faria no meu empréstimo?", a: `Sim. Abra a conta do empréstimo e escolha <b>E se…</b> no cartão Empréstimo.
+      Experimente um pagamento extra no principal uma vez (com o pagamento da data que escolher), um extra em cada pagamento,
+      ou pagar duas vezes por mês ou a cada duas semanas em vez de mensalmente. Mostra quando seria quitado e quanto de juros
+      custaria, ao lado de como está agora. Nada é salvo; pergunte ao seu credor antes de mudar a forma de pagar. Para calcular
+      um empréstimo que você ainda não tem, como quanto carro um pagamento mensal pode comprar, use a <b>Calculadora de
+      empréstimo</b> abaixo da lista de contas na página Contas; <b>Criar este empréstimo…</b> começa um novo a partir dela.` },
   ],
   terms: [
     { term: "Conta", def: "Um lugar onde há dinheiro guardado ou devido: conta corrente, poupança, cartão de crédito, empréstimo, investimento." },

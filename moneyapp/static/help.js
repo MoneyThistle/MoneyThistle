@@ -389,6 +389,12 @@ const HELP = {
       <b>Update value</b>, then type what it's worth from its statement or website: the difference goes in as one
       <i>Change in value</i> entry, left out of budgets and spending reports. Investment and retirement accounts are reminded
       about monthly (beside the card statements); turn that off, or on for an asset such as a house, in the account's details.` },
+    { q: "Can I see what an extra payment would do to my loan?", a: `Yes. Open the loan's account and choose <b>What if…</b> on its Loan card.
+      Try an extra payment toward principal once (with the payment on a date you pick), extra with every payment, or paying
+      twice a month or every other week instead of monthly. It shows when the loan would be paid off and the interest it would
+      cost, next to how it is now. Nothing is saved; ask your lender before you change how you pay. To work out a loan you
+      don't have yet, such as how much car a monthly payment can buy, use <b>Loan calculator</b> under the account list on the
+      Accounts page; <b>Set up this loan…</b> starts a new loan from it.` },
   ],
   terms: [
     { term: "Account", def: "Somewhere money is kept or owed: checking, savings, a credit card, a loan, an investment." },

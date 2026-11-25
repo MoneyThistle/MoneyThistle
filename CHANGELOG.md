@@ -11,6 +11,12 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
   payee, account, category and amount filled in, with how often and the next date guessed from the
   same payee's other entries. Handy for setting up the schedule again after moving in from another
   program.
+- **What if…** on a loan: try a one-time extra payment toward principal, extra with every payment,
+  or paying twice a month or every other week, and see when it would be paid off and the interest
+  it would cost, next to how it is now. Nothing is saved.
+- **Loan calculator** (under the account list): the payment for a price, or the price a payment
+  you can afford can buy, with a down payment or trade-in; **Set up this loan…** starts a new loan
+  from it.
 
 ## 1.0.0 (2026-11-24)
 

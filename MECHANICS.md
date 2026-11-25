@@ -54,6 +54,20 @@ other month, ≤120 Every three months, ≤250 Twice a year, ≤500 Yearly, long
 "Last day of the month" when the last 6 all fell on a month end. The next date is the first after
 today. Amounts differing among the last 6 make it vary, at their average.
 
+## Loan what-if and calculator (MoneyThistle's own; nothing is saved)
+
+- **What if…** starts from what is owed now and the next payment date, with the loan's own
+  interest rule (balance × APR ÷ payments a year, to the cent). A one-time extra goes to principal
+  with the first payment on or after its date; "extra with every payment" goes with each one.
+  Switching how often: the same amount a year (payment × old ÷ new payments a year), except
+  monthly → every other week, which pays half the monthly payment 26 times a year (one extra
+  monthly payment a year). The payment can be changed by hand. Escrow is left out.
+- "Months sooner" = months between the two payoff dates.
+- **Loan calculator**: payments = years × payments a year (rounded, 1–1200). Price → payment: the
+  loan is the price less the down payment, payment by the amortization formula. Payment →
+  price: loan = payment × (1 − (1 + r)^−n) ÷ r (payment × n at 0%), rounded down to the cent;
+  price = loan + down payment. Interest is summed over the schedule.
+
 ## Other rules
 
 - A file holds at most 63 accounts in the original (obres.dll message). Not enforced here.

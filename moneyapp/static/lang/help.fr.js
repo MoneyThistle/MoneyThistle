@@ -412,6 +412,13 @@ I18N.helpText({
       <b>Mettre la valeur à jour</b>, puis tapez ce qu'il vaut d'après son relevé ou son site : la différence entre comme une
       écriture de <i>Variation de valeur</i>, laissée hors des budgets et des rapports de dépenses. Les comptes de placement et de
       retraite le rappellent chaque mois (à côté des relevés de carte); désactivez-le, ou activez-le pour un bien comme une maison, dans les détails du compte.` },
+    { q: "Puis-je voir l'effet d'un paiement supplémentaire sur mon prêt?", a: `Oui. Ouvrez le compte du prêt et choisissez <b>Et si…</b> sur sa carte Prêt.
+      Essayez un paiement supplémentaire sur le capital une fois (avec le paiement d'une date choisie), un supplément à chaque
+      paiement, ou des paiements deux fois par mois ou aux deux semaines au lieu de mensuels. Vous voyez quand le prêt serait
+      remboursé et les intérêts qu'il coûterait, à côté de la situation actuelle. Rien n'est enregistré; demandez à votre prêteur
+      avant de changer votre façon de payer. Pour calculer un prêt que vous n'avez pas encore, comme le prix d'auto qu'un
+      paiement mensuel permet, utilisez la <b>Calculatrice de prêt</b> sous la liste des comptes de la page Comptes;
+      <b>Créer ce prêt…</b> en démarre un nouveau.` },
   ],
   terms: [
     { term: "Compte", def: "Un endroit où de l'argent est gardé ou dû : chèques, épargne, carte de crédit, prêt, placement." },

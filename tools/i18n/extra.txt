@@ -333,3 +333,53 @@
 @Make a scheduled bill, deposit or transfer from this entry (Bills & Deposits)|Créer une facture, un dépôt ou un virement prévu à partir de cette opération (Factures et dépôts)|Crear una factura, un depósito o una transferencia programada a partir de este movimiento (Facturas y depósitos)|Criar uma conta, um depósito ou uma transferência agendada a partir deste lançamento (Contas e depósitos)
 @{} is already scheduled ({}, next {}). Schedule another one?|{} est déjà prévu ({}, prochain le {}). En prévoir un autre?|{} ya está programado ({}, el próximo {}). ¿Programar otro?|{} já está agendado ({}, próximo em {}). Agendar outro?
 @Split payment: {}|Paiement ventilé : {}|Pago dividido: {}|Pagamento dividido: {}
+@What if…|Et si…|¿Y si…?|E se…
+@What if|Et si|Y si|E se
+@What if: {}|Et si : {}|Y si: {}|E se: {}
+@Try an extra payment or paying more often, and see when it would be paid off. Nothing is changed.|Essayez un paiement supplémentaire ou des paiements plus fréquents, et voyez quand le prêt serait remboursé. Rien n'est changé.|Prueba un pago extra o pagar más seguido, y mira cuándo quedaría pagado. No se cambia nada.|Experimente um pagamento extra ou pagar com mais frequência e veja quando seria quitado. Nada é alterado.
+@This payment doesn't cover the interest, so the loan would never be paid off.|Ce paiement ne couvre pas les intérêts : le prêt ne serait jamais remboursé.|Este pago no cubre los intereses, así que el préstamo nunca quedaría pagado.|Este pagamento não cobre os juros, então o empréstimo nunca seria quitado.
+@With these payments it would be paid off {}.|Avec ces paiements, il serait remboursé le {}.|Con estos pagos quedaría pagado el {}.|Com estes pagamentos seria quitado em {}.
+@{} months sooner|{} mois plus tôt|{} meses antes|{} meses antes
+@(about {} years)|(environ {} ans)|(unos {} años)|(cerca de {} anos)
+@{} months later|{} mois plus tard|{} meses después|{} meses depois
+@Paid off the same month|Remboursé le même mois|Pagado el mismo mes|Quitado no mesmo mês
+@{} less interest|{} d'intérêts en moins|{} menos de intereses|{} a menos de juros
+@{} more interest|{} d'intérêts en plus|{} más de intereses|{} a mais de juros
+@As now|Comme maintenant|Como ahora|Como agora
+@Each payment (principal + interest)|Chaque paiement (capital + intérêts)|Cada pago (capital + intereses)|Cada pagamento (principal + juros)
+@Payments left|Paiements restants|Pagos restantes|Pagamentos restantes
+@Interest still to pay|Intérêts encore à payer|Intereses por pagar|Juros ainda a pagar
+@Total still to pay|Total encore à payer|Total por pagar|Total ainda a pagar
+@The one-time extra payment comes after the loan would already be paid off.|Le paiement supplémentaire unique arrive après que le prêt serait déjà remboursé.|El pago extra único llega cuando el préstamo ya estaría pagado.|O pagamento extra único vem depois que o empréstimo já estaria quitado.
+@Show the payments|Afficher les paiements|Mostrar los pagos|Mostrar os pagamentos
+@Hide the payments|Masquer les paiements|Ocultar los pagos|Ocultar os pagamentos
+@Extra|Supplément|Extra|Extra
+@Try other payments and see when this loan would be paid off and how much interest it would cost. Nothing here changes the loan or your schedule.|Essayez d'autres paiements et voyez quand ce prêt serait remboursé et combien d'intérêts il coûterait. Rien ici ne change le prêt ni votre calendrier.|Prueba otros pagos y mira cuándo quedaría pagado este préstamo y cuántos intereses costaría. Nada de esto cambia el préstamo ni tu calendario.|Experimente outros pagamentos e veja quando este empréstimo seria quitado e quanto de juros custaria. Nada aqui altera o empréstimo nem a sua agenda.
+@Extra toward principal, once|Supplément sur le capital, une fois|Extra al capital, una vez|Extra no principal, uma vez
+@With the payment on|Avec le paiement du|Con el pago del|Com o pagamento de
+@Extra toward principal with every payment|Supplément sur le capital à chaque paiement|Extra al capital en cada pago|Extra no principal em cada pagamento
+@How often you pay|À quelle fréquence vous payez|Cada cuánto pagas|Com que frequência você paga
+@Principal and interest only; escrow isn't included. Interest is worked out as for this loan: what's owed × {}% ÷ payments a year. Lenders differ: some don't take extra or more frequent payments, charge for them, or hold a half payment until the other half arrives. Ask yours before you change how you pay.|Capital et intérêts seulement; l'entiercement n'est pas inclus. Les intérêts sont calculés comme pour ce prêt : le solde dû × {} % ÷ paiements par année. Les prêteurs diffèrent : certains n'acceptent pas les paiements supplémentaires ou plus fréquents, les facturent, ou gardent un demi-paiement jusqu'à l'arrivée de l'autre moitié. Demandez au vôtre avant de changer votre façon de payer.|Solo capital e intereses; no incluye el depósito en garantía (escrow). Los intereses se calculan como en este préstamo: lo que se debe × {} % ÷ pagos al año. Los prestamistas varían: algunos no aceptan pagos extra o más frecuentes, cobran por ellos, o retienen medio pago hasta que llega la otra mitad. Pregunta al tuyo antes de cambiar cómo pagas.|Só principal e juros; o escrow não está incluído. Os juros são calculados como neste empréstimo: o saldo devido × {}% ÷ pagamentos por ano. Os credores variam: alguns não aceitam pagamentos extras ou mais frequentes, cobram por eles, ou seguram meio pagamento até chegar a outra metade. Pergunte ao seu antes de mudar a forma de pagar.
+@Loan calculator|Calculatrice de prêt|Calculadora de préstamos|Calculadora de empréstimo
+@Work out a payment, or what a payment can buy, before taking a loan|Calculez un paiement, ou ce qu'un paiement permet d'acheter, avant de prendre un prêt|Calcula un pago, o lo que un pago puede comprar, antes de pedir un préstamo|Calcule um pagamento, ou o que um pagamento pode comprar, antes de fazer um empréstimo
+@Work out a loan before you take it. Nothing is saved.|Calculez un prêt avant de le prendre. Rien n'est enregistré.|Calcula un préstamo antes de pedirlo. No se guarda nada.|Calcule um empréstimo antes de fazê-lo. Nada é salvo.
+@I know the price: what would the payment be?|Je connais le prix : quel serait le paiement?|Sé el precio: ¿cuánto sería el pago?|Sei o preço: quanto seria o pagamento?
+@I know the payment I can afford: what price can I pay?|Je connais le paiement que je peux me permettre : quel prix puis-je payer?|Sé el pago que puedo permitirme: ¿qué precio puedo pagar?|Sei o pagamento que posso pagar: que preço posso pagar?
+@Price or loan amount|Prix ou montant du prêt|Precio o monto del préstamo|Preço ou valor do empréstimo
+@Payment I can afford|Paiement que je peux me permettre|Pago que puedo permitirme|Pagamento que posso pagar
+@Down payment or trade-in|Mise de fonds ou échange|Pago inicial o vehículo a cuenta|Entrada ou troca
+@Years|Années|Años|Anos
+@Fill in the amounts, the rate and the years.|Remplissez les montants, le taux et les années.|Completa los montos, la tasa y los años.|Preencha os valores, a taxa e os anos.
+@An estimate: sales tax, fees and insurance aren't included, and lenders round a little differently.|Une estimation : taxes de vente, frais et assurance ne sont pas inclus, et les prêteurs arrondissent un peu différemment.|Una estimación: no incluye impuestos sobre la venta, comisiones ni seguros, y los prestamistas redondean un poco distinto.|Uma estimativa: impostos sobre a venda, taxas e seguro não estão incluídos, e os credores arredondam um pouco diferente.
+@Set up this loan…|Créer ce prêt…|Crear este préstamo…|Criar este empréstimo…
+@Fill in the amounts first|Remplissez d'abord les montants|Completa primero los montos|Preencha os valores primeiro
+@Each payment|Chaque paiement|Cada pago|Cada pagamento
+@Loan amount|Montant du prêt|Monto del préstamo|Valor do empréstimo
+@Price|Prix|Precio|Preço
+@Interest over the loan|Intérêts sur toute la durée|Intereses en todo el préstamo|Juros em todo o empréstimo
+@Total of the payments|Total des paiements|Total de los pagos|Total dos pagamentos
+@Rate, payments per year and years must be numbers|Le taux, les paiements par année et les années doivent être des nombres|La tasa, los pagos al año y los años deben ser números|A taxa, os pagamentos por ano e os anos precisam ser números
+@Enter how many years, up to 100|Entrez le nombre d'années, jusqu'à 100|Indica cuántos años, hasta 100|Informe quantos anos, até 100
+@Enter the payment you can afford|Entrez le paiement que vous pouvez vous permettre|Indica el pago que puedes permitirte|Informe o pagamento que você pode pagar
+@Enter the price or loan amount|Entrez le prix ou le montant du prêt|Indica el precio o el monto del préstamo|Informe o preço ou o valor do empréstimo
+@Payments per year must be a number|Les paiements par année doivent être un nombre|Los pagos al año deben ser un número|Os pagamentos por ano precisam ser um número

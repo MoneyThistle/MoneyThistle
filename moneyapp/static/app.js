@@ -1362,12 +1362,13 @@ function lastFour(n) { const s = String(n || "").replace(/\s/g, ""); return s ? 
 const PPY = [[12, "Monthly (12 a year)"], [26, "Every other week (26)"], [24, "Twice a month (24)"], [52, "Weekly (52)"],
   [4, "Every three months (4)"], [6, "Every other month (6)"], [2, "Twice a year (2)"], [1, "Yearly (1)"]];
 
-async function editLoan(acc, presetName) {
+async function editLoan(acc, presetName, preset) {
   await loadBasics();
   const info = acc && acc.has_loan ? await GET("/api/loans/" + acc.id) : null;
-  const L = info || { original_amount: 0, apr: "", payments_per_year: 12, num_payments: 360, first_payment: todayISO(),
+  // (preset: terms from the loan calculator)
+  const L = info || Object.assign({ original_amount: 0, apr: "", payments_per_year: 12, num_payments: 360, first_payment: todayISO(),
     payment_mode: "calc", payment: 0, escrow: 0, escrow_category_id: null, escrow_account_id: null,
-    interest_category_id: null, pay_from_account_id: (S.accounts.find(a => a.type === "Checking") || {}).id, payee: "" };
+    interest_category_id: null, pay_from_account_id: (S.accounts.find(a => a.type === "Checking") || {}).id, payee: "" }, preset || {});
   const name = acc ? acc.name : (presetName || "");
   const catId = full => (S.cats.find(c => c.full_name === full) || {}).id;
   const intCat = L.interest_category_id || (/mortgage|home|house/i.test(name) ? catId("Loan : Mortgage Interest") : catId("Loan : Loan Interest"));
@@ -1488,7 +1489,7 @@ async function payLoan(loanId, occ) {
 function loanCard(L) {
   const n = L.next;
   return `<div class="card" style="margin-bottom:12px"><div class="head"><h2>Loan</h2>
-      <span><button class="small primary" id="loanPay">Make a payment</button> <button class="small" id="loanSched">Payment schedule</button></span></div>
+      <span><button class="small primary" id="loanPay">Make a payment</button> <button class="small" id="loanSched">Payment schedule</button> <button class="small" id="loanWhatIf" title="Try an extra payment or paying more often, and see when it would be paid off. Nothing is changed.">What if…</button></span></div>
     <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:10px">
       <div><div class="small muted">Still owed</div><div class="big neg">${fmt(L.owed, true)}</div><div class="small muted">of ${fmt(L.original_amount, true)} borrowed</div></div>
       <div><div class="small muted">Next payment ${n.date ? niceDate(n.date) : ""}</div><div class="big">${fmt(n.total, true)}</div>
@@ -1504,6 +1505,149 @@ function loanCard(L) {
       <tr><th>#</th><th>Date</th><th class="num">Principal</th><th class="num">Interest</th><th class="num">Payment</th><th class="num">Owed after</th></tr>
       ${L.schedule.map(r => `<tr><td class="small muted">${r.n}</td><td class="small">${niceDate(r.date)}</td><td class="num">${fmt(r.principal, true)}</td><td class="num">${fmt(r.interest, true)}</td><td class="num">${fmt(r.payment, true)}</td><td class="num">${fmt(r.balance, true)}</td></tr>`).join("")}
     </table></div></div>`;
+}
+
+// ---------- what if: other payments on a loan, and the loan calculator (nothing saved) ----------
+const monthsBetween = (a, b) => (+b.slice(0, 4) - +a.slice(0, 4)) * 12 + (+b.slice(5, 7) - +a.slice(5, 7));
+function ppyLabel(v) { return (PPY.find(p => p[0] == v) || [v, v + " a year"])[1]; }
+
+function whatIfResult(r) {
+  const a = r.now, b = r.then;
+  const end = s => s.never_ends ? "never" : (s.payoff_date ? niceDate(s.payoff_date) : "–");
+  let verdict = "";
+  if (b.never_ends) verdict = `<div class="notice err">This payment doesn't cover the interest, so the loan would never be paid off.</div>`;
+  else if (a.never_ends) verdict = `<div class="notice ok">With these payments it would be paid off ${niceDate(b.payoff_date)}.</div>`;
+  else if (a.payoff_date && b.payoff_date) {
+    const m = monthsBetween(b.payoff_date, a.payoff_date), less = a.interest - b.interest;
+    const when = m > 0 ? `<b>${m} months sooner</b>${m >= 12 ? ` <span class="muted">(about ${(m / 12).toLocaleString(typeof LOCALE === "string" ? LOCALE : undefined, { maximumFractionDigits: 1 })} years)</span>` : ""}`
+      : (m < 0 ? `<b>${-m} months later</b>` : `<b>Paid off the same month</b>`);
+    const money = less > 0 ? `<b>${fmt(less, true)} less interest</b>` : (less < 0 ? `<b>${fmt(-less, true)} more interest</b>` : "");
+    verdict = `<div class="notice${m > 0 || less > 0 ? " ok" : ""}">${when}${money ? " · " + money : ""}</div>`;
+  }
+  const row = (label, x, y) => `<tr><td>${label}</td><td class="num">${x}</td><td class="num"><b>${y}</b></td></tr>`;
+  const extras = r.schedule.some(s => s.extra);
+  return `${verdict}<table style="margin-top:10px;max-width:560px">
+      <tr><th></th><th class="num">As now</th><th class="num">What if</th></tr>
+      ${row("How often", esc(ppyLabel(a.payments_per_year)), esc(ppyLabel(b.payments_per_year)))}
+      ${row("Each payment (principal + interest)", fmt(a.payment, true), fmt(b.payment, true))}
+      ${row("Paid off", end(a), end(b))}
+      ${row("Payments left", a.payments_left, b.payments_left)}
+      ${row("Interest still to pay", fmt(a.interest, true), fmt(b.interest, true))}
+      ${row("Total still to pay", fmt(a.total, true), fmt(b.total, true))}
+    </table>
+    ${b.extra_once_applied ? "" : `<p class="small muted">The one-time extra payment comes after the loan would already be paid off.</p>`}
+    <p style="margin:8px 0 0"><button type="button" class="small" id="wiShow" aria-expanded="false">Show the payments</button></p>
+    <div id="wiSched" hidden style="margin-top:8px;max-height:300px;overflow:auto"><table>
+      <tr><th>#</th><th>Date</th><th class="num">Principal</th>${extras ? `<th class="num">Extra</th>` : ""}<th class="num">Interest</th><th class="num">Payment</th><th class="num">Owed after</th></tr>
+      ${r.schedule.map(s => `<tr><td class="small muted">${s.n}</td><td class="small">${niceDate(s.date)}</td><td class="num">${fmt(s.principal, true)}</td>${extras ? `<td class="num">${s.extra ? fmt(s.extra, true) : ""}</td>` : ""}<td class="num">${fmt(s.interest, true)}</td><td class="num">${fmt(s.payment, true)}</td><td class="num">${fmt(s.balance, true)}</td></tr>`).join("")}
+    </table></div>`;
+}
+
+// What if: the loan as it is against the same loan with an extra payment once, extra with
+// every payment, or paying more often. Nothing is saved.
+async function loanWhatIf(L) {
+  const ppy = L.payments_per_year;
+  const choices = [ppy, ...[12, 24, 26].filter(v => v !== ppy)];
+  // (paying more often: the same amount a year, except monthly to every other week, which
+  // pays half the monthly payment each time: one extra monthly payment a year)
+  const conv = v => v == ppy ? L.payment : (ppy == 12 && v == 26 ? Math.round(L.payment / 2) : Math.round(L.payment * ppy / v));
+  const body = `<p class="small muted" style="margin-top:0">Try other payments and see when this loan would be paid off and how much interest it would cost.
+    Nothing here changes the loan or your schedule.</p>
+    <div class="form">
+      <div><label>Extra toward principal, once</label><input name="extra_once" class="num" placeholder="0.00"></div>
+      <div><label>With the payment on</label><input type="date" name="extra_once_date" value="${esc(L.next.date || todayISO())}"></div>
+      <div><label>Extra toward principal with every payment</label><input name="extra_each" class="num" placeholder="0.00"></div>
+      <div></div>
+      <div><label>How often you pay</label><select name="payments_per_year">${choices.map(v => `<option value="${v}">${esc(ppyLabel(v))}</option>`).join("")}</select></div>
+      <div><label>Each payment (principal + interest)</label><input name="payment" class="num" value="${dollars(L.payment)}"></div>
+    </div>
+    <div id="wiOut" style="margin-top:12px"></div>
+    <p class="small muted" style="margin-bottom:0">Principal and interest only; escrow isn't included. Interest is worked out as for this loan:
+    what's owed × ${esc(L.apr)}% ÷ payments a year. Lenders differ: some don't take extra or more frequent payments, charge for them,
+    or hold a half payment until the other half arrives. Ask yours before you change how you pay.</p>`;
+  const p = dialog("What if: " + L.account.name, body, [{ label: "Close" }]);
+  const root = q("#dlgBody");
+  let timer;
+  const refresh = () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const f = formData(root);
+      const qs = new URLSearchParams(Object.entries(f).filter(([, v]) => v !== "")).toString();
+      const out = q("#wiOut", root);
+      try {
+        out.innerHTML = whatIfResult(await GET(`/api/loans/${L.account.id}/what-if?${qs}`));
+        q("#wiShow", out).onclick = e => {
+          const t = q("#wiSched", out), open = t.hidden;
+          t.hidden = !open; e.target.setAttribute("aria-expanded", open);
+          e.target.textContent = open ? "Hide the payments" : "Show the payments";
+        };
+      } catch (e) { out.innerHTML = `<div class="notice err">${esc(e.message)}</div>`; }
+    }, 250);
+  };
+  // A new "how often" starts from its usual payment, which can then be changed.
+  q("[name=payments_per_year]", root).addEventListener("change", e => { q("[name=payment]", root).value = dollars(conv(+e.target.value)); });
+  qa("input,select", root).forEach(el => { el.addEventListener("input", refresh); el.addEventListener("change", refresh); });
+  refresh();
+  return p;
+}
+
+// The loan calculator: the payment for a price, or the price a payment can buy. Nothing is
+// saved; "Set up this loan…" starts a new loan from it.
+async function loanCalculator() {
+  const body = `<p class="small muted" style="margin-top:0">Work out a loan before you take it. Nothing is saved.</p>
+    <div class="form">
+      <div class="wide" style="grid-column:1/-1">
+        <label class="check"><input type="radio" name="lc_mode" value="payment" checked> I know the price: what would the payment be?</label>
+        <label class="check"><input type="radio" name="lc_mode" value="amount"> I know the payment I can afford: what price can I pay?</label></div>
+      <div id="lcPrice"><label>Price or loan amount</label><input name="price" class="num" placeholder="0.00"></div>
+      <div id="lcPay" style="display:none"><label>Payment I can afford</label><input name="payment" class="num" placeholder="0.00"></div>
+      <div><label>Down payment or trade-in</label><input name="down" class="num" placeholder="0.00"></div>
+      <div><label>Interest rate (APR %)</label><input name="apr" class="num" placeholder="6.5"></div>
+      <div><label>Years</label><input name="years" class="num" value="5"></div>
+      <div><label>Payments per year</label><select name="payments_per_year">${PPY.map(([v, l]) => `<option value="${v}" ${v === 12 ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+    </div>
+    <div id="lcOut" style="margin-top:12px"><div class="notice">Fill in the amounts, the rate and the years.</div></div>
+    <p class="small muted" style="margin-bottom:0">An estimate: sales tax, fees and insurance aren't included, and lenders round a little differently.</p>`;
+  let last = null;
+  const btns = [{ label: "Close" }];
+  if (canEdit() && !S.shareCtx) btns.unshift({ label: "Set up this loan…", action: () => {
+    if (!last || !last.amount) { dialogError(new Error("Fill in the amounts first")); return false; }
+    const r = last;
+    setTimeout(() => editLoan(null, "", { original_amount: r.amount, apr: r.apr, payments_per_year: r.payments_per_year,
+      num_payments: r.num_payments, payment_mode: "calc" }), 0);
+  } });
+  const p = dialog("Loan calculator", body, btns);
+  const root = q("#dlgBody");
+  const mode = () => (qa("[name=lc_mode]", root).find(r => r.checked) || {}).value || "payment";
+  let timer;
+  const refresh = () => {
+    q("#lcPrice", root).style.display = mode() === "payment" ? "" : "none";
+    q("#lcPay", root).style.display = mode() === "amount" ? "" : "none";
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const f = formData(root), m = mode();
+      const out = q("#lcOut", root);
+      if (!(m === "payment" ? f.price : f.payment) || !f.years) { last = null; return; }
+      const qs = new URLSearchParams({ mode: m, price: f.price || "", payment: f.payment || "", down: f.down || "",
+        apr: f.apr || "0", years: f.years, payments_per_year: f.payments_per_year }).toString();
+      try {
+        const r = last = await GET("/api/loans/calculate?" + qs);
+        const line = (label, v, strong) => `<tr><td>${label}</td><td class="num">${strong ? `<b>${v}</b>` : v}</td></tr>`;
+        out.innerHTML = `<table style="max-width:460px">
+          ${line("Each payment", fmt(r.payment, true), m === "payment")}
+          ${line("Number of payments", r.num_payments)}
+          ${line("Loan amount", fmt(r.amount, true), m === "amount")}
+          ${r.down ? line("Down payment or trade-in", fmt(r.down, true)) : ""}
+          ${line("Price", fmt(r.price, true), m === "amount")}
+          ${line("Interest over the loan", fmt(r.interest, true))}
+          ${line("Total of the payments", fmt(r.total, true))}
+        </table>`;
+      } catch (e) { last = null; out.innerHTML = `<div class="notice err">${esc(e.message)}</div>`; }
+    }, 250);
+  };
+  qa("input,select", root).forEach(el => { el.addEventListener("input", refresh); el.addEventListener("change", refresh); });
+  refresh();
+  return p;
 }
 
 // Registers list newest first by default; each person can choose oldest first, like a
@@ -1976,7 +2120,8 @@ function accountsList(id, shared, activeSid, others) {
     || (shared.length ? "" : `<div class="empty">No accounts yet</div>`)}
     ${sharedGroup(shared, activeSid)}
     ${(others || []).filter(o => o.list.length).map(({ e, list }) => `<div class="acctgroup"><div class="gname">In ${esc(e.name)}</div>
-      ${list.map(a => `<a class="acctrow" href="#/accounts/${a.id}" data-goenv="${e.id}" data-goacct="${a.id}" title="Opens it in ${esc(e.name)}"><span>${esc(a.name)}</span><span class="num">${fmt(a.balance, false, a)}</span></a>`).join("")}</div>`).join("")}</div>`;
+      ${list.map(a => `<a class="acctrow" href="#/accounts/${a.id}" data-goenv="${e.id}" data-goacct="${a.id}" title="Opens it in ${esc(e.name)}"><span>${esc(a.name)}</span><span class="num">${fmt(a.balance, false, a)}</span></a>`).join("")}</div>`).join("")}
+    <div class="small" style="margin-top:12px"><a href="#" id="loanCalc" title="Work out a payment, or what a payment can buy, before taking a loan">Loan calculator</a></div></div>`;
 }
 
 // An account shared into this environment: its register, read-only or with entering
@@ -2006,6 +2151,7 @@ async function renderShared(sid) {
     <div class="entry" id="entry"></div></div></div></div>`;
   q("#newAcct").onclick = async () => { S.shareCtx = null; await loadBasics(); editAccount(null); };
   q("#newLoan").onclick = async () => { S.shareCtx = null; await loadBasics(); editLoan(null); };
+  q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
   const again = () => renderSharedKeep(sid);
   if (q("#recon")) q("#recon").onclick = () => reconcile(acc);
   if (sh.can_edit) {
@@ -2073,6 +2219,7 @@ async function renderAccounts(id, sub) {
       ${accs.length ? "" : `<div class="empty">Add your first account with <b>New</b>.</div>`}</div></div>`;
     q("#newAcct").onclick = () => editAccount(null);
   q("#newLoan").onclick = () => editLoan(null);
+  q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
     qa("tr[data-id]").forEach(r => r.onclick = () => location.hash = "#/accounts/" + r.dataset.id);
     return;
   }
@@ -2103,6 +2250,7 @@ async function renderAccounts(id, sub) {
     <div class="entry" id="entry"></div></div></div></div>`;
   q("#newAcct").onclick = () => editAccount(null);
   q("#newLoan").onclick = () => editLoan(null);
+  q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
   q("#editAcct").onclick = () => editAccount(acc);
   if (q("#stmtBtn")) q("#stmtBtn").onclick = () => statementDialog(acc);
   if (q("#valBtn")) q("#valBtn").onclick = () => valueDialog(acc);
@@ -2139,6 +2287,7 @@ async function renderAccounts(id, sub) {
   if (loan) {
     q("#loanPay").onclick = () => payLoan(acc.id, loan.bill ? { ...loan.bill, date: loan.bill.next_date } : null);
     q("#loanSched").onclick = () => { const w = q("#schedWrap"); w.style.display = w.style.display === "none" ? "" : "none"; };
+    q("#loanWhatIf").onclick = () => loanWhatIf(loan);
   }
   if (canEdit()) entryForm(acc, null, () => renderAccounts(id, { q: search }));
 }
