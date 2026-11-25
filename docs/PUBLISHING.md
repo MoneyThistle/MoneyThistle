@@ -58,6 +58,42 @@ it in and clicking Apply downloads the image and starts it: nothing is copied by
 **Community Applications** (the *Apps* tab in Unraid) is the app store that lists templates; once
 MoneyThistle is listed there, people search for it and click Install.
 
+## Windows warnings: SmartScreen and antivirus
+
+Two different things can warn about the setup on a Windows computer:
+
+- **SmartScreen** ("Windows protected your PC") warns about any download that isn't signed by a
+  publisher Windows knows, or that few people have run yet. It goes away once the setup is
+  **signed** and the signature has built up a good name (reputation) from downloads. Computers that
+  already ran MoneyThistle, or that got it another way, may never show it, which is why some
+  computers warn and others don't.
+- **Antivirus** (Sophos, Defender...) judges the file and what the program does. An unsigned
+  setup from an unknown publisher is suspicious to them too, and so is a program that starts
+  hidden PowerShell. Up to 1.0.1, MoneyThistle did that on its first start (to find the Start menu
+  folder and make its shortcuts). Since 1.0.2 it asks Windows directly instead, and a copy
+  installed by the setup leaves the Start menu and desktop icon to the setup. PowerShell is now
+  used only when the person turns on *Start with the computer* (Settings → This computer), where
+  Windows asks for administrator permission anyway.
+
+The plan, in order:
+
+1. **Fix what the program does** (done in 1.0.2): no hidden PowerShell when it starts.
+2. **Code signing** (the real fix for both): apply to SignPath Foundation (free for open-source
+   projects, see *Once only* below). They ask for a *code signing policy* in the README: who may
+   approve releases (the maintainer), that only setups built by the release robot from this
+   repository are signed, and a privacy line (MoneyThistle sends nothing about you; the daily update
+   check sends only its version number and can be turned off). Paid alternatives if SignPath says
+   no: Microsoft's Azure Artifact Signing (a monthly fee, identity checked by Microsoft) or a
+   certificate from a certificate authority. Even signed, SmartScreen may warn for the first
+   weeks while the signature builds its reputation.
+3. **Report false alarms** for each release until signing is in place: Sophos takes samples at
+   https://support.sophos.com (Submit a sample / false positive) and Microsoft at
+   https://www.microsoft.com/wdsi/filesubmission (choose *Software developer*). Say it's an
+   open-source installer and link the release page.
+4. **For people installing now**: compare the download with the `.sha256` file on the release page,
+   then *More info → Run anyway*. On a computer with Sophos, its administrator can allow the file
+   by its SHA-256 (the same fingerprint) in Sophos Central.
+
 ## How each kind of install gets updates
 
 MoneyThistle asks GitHub once a day for the newest release's number (`moneyapp/updates.py`). It

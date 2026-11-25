@@ -49,6 +49,13 @@ def pythonw():
     return exe
 
 
+def installed_by_setup():
+    """Installed by the Windows setup, which makes the Start menu entries and the desktop icon
+    itself (so this copy doesn't make them again when it starts)."""
+    from .updates import install_kind
+    return install_kind() == "windows"
+
+
 def service_account():
     """Running as Windows' own account (started with the computer): per-person
     shortcuts would land in that account's folders, not the person's."""
@@ -72,15 +79,99 @@ def _ps(script, env=None):
 _folders = {}
 
 
+KNOWN_FOLDERS = {"startup": "B97D20BB-F46A-4C97-BA10-5E3608430854",
+                 "programs": "A77F5D77-2E2B-44C3-A6A2-ABA601054A51",
+                 "desktop": "B4BFCC3A-DB2C-424C-B029-7FE99A87C641"}
+
+
+def _known_folder(guid):
+    """A folder Windows knows by its id, asked of Windows itself (no PowerShell: security
+    software is wary of programs that start hidden PowerShell)."""
+    import ctypes
+    import uuid
+
+    class GUID(ctypes.Structure):
+        _fields_ = [("d1", ctypes.c_uint32), ("d2", ctypes.c_uint16), ("d3", ctypes.c_uint16),
+                    ("d4", ctypes.c_ubyte * 8)]
+    u = uuid.UUID(guid)
+    g = GUID(u.fields[0], u.fields[1], u.fields[2], (ctypes.c_ubyte * 8)(*u.bytes[8:]))
+    out = ctypes.c_wchar_p()
+    if ctypes.windll.shell32.SHGetKnownFolderPath(ctypes.byref(g), 0, None, ctypes.byref(out)) != 0:
+        raise OSError("Windows didn't say where that folder is")
+    try:
+        return out.value
+    finally:
+        ctypes.windll.ole32.CoTaskMemFree(out)
+
+
 def win_folders():
     """Startup, Start menu programs and desktop folders of this person (the desktop may
     have moved into OneDrive)."""
     if not _folders:
-        out = _ps("[pscustomobject]@{startup=[Environment]::GetFolderPath('Startup');"
-                  "programs=[Environment]::GetFolderPath('Programs');"
-                  "desktop=[Environment]::GetFolderPath('Desktop')} | ConvertTo-Json -Compress")
-        _folders.update(json.loads(out))
+        found = {}
+        for k, guid in KNOWN_FOLDERS.items():
+            try:
+                found[k] = _known_folder(guid)
+            except Exception:
+                found = {}
+                break
+        if not found:   # (the usual places)
+            start = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "Microsoft", "Windows",
+                                 "Start Menu", "Programs")
+            found = {"startup": os.path.join(start, "Startup"), "programs": start,
+                     "desktop": os.path.join(os.path.expanduser("~"), "Desktop")}
+        _folders.update(found)
     return _folders
+
+
+def _guid(s):
+    import ctypes
+    import uuid
+    return (ctypes.c_ubyte * 16)(*uuid.UUID(s).bytes_le)
+
+
+def make_shortcut(lnk, target, args="", workdir="", desc="", icon=""):
+    """A Windows shortcut (.lnk) made by Windows' own shortcut maker (IShellLink), called
+    directly: no PowerShell or scripting (security software is wary of programs that start
+    hidden PowerShell)."""
+    import ctypes
+    from ctypes import POINTER, WINFUNCTYPE, byref, c_long, c_void_p, c_wchar_p
+
+    ole32 = ctypes.windll.ole32
+    ole32.CoInitializeEx.restype = c_long
+    hr = ole32.CoInitializeEx(None, 2)            # (this thread, apartment-threaded)
+    started = hr in (0, 1)
+
+    def call(obj, index, *args, types=()):
+        fn = WINFUNCTYPE(c_long, c_void_p, *types)(ctypes.cast(obj, POINTER(POINTER(c_void_p)))[0][index])
+        r = fn(obj, *args)
+        if r < 0:
+            raise OSError(f"Windows couldn't make the shortcut (0x{r & 0xFFFFFFFF:08X})")
+        return r
+
+    link, file = c_void_p(), c_void_p()
+    try:
+        ole32.CoCreateInstance.restype = c_long
+        r = ole32.CoCreateInstance(byref(_guid("00021401-0000-0000-C000-000000000046")), None, 1,
+                                   byref(_guid("000214F9-0000-0000-C000-000000000046")), byref(link))
+        if r < 0 or not link:
+            raise OSError("Windows couldn't make the shortcut")
+        w = (c_wchar_p,)
+        call(link, 20, target, types=w)                           # SetPath
+        call(link, 11, args, types=w)                             # SetArguments
+        call(link, 9, workdir, types=w)                           # SetWorkingDirectory
+        call(link, 7, desc, types=w)                              # SetDescription
+        if icon:
+            call(link, 17, icon, 0, types=(c_wchar_p, ctypes.c_int))   # SetIconLocation
+        call(link, 0, byref(_guid("0000010B-0000-0000-C000-000000000046")), byref(file),
+             types=(c_void_p, c_void_p))                          # QueryInterface: IPersistFile
+        call(file, 6, lnk, 1, types=(c_wchar_p, ctypes.c_int))    # Save
+    finally:
+        for o in (file, link):
+            if o:
+                WINFUNCTYPE(ctypes.c_ulong, c_void_p)(ctypes.cast(o, POINTER(POINTER(c_void_p)))[0][2])(o)  # Release
+        if started:
+            ole32.CoUninitialize()
 
 
 def icon_path(data_dir):
@@ -115,11 +206,7 @@ def icon_path(data_dir):
 
 def _win_shortcut(lnk, args, data_dir, desc):
     os.makedirs(os.path.dirname(lnk), exist_ok=True)
-    _ps("$s=(New-Object -ComObject WScript.Shell).CreateShortcut($env:MT_LNK);$s.TargetPath=$env:MT_TARGET;"
-        "$s.Arguments=$env:MT_ARGS;$s.WorkingDirectory=$env:MT_DIR;$s.Description=$env:MT_DESC;"
-        "if($env:MT_ICON){$s.IconLocation=$env:MT_ICON};$s.Save()",
-        {"MT_LNK": lnk, "MT_TARGET": pythonw(), "MT_ARGS": subprocess.list2cmdline([MAIN] + args), "MT_DIR": HERE,
-         "MT_DESC": desc, "MT_ICON": icon_path(data_dir)})
+    make_shortcut(lnk, pythonw(), subprocess.list2cmdline([MAIN] + args), HERE, desc, icon_path(data_dir))
 
 
 def _desktop_entry(path, name, args, comment):

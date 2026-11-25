@@ -3,6 +3,13 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.2 (not released yet)
+
+- Fewer antivirus warnings on Windows: MoneyThistle no longer starts hidden PowerShell when it
+  starts. It asks Windows directly where the Start menu and desktop are and makes shortcuts with
+  Windows' own shortcut maker, and a copy installed by the setup leaves its Start menu entries and
+  desktop icon to the setup. (Code signing, the full fix, is still to come: see docs/PUBLISHING.md.)
+
 ## 1.0.1 (2026-11-25)
 
 - Registers listed oldest first open at their end, where the newest entries are; after saving an

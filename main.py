@@ -446,7 +446,8 @@ def ensure_menu(data_dir, launch_args):
     """MoneyThistle in the Start menu (or applications menu), made at start when it's
     missing or points at a folder the app no longer lives in. Never in the way of starting."""
     from moneyapp import autostart
-    if autostart.platform() == "mac" or autostart.service_account() or os.environ.get("NO_SHORTCUTS"):
+    if autostart.platform() == "mac" or autostart.service_account() or os.environ.get("NO_SHORTCUTS") \
+            or autostart.installed_by_setup():   # (the setup made them)
         return
     try:
         a = autostart.Autostart(data_dir, launch_args)

@@ -531,8 +531,10 @@ class App:
                 # A copy on a computer (not Docker) that an administrator can shut down.
                 "can_shutdown": self.request_stop is not None and not self.in_docker,
                 # Setting up: offer a desktop icon (copies on Windows or Linux computers).
+                # (not after the Windows setup: it asked already, and made the icon)
                 "desktop_icon_offer": self.launch_args is not None and not self.in_docker
-                and autostart.platform() != "mac" and not autostart.service_account(),
+                and autostart.platform() != "mac" and not autostart.service_account()
+                and not autostart.installed_by_setup(),
                 "password_reset": self.notifier.mail_server() is not None}
 
     # ----- forgotten passwords -------------------------------------------------------
