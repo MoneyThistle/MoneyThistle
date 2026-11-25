@@ -3,6 +3,11 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.1 (not released yet)
+
+- Registers listed oldest first open at their end, where the newest entries are; after saving an
+  entry the register stays where it was.
+
 ## 1.0.0 (2026-11-24)
 
 The first release: a simpler, self-hosted successor to Microsoft Money Plus Sunset, opened in a web

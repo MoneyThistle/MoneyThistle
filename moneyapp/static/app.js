@@ -1512,6 +1512,28 @@ function registerOrder(rows) {
   regOldestFirst = !!(S.ui && S.ui.register_order === "oldest");
   return regOldestFirst ? rows.slice().reverse() : rows;
 }
+// Where a register opens. Oldest first, entries are added at the bottom, so it opens at its
+// end, where the newest are; newest first, at its top. Drawn again for the same register
+// (after saving an entry), it stays where it was. Call before the register is drawn.
+let regPlaceKey = null;
+function regPlace(key) {
+  key += "|" + (regOldestFirst ? "old" : "new");
+  const r = q(".register");
+  const was = r && regPlaceKey === key ? { top: r.scrollTop, win: window.scrollY } : null;
+  regPlaceKey = key;
+  requestAnimationFrame(() => {
+    const reg = q(".register");
+    if (!reg) return;
+    if (was) { reg.scrollTop = was.top; window.scrollTo(0, was.win); return; }
+    if (!regOldestFirst) return;
+    if (reg.scrollHeight > reg.clientHeight + 2) reg.scrollTop = reg.scrollHeight;   // the register scrolls by itself
+    else {   // (small screens: the page scrolls) the last entry in view
+      const rows = qa("#reg tr").filter(tr => !tr.hidden);   // (folded parts of a split are hidden)
+      const last = rows[rows.length - 1];
+      if (last && last.getBoundingClientRect().bottom > window.innerHeight) last.scrollIntoView({ block: "end" });
+    }
+  });
+}
 function regOrderButton() {
   const oldest = S.ui && S.ui.register_order === "oldest";
   return `<button id="regOrder" title="Change the order of the register">${oldest ? "Oldest first ▼" : "Newest first ▲"}</button>`;
@@ -1965,6 +1987,7 @@ async function renderShared(sid) {
   S.xlinks = [];
   const acc = S.accounts.find(a => a.id === sh.id) || S.accounts[0];
   const rows = registerOrder(await GET("/api/transactions?account=" + acc.id));
+  regPlace("sh" + sid);
   view().innerHTML = `<div class="grid side">${list}<div>
     <div class="toolbar"><h1 style="margin:0">${esc(acc.name)}</h1><span class="pill">${esc(acc.type)}</span>
       <span class="pill green">shared by ${esc(sh.shared_by)}</span>${sh.can_edit ? "" : '<span class="pill">view only</span>'}<span class="grow"></span>
@@ -2057,6 +2080,7 @@ async function renderAccounts(id, sub) {
   // and accounts shared into this environment with entering allowed.
   S.xlinks = await GET("/api/links/usable?account=" + id).catch(() => []);
   S.sharedXfer = shared.filter(a => a.can_edit && !a.closed);
+  regPlace("acc" + id + "|" + search);
   view().innerHTML = `<div class="grid side">${list}<div>
     <div class="toolbar"><h1 style="margin:0">${esc(acc.name)}</h1><span class="pill">${esc(acc.type)}</span><span class="grow"></span>
       <input id="search" placeholder="Search payee, memo…" value="${esc(search)}" style="width:200px">
