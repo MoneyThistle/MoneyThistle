@@ -805,6 +805,24 @@ DATA:OFXSGML
         a.call("POST", "/api/history/undo", {"op": ops[0]["op"]})   # the skip
         self.assertEqual(h.q1("SELECT next_date FROM bills WHERE id=?", (bid,))["next_date"], "2026-12-05")
 
+    def test_coffee_cup_switches(self):
+        # Shown by default; each person can hide it for themselves; an administrator for everyone.
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        self.assertTrue(c.call("GET", "/api/settings")["coffee"])
+        self.assertFalse(c.call("GET", "/api/me")["coffee_off"])
+        c.call("POST", "/api/users", {"username": "vic", "password": "vic-pass-12"})
+        v = Client(base)
+        v.call("POST", "/api/login", {"username": "vic", "password": "vic-pass-12"})
+        self.assertFalse(v.call("PUT", "/api/settings", {"coffee": False})["coffee"])
+        self.assertTrue(c.call("GET", "/api/settings")["coffee"])          # just for vic
+        self.assertEqual(v.status("PUT", "/api/admin/coffee", {"off": True}), 403)
+        self.assertTrue(c.call("PUT", "/api/admin/coffee", {"off": True})["coffee_off"])
+        self.assertTrue(v.call("GET", "/api/me")["coffee_off"])
+        c.call("PUT", "/api/admin/coffee", {"off": False})
+        self.assertFalse(v.call("GET", "/api/me")["coffee_off"])
+
     def test_starting_and_stopping(self):
         from moneyapp import autostart
         app, base = self._serve()

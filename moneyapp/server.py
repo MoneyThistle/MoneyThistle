@@ -47,7 +47,7 @@ class App:
     # choice existed have no value and keep everything; new ones are made "simple".
     UI_DEFAULTS = {"theme": "light", "accent": "#1c4b8a", "currency": "", "date_style": "system",
                    "due_days": 14, "budget_mode": "categories", "register_order": "newest",
-                   "detail": "full", "folds": {}, "lang": ""}
+                   "detail": "full", "folds": {}, "lang": "", "coffee": True}
 
     def __init__(self, system, backups):
         self.system = system
@@ -87,6 +87,7 @@ class App:
         r("GET", r"/api/admin/startup", lambda q, b: self.startup_info(), "admin")
         r("PUT", r"/api/admin/startup", self.save_startup, "admin")
         r("POST", r"/api/admin/shutdown", self.shutdown, "admin")
+        r("PUT", r"/api/admin/coffee", lambda q, b: self.save_coffee(b), "admin")
         r("GET", r"/api/admin/network", lambda q, b: self.network_info(), "admin")
         r("PUT", r"/api/admin/network", lambda q, b: self.save_network(b), "admin")
         # Signing in
@@ -680,6 +681,11 @@ class App:
         self.ctx.set_cookie = ""
         return {"ok": True}
 
+    def save_coffee(self, b):
+        """Hide (or show again) the coffee cup and the donation line for everyone."""
+        self.system.set_app_setting("coffee_off", "1" if b.get("off") else "0")
+        return {"coffee_off": bool(b.get("off"))}
+
     def me(self, q, b):
         u = self.ctx.user
         links = self.system.links_for(u["id"])
@@ -692,6 +698,8 @@ class App:
                 e["sample_data"] = False
         return {"user": {k: u.get(k) for k in ("id", "username", "display_name", "email", "is_admin")},
                 "envs": envs,
+                # An administrator hid the coffee cup and donation line for everyone.
+                "coffee_off": self.system.app_setting("coffee_off") == "1",
                 "approvals_waiting": sum(1 for l in links if l["can_approve"]) +
                 sum(1 for s in self.system.shares_for(u["id"]) if s["can_approve"])}
 
@@ -832,6 +840,9 @@ class App:
             s["due_days"] = d
         if "home" in b:
             s["home"] = self.clean_home(b["home"])
+        if "coffee" in b:
+            # The coffee cup and the line about donations: each person can hide them.
+            s["coffee"] = bool(b["coffee"])
         if "register_order" in b:
             if b["register_order"] not in ("newest", "oldest"):
                 raise ApiError("Register order must be newest or oldest")

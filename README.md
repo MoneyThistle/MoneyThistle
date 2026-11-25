@@ -39,6 +39,11 @@ Free and open source under the **GNU AGPL-3.0** (see `LICENSE`): use it, change 
 if you offer a changed version to others, including as a hosted website, share your changes too.
 What changed in each version: `CHANGELOG.md`.
 
+**Free, and staying free.** If MoneyThistle earns its keep, you can
+[buy me a coffee](https://buymeacoffee.com/itsmnlop). Entirely optional. In the app, a small cup at
+the top and a quiet line at the bottom link there; anyone can hide them (Settings → Look), and an
+administrator can hide them for everyone. Nothing is sent to that site unless you click.
+
 **Name and logo:** the code is free to change and share, but the MoneyThistle name, logo and
 wordmark identify this project. A changed version you share should have its own name and look,
 so nobody mistakes it for MoneyThistle (saying it's "based on MoneyThistle" is welcome).

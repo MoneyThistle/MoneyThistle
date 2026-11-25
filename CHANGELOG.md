@@ -3,8 +3,12 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.2 (not released yet)
+## 1.0.2 (2026-11-25)
 
+- A small coffee cup in the top bar and one quiet line at the bottom of the page (a different one
+  each day) link to the maker's Buy Me a Coffee page, for anyone who'd like to chip in. Nothing is
+  sent there unless you click. Each person can hide them in Settings → Look; an administrator can
+  hide them for everyone.
 - Fewer antivirus warnings on Windows: MoneyThistle no longer starts hidden PowerShell when it
   starts. It asks Windows directly where the Start menu and desktop are and makes shortcuts with
   Windows' own shortcut maker, and a copy installed by the setup leaves its Start menu entries and

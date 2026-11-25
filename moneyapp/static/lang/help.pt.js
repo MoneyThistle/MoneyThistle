@@ -403,6 +403,10 @@ I18N.helpText({
       custaria, ao lado de como está agora. Nada é salvo; pergunte ao seu credor antes de mudar a forma de pagar. Para calcular
       um empréstimo que você ainda não tem, como quanto carro um pagamento mensal pode comprar, use a <b>Calculadora de
       empréstimo</b> abaixo da lista de contas na página Contas; <b>Criar este empréstimo…</b> começa um novo a partir dela.` },
+    { q: "O que é a xícara de café?", a: `O MoneyThistle é gratuito. A xícara pequena no topo e a linha no rodapé da página levam à
+      página Buy Me a Coffee do autor, para quem quiser contribuir; nada é esperado, e nada é enviado para lá a menos que
+      você clique. Para ocultá-las só para você, desmarque em Configurações → Aparência → Xícara de café; um administrador
+      também pode ocultá-las para todos.` },
   ],
   terms: [
     { term: "Conta", def: "Um lugar onde há dinheiro guardado ou devido: conta corrente, poupança, cartão de crédito, empréstimo, investimento." },

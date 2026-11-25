@@ -305,13 +305,46 @@ async function startFresh() {
   render();
 }
 
+// ---------- the coffee cup: donations, never asked for ----------
+// A small cup in the top bar and one quiet line at the bottom of the page (a different one
+// each day), both a plain link to the maker's Buy Me a Coffee page: nothing is loaded from
+// there unless someone clicks. Each person can hide them (Settings › Look); an administrator
+// can hide them for everyone.
+const COFFEE_URL = "https://buymeacoffee.com/itsmnlop";
+const COFFEE_LINES = [
+  "MoneyThistle is free and open source. If it helps, you can buy me a coffee.",
+  "One less subscription to track in here. MoneyThistle is free, and a coffee is entirely optional.",
+  "Built in my spare time and given away. If it earns its keep, a coffee is welcome.",
+  "If MoneyThistle saves you a spreadsheet headache, consider buying me a coffee.",
+  "MoneyThistle costs nothing to use. Coffee donations just help pay for the time that goes into it.",
+  "For the record, I drink tea. Buy Me a Coffee is just what the service is called, and it still helps.",
+  "No ads, no subscription, nothing about you sold. If that's worth a coffee, here's the jar.",
+  "Your money stays on your computer. A coffee is the only thing that leaves, and only if you want.",
+  "Balanced the books this month? A coffee is a fine way to celebrate. Entirely optional.",
+  "Made by one person who also forgets to record receipts. Coffee welcome, never expected.",
+];
+const CUP_ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c-.6.8-.6 1.7 0 2.5M12 3.5c-.6.8-.6 1.7 0 2.5"/></svg>`;
+function showCoffee() { return !!(S.me && !S.me.coffee_off && !(S.ui && S.ui.coffee === false)); }
+function coffeeLine() {
+  const d = new Date(), day = Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000);   // (a new one each local day)
+  return COFFEE_LINES[day % COFFEE_LINES.length];
+}
+function drawCoffeeNote() {
+  const el = q("#coffeeNote");
+  if (!el) return;
+  el.hidden = !showCoffee();
+  el.innerHTML = el.hidden ? "" : `<a href="${COFFEE_URL}" target="_blank" rel="noopener noreferrer" title="Buy me a coffee (optional)">${CUP_ICON}<span>${esc(coffeeLine())}</span></a>`;
+}
+
 // Top bar: which environment, who is signed in.
 function drawTopBar() {
   const bar = q("#envbar");
+  drawCoffeeNote();
   if (!bar || !S.me) return;
   const role = envRole();
-  // The environment picker: hidden in Simple while there's only one environment.
-  bar.innerHTML = `${S.me.envs.length > 1 || (S.me.envs.length && !simpleMode()) ? `<select id="envSel" title="Environment">${S.me.envs.map(e =>
+  // The environment picker: hidden in Simple while there's only one environment. The coffee
+  // cup before it is the first thing to go when the bar gets narrow.
+  bar.innerHTML = `${showCoffee() ? `<a class="coffee" href="${COFFEE_URL}" target="_blank" rel="noopener noreferrer" title="Buy me a coffee (optional)" aria-label="Buy me a coffee (optional)">${CUP_ICON}</a>` : ""}${S.me.envs.length > 1 || (S.me.envs.length && !simpleMode()) ? `<select id="envSel" title="Environment">${S.me.envs.map(e =>
       `<option value="${e.id}" ${e.id === S.env ? "selected" : ""}>${esc(e.name)}</option>`).join("")}</select>` : ""}
     ${role === "viewer" ? '<span class="pill">view only</span>' : ""}
     <span class="who">${esc(S.me.user.display_name || S.me.user.username)}</span>
@@ -324,7 +357,7 @@ function drawTopBar() {
     S.env = +sel.value; localStorage.setItem("hl-env", S.env);
     await loadBasics(); render();
   };
-  q("#signOut").onclick = async () => { await api("POST", "/api/logout"); S.me = null; S.env = null; location.hash = "#/home"; renderSignIn(false); };
+  q("#signOut").onclick = async () => { await api("POST", "/api/logout"); S.me = null; S.env = null; drawCoffeeNote(); location.hash = "#/home"; renderSignIn(false); };
 }
 
 const TAGLINE = "A Slightly Better Money App";
@@ -4315,6 +4348,12 @@ function renderLookTab() {
         <span class="pill green">Paid</span><span class="pill red">Overdue</span>
         <div style="flex:1">${budgetBar(60, 100, 0.5)}</div></div></div>
       <p class="small muted" style="margin-bottom:0">Changes show right away; click Save to keep them.</p>
+    </div>
+    <div class="card"><h2>Coffee cup</h2>
+      <label class="check"><input type="checkbox" id="coffeeMine" ${S.ui.coffee !== false ? "checked" : ""} ${S.me.coffee_off ? "disabled" : ""}> Show the coffee cup and the line at the bottom of the page</label>
+      ${S.me.user.is_admin ? `<label class="check" style="margin-top:6px"><input type="checkbox" id="coffeeAll" ${S.me.coffee_off ? "checked" : ""}> Hide them for everyone on this MoneyThistle</label>` : ""}
+      <p class="small muted" style="margin-bottom:0">MoneyThistle is free. The cup links to the maker's Buy Me a Coffee page, for anyone who'd like to chip in;
+      nothing is ever expected, and nothing is sent there unless you click. <span>${S.me.coffee_off ? "An administrator has hidden them for everyone." : "Just for you."}</span></p>
     </div></div>
     <div class="grid" style="align-content:start">
     <div class="card"><h2>Language, money and dates</h2>
@@ -4349,6 +4388,17 @@ function renderLookTab() {
   });
   q("#custom").oninput = e => { ui.accent = e.target.value; qa("#swatches .swatch").forEach(x => x.classList.remove("on")); live(); };
   q("#goCustom").onclick = () => { S.openCustomize = true; };
+  q("#coffeeMine").onchange = async e => {
+    try { S.ui = await api("PUT", "/api/settings", { coffee: e.target.checked }); drawTopBar(); toast(e.target.checked ? "Coffee cup shown" : "Coffee cup hidden"); }
+    catch (err) { toast(err.message, true); }
+  };
+  if (q("#coffeeAll")) q("#coffeeAll").onchange = async e => {
+    try {
+      await api("PUT", "/api/admin/coffee", { off: e.target.checked });
+      S.me.coffee_off = e.target.checked; drawTopBar(); renderSettings();
+      toast(e.target.checked ? "Coffee cup hidden for everyone" : "Coffee cup shown again (each person can still hide it)");
+    } catch (err) { toast(err.message, true); }
+  };
   qa("#detailChoice input").forEach(r => r.onchange = async () => {
     try {
       S.ui = await api("PUT", "/api/settings", { detail: r.value });

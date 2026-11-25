@@ -395,6 +395,10 @@ const HELP = {
       cost, next to how it is now. Nothing is saved; ask your lender before you change how you pay. To work out a loan you
       don't have yet, such as how much car a monthly payment can buy, use <b>Loan calculator</b> under the account list on the
       Accounts page; <b>Set up this loan…</b> starts a new loan from it.` },
+    { q: "What's the coffee cup?", a: `MoneyThistle is free. The small cup at the top and the line at the bottom of the page link to its maker's
+      Buy Me a Coffee page, for anyone who'd like to chip in; nothing is ever expected, and nothing is sent there unless you
+      click. To hide them for yourself, untick them in Settings → Look → Coffee cup; an administrator can hide them for
+      everyone there too.` },
   ],
   terms: [
     { term: "Account", def: "Somewhere money is kept or owed: checking, savings, a credit card, a loan, an investment." },

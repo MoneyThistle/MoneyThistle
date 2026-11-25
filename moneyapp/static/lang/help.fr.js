@@ -419,6 +419,10 @@ I18N.helpText({
       avant de changer votre façon de payer. Pour calculer un prêt que vous n'avez pas encore, comme le prix d'auto qu'un
       paiement mensuel permet, utilisez la <b>Calculatrice de prêt</b> sous la liste des comptes de la page Comptes;
       <b>Créer ce prêt…</b> en démarre un nouveau.` },
+    { q: "C'est quoi, la tasse de café?", a: `MoneyThistle est gratuit. La petite tasse en haut et la ligne au bas de la page mènent à la
+      page Buy Me a Coffee de son auteur, pour qui veut contribuer; rien n'est jamais attendu, et rien n'y est envoyé à moins
+      que vous cliquiez. Pour les masquer pour vous, décochez-les dans Paramètres → Apparence → Tasse de café; un
+      administrateur peut aussi les masquer pour tout le monde.` },
   ],
   terms: [
     { term: "Compte", def: "Un endroit où de l'argent est gardé ou dû : chèques, épargne, carte de crédit, prêt, placement." },

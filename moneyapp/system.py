@@ -160,6 +160,8 @@ class System:
         self.db.execute("CREATE TABLE IF NOT EXISTS password_resets (token_hash TEXT PRIMARY KEY, "
                         "user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, "
                         "created REAL NOT NULL, expires REAL NOT NULL)")
+        # Choices an administrator makes for everyone on this MoneyThistle (key -> text).
+        self.db.execute("CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
         if not self.q1("SELECT 1 FROM environments"):
             # The money file that existed before environments becomes "Personal".
             self.db.execute("INSERT INTO environments(name,file,created) VALUES('Personal','money.db',?)", (_now(),))
@@ -459,6 +461,14 @@ class System:
             raise ApiError("This link has expired or was already used. Ask for a new one from the sign-in page.", 400)
         self.set_password(u["id"], password)
         return u
+
+    def app_setting(self, key, default=None):
+        r = self.q1("SELECT value FROM app_settings WHERE key=?", (key,))
+        return r["value"] if r else default
+
+    def set_app_setting(self, key, value):
+        self.exec("INSERT INTO app_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                  (key, str(value)))
 
     def ui_settings(self, uid):
         u = self.user(uid)

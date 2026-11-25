@@ -404,6 +404,10 @@ I18N.helpText({
       cómo está ahora. No se guarda nada; pregunta a tu prestamista antes de cambiar cómo pagas. Para calcular un préstamo que
       aún no tienes, como cuánto auto puede comprar un pago mensual, usa la <b>Calculadora de préstamos</b> debajo de la lista
       de cuentas en la página Cuentas; <b>Crear este préstamo…</b> empieza uno nuevo a partir de ella.` },
+    { q: "¿Qué es la taza de café?", a: `MoneyThistle es gratuito. La pequeña taza arriba y la línea al pie de la página llevan a la
+      página de Buy Me a Coffee de su autor, para quien quiera aportar; nunca se espera nada, y no se envía nada allí a menos
+      que hagas clic. Para ocultarlas solo para ti, desmárcalas en Configuración → Apariencia → Taza de café; un
+      administrador también puede ocultarlas para todos.` },
   ],
   terms: [
     { term: "Cuenta", def: "Donde se guarda o se debe dinero: cuenta corriente, ahorros, tarjeta de crédito, préstamo, inversión." },
