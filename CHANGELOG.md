@@ -3,7 +3,7 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.1 (not released yet)
+## 1.0.1 (2026-11-25)
 
 - Registers listed oldest first open at their end, where the newest entries are; after saving an
   entry the register stays where it was.
