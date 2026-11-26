@@ -257,6 +257,9 @@ I18N.helpText({
     people: { title: "Pessoas, ambientes e compartilhamento", body: `
       <ul>
         <li><b>Pessoas:</b> cada um entra com o próprio nome de usuário e senha. Administradores adicionam acessos e redefinem senhas.</li>
+        <li><b>E-mail de boas-vindas:</b> com o e-mail configurado (Configurações › Notificações), ao adicionar alguém dá para enviar boas-vindas:
+          quem adicionou, o nome de usuário, os endereços para abrir o MoneyThistle, o que a pessoa pode ver e um link para escolher a
+          própria senha (funciona uma vez, por 3 dias). <b>Enviar boas-vindas</b> na lista envia de novo.</li>
         <li><b>Ambientes</b> são grupos de contas separados (Pessoal, Empresa, Sogros…). Só os membros veem um ambiente. Os donos
           adicionam membros como dono, editor (pode alterar) ou leitor (só olha). Troque no canto superior direito.</li>
         <li><b>Contas compartilhadas:</b> mostre uma conta também em outro ambiente (sua conta corrente no ambiente do seu

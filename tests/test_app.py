@@ -1827,6 +1827,46 @@ DATA:OFXSGML
         self.assertEqual(sorted(a["name"] for a in only["accounts"]), ["Business Checking", "Joint Checking"])
         self.assertEqual(len(c.call("GET", "/api/summary?scope=all&envs=999", env=1)["accounts"]), 1)
 
+    def test_welcome_email_for_a_new_person(self):
+        app, base = self._serve()
+        app.urls = ["http://127.0.0.1:8080/", "http://192.168.1.20:8080/", "http://tower.tail1234.ts.net:8080/"]
+        sent = []
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        c.call("PUT", "/api/me", {"display_name": "Alex"})
+        # No email set up: refused, nobody added.
+        self.assertEqual(c.status("POST", "/api/users", {"username": "sam", "email": "sam@example.com", "welcome": True}), 400)
+        app.notifier.mail_server = lambda: {"host": "smtp.example.com"}
+        app.notifier.mail_to = lambda to, title, body: sent.append((to, title, body))
+        self.assertEqual(c.status("POST", "/api/users", {"username": "sam", "welcome": True}), 400)   # no address
+        # Added with a welcome: no starting password needed, put in Personal as a viewer.
+        r = c.call("POST", "/api/users", {"username": "sam", "display_name": "Sam", "email": "sam@example.com",
+                                          "welcome": True, "env_id": "1", "role": "viewer"})
+        self.assertEqual(r["welcome_sent_to"], "sam@example.com")
+        to, title, body = sent[-1]
+        self.assertEqual((to, title), ("sam@example.com", "Welcome to MoneyThistle"))
+        self.assertIn("Your user name: sam", body)
+        self.assertIn("Alex made you a sign-in", body)
+        self.assertIn("http://192.168.1.20:8080/", body)
+        self.assertIn("tower.tail1234.ts.net", body)
+        self.assertIn("Tailscale", body)
+        self.assertNotIn("127.0.0.1", body)            # this computer's own address is no use to others
+        self.assertIn("Personal (can look, not change)", body)
+        # The link lasts days, not minutes.
+        row = self.system.q1("SELECT expires - created AS life FROM password_resets ORDER BY created DESC LIMIT 1")
+        self.assertGreater(row["life"], 2 * 86400)
+        token = re.search(r"#/reset/(\S+)", body).group(1)
+        anon = Client(base)
+        self.assertEqual(anon.call("GET", "/api/password/reset?token=" + token)["username"], "sam")
+        anon.call("POST", "/api/password/reset", {"token": token, "password": "sams-own-pass"})
+        anon.call("POST", "/api/login", {"username": "sam", "password": "sams-own-pass"})
+        self.assertEqual([e["role"] for e in anon.call("GET", "/api/me")["envs"]], ["viewer"])
+        # Sent again later from the people list; administrators only.
+        n = len(sent)
+        self.assertEqual(c.call("POST", f"/api/users/{r['id']}/welcome")["welcome_sent_to"], "sam@example.com")
+        self.assertEqual(len(sent), n + 1)
+        self.assertEqual(anon.status("POST", f"/api/users/{r['id']}/welcome"), 403)
+
     def test_forgot_password_and_recovery(self):
         app, base = self._serve()
         sent = []

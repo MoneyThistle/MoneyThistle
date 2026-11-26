@@ -7,6 +7,7 @@ connections; administrators manage people, backups and restarts.
 """
 
 import base64
+import secrets
 import datetime as dt
 import hmac
 import json
@@ -167,6 +168,7 @@ class App:
         r("POST", r"/api/users", self.create_user, "admin")
         r("PUT", r"/api/users/(\d+)", self.admin_update_user, "admin")
         r("DELETE", r"/api/users/(\d+)", self.delete_user, "admin")
+        r("POST", r"/api/users/(\d+)/welcome", lambda q, b, i: self.send_welcome(int(i)), "admin")
         r("GET", r"/api/backup/settings", lambda q, b: self.backups.public_settings(), "admin")
         r("PUT", r"/api/backup/settings", lambda q, b: self.backups.update_settings(b), "admin")
         r("POST", r"/api/backup/now", lambda q, b: {"results": self.backups.run("manual")}, "admin")
@@ -780,11 +782,87 @@ class App:
 
     def create_user(self, q, b):
         email = self.system.clean_email(b.get("email"))
-        uid = self.system.create_user(b.get("username"), b.get("password"), b.get("display_name"),
+        welcome = bool(b.get("welcome"))
+        if welcome and not email:
+            raise ApiError("Add their email address to send a welcome", field="email")
+        if welcome and self.notifier.mail_server() is None:
+            raise ApiError("Email isn't set up yet (Settings › Notifications), so a welcome can't be sent")
+        env_id = int(b["env_id"]) if str(b.get("env_id") or "").isdigit() else None
+        if env_id:
+            self.system.require(self.uid, env_id, "owner")   # (only into an environment you own)
+        password = b.get("password")
+        if welcome and not password:
+            # They choose their own from the welcome email's link; until then nobody knows this one.
+            password = secrets.token_urlsafe(24)
+        uid = self.system.create_user(b.get("username"), password, b.get("display_name"),
                                       bool(b.get("is_admin")), "full" if b.get("show_everything") else "simple")
         if email:
             self.system.update_user(uid, {"email": email}, True)
-        return {"id": uid}
+        if env_id:
+            self.system.set_member(env_id, b.get("username"), b.get("role") or "editor")
+        out = {"id": uid}
+        if welcome:
+            try:
+                out.update(self.send_welcome(uid))
+            except ApiError as e:
+                out["welcome_error"] = str(e)    # (the person is added either way)
+        return out
+
+    WELCOME_DAYS = 3
+    ROLE_WORDS = {"owner": "owner: can see and change everything, and add people",
+                  "editor": "can enter and change things", "viewer": "can look, not change"}
+
+    def _addresses_for_others(self):
+        """The addresses another device can open this MoneyThistle at (this computer's own
+        localhost addresses work only here), the one this page was opened at first."""
+        local = re.compile(r"^(localhost|127\.\d+\.\d+\.\d+|\[::1\])(:\d+)?$", re.I)
+        out = []
+        for u in self._addresses():
+            u = u if u.endswith("/") else u + "/"
+            if not local.match(urllib.parse.urlparse(u).netloc) and u not in out:
+                out.append(u)
+        here = self._link_base()
+        if here in out:
+            out.remove(here)
+            out.insert(0, here)
+        return out
+
+    def send_welcome(self, uid, q=None, b=None):
+        """A welcome email: who invited them, their user name, a link to choose their own
+        password (once, for WELCOME_DAYS days), where to open MoneyThistle and what they can see."""
+        if self.notifier.mail_server() is None:
+            raise ApiError("Email isn't set up yet (Settings › Notifications), so a welcome can't be sent")
+        u = self.system.user(int(uid))
+        if not u or not u.get("email"):
+            raise ApiError("Add their email address first")
+        res = self.system.start_reset(u["username"], minutes=self.WELCOME_DAYS * 24 * 60)
+        if not res:
+            raise ApiError("Three links were sent to them in the last hour. Try again later.")
+        _, token = res
+        addresses = self._addresses_for_others()
+        base = addresses[0] if addresses else self._link_base()
+        who = self.ctx.user.get("display_name") or self.ctx.user.get("username") if self.ctx.user else "An administrator"
+        envs = self.system.my_envs(u["id"])
+        sees = "\n".join(f"  - {e['name']} ({self.ROLE_WORDS.get(e['role'], e['role'])})" for e in envs) or \
+            "  - nothing yet: an environment's owner will add you to it"
+        where = "\n".join(f"  {a}" for a in addresses) or f"  {base}"
+        body = (f"Hello {u['display_name'] or u['username']},\n\n"
+                f"{who} made you a sign-in for MoneyThistle, the money app your household uses.\n\n"
+                f"Your user name: {u['username']}\n\n"
+                f"1. Choose your password with this link (it works once, for {self.WELCOME_DAYS} days):\n\n"
+                f"   {base}#/reset/{token}\n\n"
+                f"2. Then open MoneyThistle at:\n{where}\n\n"
+                f"   It works on your home network{' or over Tailscale' if any('.ts.net' in a for a in addresses) else ''}, "
+                f"not from the internet. On a phone, add it to your home screen.\n\n"
+                f"What you can see:\n{sees}\n\n"
+                f"If the link has expired, use \"Forgot your password?\" on the sign-in page, or ask {who}.\n"
+                f"If you weren't expecting this, you can ignore this email.\n")
+        self.notifier.mail_to(u["email"], "Welcome to MoneyThistle", body)
+        out = {"welcome_sent_to": u["email"]}
+        if not addresses:
+            out["welcome_note"] = ("Only this computer's own address is known, so the link may not open on their "
+                                   "devices. Add the address others use under Settings › This computer.")
+        return out
 
     def delete_user(self, q, b, i):
         if int(i) == self.uid:

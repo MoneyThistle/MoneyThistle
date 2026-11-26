@@ -258,6 +258,9 @@ I18N.helpText({
       <ul>
         <li><b>Personas:</b> cada quien entra con su propio usuario y contraseña. Los administradores agregan accesos y restablecen
           contraseñas.</li>
+        <li><b>Correo de bienvenida:</b> con el correo configurado (Configuración › Notificaciones), al agregar a alguien se le puede enviar una bienvenida:
+          quién lo agregó, su nombre de usuario, las direcciones para abrir MoneyThistle, qué puede ver y un enlace para elegir su
+          propia contraseña (funciona una vez, durante 3 días). <b>Enviar bienvenida</b> en la lista la vuelve a enviar.</li>
         <li><b>Entornos</b> son grupos de cuentas separados (Personal, Negocio, Suegros…). Solo sus miembros los ven. Los dueños
           agregan miembros como dueño, editor (puede cambiar cosas) o lector (solo mira). Cambia arriba a la derecha.</li>
         <li><b>Cuentas compartidas:</b> muestra una cuenta también en otro entorno (tu cuenta corriente en el entorno de tu pareja):

@@ -674,7 +674,7 @@ function dialog(title, body, buttons) {
   });
 }
 // "Save your changes?" over a dialog that's being closed: save, don't save, or keep editing.
-function askSaveChanges() {
+function askSaveChanges(text) {
   return new Promise(resolve => {
     let a = document.getElementById("dlgAsk");
     if (!a) {
@@ -683,7 +683,7 @@ function askSaveChanges() {
       document.body.appendChild(a);
     }
     a.innerHTML = `<div class="dhead"><span>${esc(tr("Save your changes?"))}</span></div>
-      <div class="dbody">${esc(tr("You changed something here. Save it before closing?"))}</div>
+      <div class="dbody">${esc(tr(text || "You changed something here. Save it before closing?"))}</div>
       <div class="dfoot"><button type="button" data-pick="keep">${esc(tr("Keep editing"))}</button>
         <button type="button" data-pick="discard">${esc(tr("Don't save"))}</button>
         <button type="button" class="primary" data-pick="save">${esc(tr("Save"))}</button></div>`;
@@ -3951,7 +3951,7 @@ async function renderBackup() {
   ${list.errors.map(e => `<div class="notice err">${esc(e.destination)}: ${esc(e.error)}</div>`).join("")}
   <div class="grid cols2">
     <div class="grid" style="align-content:start">
-      <div class="card"><h2>Automatic backups</h2>
+      <div class="card" data-guard="#saveS"><h2>Automatic backups</h2>
         <label class="check"><input type="checkbox" id="on_change" ${s.on_change ? "checked" : ""}> Back up after I make changes</label>
         <div class="small muted" style="margin:0 0 6px 24px">A few minutes after you change something, and when MoneyThistle stops. Older backups are kept by day, week and month.</div>
         ${moreFold("backup-rules", `
@@ -3969,7 +3969,7 @@ async function renderBackup() {
             even after a busy day of changes. Backups you make with <b>Back up now</b> are never cleared.</div></div>
         <label class="check"><input type="checkbox" id="compress" ${s.compress ? "checked" : ""}> Compress backup files</label>`, false, "When to back up and how many to keep")}
       </div>
-      <div class="card"><h2>Encryption</h2>
+      <div class="card" data-guard="#saveS"><h2>Encryption</h2>
         <label class="check"><input type="checkbox" id="encrypt" ${s.encrypt ? "checked" : ""}> Encrypt backups with a password</label>
         <div class="form" style="margin-left:24px"><div class="wide" style="grid-column:1/-1"><label>Backup password <span class="muted">(10 characters or more)</span></label>
           <input id="backup_password" type="password" autocomplete="new-password" placeholder="${s.backup_password_set ? "(saved, type to change)" : ""}"></div></div>
@@ -3978,7 +3978,7 @@ async function renderBackup() {
           MoneyThistle keeps the password to make backups on its own.
           Every backup is read back after it's saved (same SHA-256, decrypts, every file in it opens) before it counts as done.</p>`, false, "How it works")}
       </div>
-      <div class="card"><h2>Where to keep them</h2>
+      <div class="card" data-guard="#saveS"><h2>Where to keep them</h2>
         <label class="check"><input type="checkbox" id="webdav_enabled" ${s.webdav_enabled ? "checked" : ""}> Back up to Nextcloud</label>
         <div class="form" style="margin-left:24px">
           <div class="wide" style="grid-column:1/-1"><label>Your Nextcloud address</label><input id="nc_server" placeholder="https://cloud.example.com" value="${esc(ncParts(s.webdav_url).server)}" ${locked("WEBDAV_URL")}></div>
@@ -4115,7 +4115,7 @@ async function notifyCard() {
   const admin = n.is_admin_setup;
   const shared = !admin && n.shared_email_available;
   const useShared = shared && n.email.use_shared;
-  return `<div class="card" id="notifyCard"><h2>Notifications${admin ? ' <span class="pill">administrators</span>' : ""}</h2>
+  return `<div class="card" id="notifyCard" data-guard="#saveNotify"><h2>Notifications${admin ? ' <span class="pill">administrators</span>' : ""}</h2>
     <p class="small muted" style="margin-top:0">Once a day MoneyThistle sends you a short summary, but only when there's something to say. ${admin
       ? "This setup is the administrators' and covers every environment; everyone else sets up their own here, for the environments they're in."
       : "It covers the environments you're in. Use your own services and credentials; they're kept for you alone."}</p>
@@ -4263,7 +4263,7 @@ function renderLookTab() {
   </div>
   <div class="grid settings">
     <div class="grid" style="align-content:start">
-    <div class="card"><h2>Appearance</h2>
+    <div class="card" data-guard="#saveUi"><h2>Appearance</h2>
       <div class="setrow"><label>Theme</label><div class="choice" id="theme">
         ${[["light", "Light"], ["dark", "Dark"], ["auto", "Match this device"]].map(([k, l]) =>
           `<label class="${ui.theme === k ? "on" : ""}"><input type="radio" name="theme" value="${k}" ${ui.theme === k ? "checked" : ""}><span class="themeprev ${k}"><i></i></span>${l}</label>`).join("")}
@@ -4286,7 +4286,7 @@ function renderLookTab() {
       nothing is ever expected, and nothing is sent there unless you click. <span>${S.me.coffee_off ? "An administrator has hidden them for everyone." : "Just for you."}</span></p>
     </div></div>
     <div class="grid" style="align-content:start">
-    <div class="card"><h2>Language, money and dates</h2>
+    <div class="card" data-guard="#saveUi"><h2>Language, money and dates</h2>
       <div class="setrow"><label for="lang">Language</label><div><select id="lang" translate="no">
         <option value="" ${!ui.lang ? "selected" : ""}>${esc(tr("Like this browser"))} (${esc(LANGS.find(l => l[0] === pickLang(""))[1])})</option>
         ${LANGS.map(([k, n]) => `<option value="${k}" ${ui.lang === k ? "selected" : ""}>${n}</option>`).join("")}</select>
@@ -4348,6 +4348,7 @@ function renderLookTab() {
     } catch (e) { toast(e.message, true); }
   };
   q("#resetUi").onclick = async () => {
+    UNSAVED.delete("#saveUi");
     S.ui = await api("PUT", "/api/settings", { theme: "light", accent: "#1c4b8a", currency: "", date_style: "system", due_days: 14 });
     applyTheme(S.ui); toast("Back to the default look"); renderSettings();
   };
@@ -4360,7 +4361,7 @@ function currencyCard() {
   const used = [...new Set(S.accounts.filter(a => !a._shared).map(a => a.currency).filter(c => c && c !== m.home))];
   const others = [...new Set([...used, ...Object.keys(m.rates)])].sort();
   const ro = canEdit() ? "" : "disabled";
-  return `<div class="card" id="curCard" style="margin-top:14px"><h2>Currencies</h2>
+  return `<div class="card" id="curCard" data-guard="#saveCur" style="margin-top:14px"><h2>Currencies</h2>
     <p class="small muted" style="margin-top:0">For everyone in <b translate="no">${esc(envName)}</b>. Each account has its own currency (in its details); totals, the budget and the tax report are in the main one.</p>
     <div class="setrow"><label for="homeCur">Main currency</label><div><select id="homeCur" ${ro}>${curOptions(m.home)}</select></div></div>
     ${others.length ? `<div class="setrow"><label>Rough rates</label><div>
@@ -4702,7 +4703,7 @@ async function networkRow() {
   // Your own address: a name a reverse proxy (e.g. Nginx Proxy Manager) or your DNS
   // points at MoneyThistle, shown first at the bottom of every page.
   const own = `<div class="setrow"><label>Your own address</label><div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap"><input id="customUrls" style="flex:1;min-width:220px" placeholder="https://ledger.example.com" value="${esc((n.custom_urls || []).join(", "))}">
+    <div style="display:flex;gap:6px;flex-wrap:wrap" data-guard="#saveUrls"><input id="customUrls" style="flex:1;min-width:220px" placeholder="https://ledger.example.com" value="${esc((n.custom_urls || []).join(", "))}">
       <button class="small" id="saveUrls">Save address</button></div>
     <div class="small muted" style="margin-top:4px">If a reverse proxy such as Nginx Proxy Manager gives MoneyThistle an easier name, enter it here (several: separate with commas). It's shown first at the bottom of every page. MoneyThistle doesn't set up the proxy; keep it reachable only on your home network or Tailscale.</div></div></div>`;
   if (n.fixed) return `<div class="setrow"><label>Other devices</label><div class="small muted">${n.in_docker
@@ -4741,7 +4742,7 @@ async function updateBanner() {
 }
 
 // Leaving Settings without saving puts the saved look back.
-window.addEventListener("hashchange", () => { if (S.ui) applyTheme(S.ui); });
+window.addEventListener("hashchange", () => { if (S.ui && !UNSAVED.has("#saveUi")) applyTheme(S.ui); });
 
 // ---------- PEOPLE & ACCESS ----------
 const ROLE_TEXT = { owner: "Owner: everything, plus members and connections", editor: "Editor: can enter and change", viewer: "Viewer: can look, not change" };
@@ -4753,6 +4754,7 @@ async function renderPeople(noEnv) {
   const [links, envNames, users, shares, people] = await Promise.all([GET("/api/links"), GET("/api/env-names"),
     me.is_admin ? GET("/api/users") : Promise.resolve([]), GET("/api/shares"), GET("/api/people")]);
   const owned = S.me.envs.filter(e => e.role === "owner");
+  const mailOn = !!(S.meta && S.meta.password_reset);   // (email is set up)
   const roleSel = (name, cur) => `<select name="${name}">${["owner", "editor", "viewer"].map(r => `<option value="${r}" ${r === cur ? "selected" : ""}>${r}</option>`).join("")}</select>`;
   const statusPill = s => ({ pending: '<span class="pill amber">waiting for approval</span>', active: '<span class="pill green">connected</span>',
     declined: '<span class="pill red">declined</span>', ended: '<span class="pill">ended</span>' }[s] || s);
@@ -4775,7 +4777,7 @@ async function renderPeople(noEnv) {
         <p class="small muted" style="margin-bottom:0">${Object.values(ROLE_TEXT).join(" · ")}</p>
       </div>
       <div class="card"><h2>Your sign-in</h2>
-        <form id="meForm" class="form">
+        <form id="meForm" class="form" data-guard="#meForm button[type=submit]">
           <div class="wide"><label>Your name</label><input name="display_name" value="${esc(me.display_name)}"></div>
           <div class="wide"><label>Email <span class="muted">(for "forgot password" links)</span></label><input type="email" name="email" autocomplete="email" value="${esc(me.email || "")}" placeholder="you@example.com"></div>
           <div><label>Current password</label><input type="password" name="current_password" autocomplete="current-password"></div>
@@ -4786,16 +4788,21 @@ async function renderPeople(noEnv) {
         <table>${users.map(u => `<tr><td>${esc(u.display_name)} <span class="small muted">${esc(u.username)}</span>
             <div class="small muted">${u.email ? esc(u.email) : "no email: can't get a \"forgot password\" link"}</div></td>
           <td>${u.is_admin ? '<span class="pill amber">administrator</span>' : ""}</td>
-          <td class="num"><button class="small" data-uemail="${u.id}">Email…</button> <button class="small" data-reset="${u.id}">Password…</button> ${u.id !== me.id ? `<button class="small" data-admin="${u.id}:${u.is_admin ? 0 : 1}">${u.is_admin ? "Not admin" : "Make admin"}</button> <button class="small danger" data-deluser="${u.id}">Delete</button>` : ""}</td></tr>`).join("")}</table>
+          <td class="num">${mailOn && u.email && u.id !== me.id ? `<button class="small" data-welcome="${u.id}" title="Their user name, where to open MoneyThistle, what they can see, and a link to choose a new password">Email a welcome</button> ` : ""}<button class="small" data-uemail="${u.id}">Email…</button> <button class="small" data-reset="${u.id}">Password…</button> ${u.id !== me.id ? `<button class="small" data-admin="${u.id}:${u.is_admin ? 0 : 1}">${u.is_admin ? "Not admin" : "Make admin"}</button> <button class="small danger" data-deluser="${u.id}">Delete</button>` : ""}</td></tr>`).join("")}</table>
         <form id="addUser" class="form" style="margin-top:10px">
           <div><label>Name</label><input name="display_name"></div><div><label>User name</label><input name="username"></div>
-          <div><label>Starting password</label><input name="password" type="password" autocomplete="new-password"></div>
+          <div><label>Starting password${mailOn ? ' <span class="muted">(not needed with a welcome)</span>' : ""}</label><input name="password" type="password" autocomplete="new-password"></div>
           <div><label>Email <span class="muted">(optional)</span></label><input name="email" type="email" autocomplete="off"></div>
+          ${owned.length ? `<div><label>Add them to</label><select name="env_id"><option value="">(no environment yet)</option>${owned.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join("")}</select></div>
+          <div><label>As</label>${roleSel("role", "editor")}</div>` : ""}
+          ${mailOn ? `<div class="wide" style="grid-column:1/-1"><label class="check"><input type="checkbox" name="welcome" checked> Email them a welcome</label>
+            <div class="small muted" style="margin-left:24px">Their user name, where to open MoneyThistle, what they can see, and a link to choose their own password (it works once, for 3 days).</div></div>`
+            : `<div class="wide small muted" style="grid-column:1/-1">Set up email under Settings › Notifications to send new people a welcome with a link to choose their own password.</div>`}
           <div><label class="check"><input type="checkbox" name="is_admin"> Administrator</label></div>
           <div><label class="check" title="New people start Simple: extras folded under More options. They can change it in Settings › Look."><input type="checkbox" name="show_everything"> Show them everything</label></div>
           <div><button class="small primary" type="submit">Add person</button></div></form>
-        <p class="small muted" style="margin-bottom:0">Administrators manage sign-ins, backups and restarts. Adding someone doesn't show them any money:
-          an environment's owner adds them to it.</p></div>` : ""}
+        <p class="small muted" style="margin-bottom:0">Administrators manage sign-ins, backups and restarts. Someone added sees no money until they're in an
+          environment: choose one above, or an environment's owner adds them later.</p></div>` : ""}
     </div>
     <div class="grid" style="align-content:start">
       <div class="card"><div class="head"><h2>Connections between environments</h2>${owned.length ? '<button class="small primary" id="newLink">Connect an account</button>' : ""}</div>
@@ -4842,7 +4849,23 @@ async function renderPeople(noEnv) {
   qa("[data-addm]").forEach(f => f.onsubmit = e => { e.preventDefault(); run(() => api("PUT", `/api/envs/${f.dataset.addm}/members`, formData(f)), "Added"); });
   q("#meForm").onsubmit = e => { e.preventDefault(); const d = formData(e.target); if (!d.password) { delete d.password; delete d.current_password; }
     run(() => api("PUT", "/api/me", d), "Saved"); };
-  if (q("#addUser")) q("#addUser").onsubmit = e => { e.preventDefault(); run(() => api("POST", "/api/users", formData(e.target)), "Person added"); };
+  if (q("#addUser")) q("#addUser").onsubmit = async e => {
+    e.preventDefault();
+    try {
+      const r = await api("POST", "/api/users", formData(e.target));
+      if (r.welcome_error || r.welcome_note) {
+        await again();
+        toast(r.welcome_error ? "Person added, but the welcome email couldn't be sent: " + r.welcome_error
+          : "Person added and welcomed. " + r.welcome_note, true);
+      } else again(r.welcome_sent_to ? `Person added; welcome sent to ${r.welcome_sent_to}` : "Person added");
+    } catch (err) { toast(err.message, true); }
+  };
+  qa("[data-welcome]").forEach(b => b.onclick = async () => {
+    try {
+      const r = await api("POST", `/api/users/${b.dataset.welcome}/welcome`);
+      toast(`Welcome sent to ${r.welcome_sent_to}` + (r.welcome_note ? ". " + r.welcome_note : ""), !!r.welcome_note);
+    } catch (err) { toast(err.message, true); }
+  });
   qa("[data-reset]").forEach(b => b.onclick = () => dialog("Set a new password", `<label>New password (8+ characters)</label><input type="password" name="password" autocomplete="new-password">
     <p class="small muted">They'll be signed out everywhere and use this password next time.</p>`,
     [{ label: "Cancel" }, { label: "Set password", cls: "primary", action: async root => { await api("PUT", "/api/users/" + b.dataset.reset, formData(root)); again("Password set"); } }]));
@@ -5100,7 +5123,62 @@ async function render() {
     view().innerHTML = `<div class="notice err">${esc(msg)}</div>`;
   }
 }
-window.addEventListener("hashchange", render);
+// ---------- unsaved settings ----------
+// A settings card with its own Save button carries data-guard="<that button>". Changing
+// something in it marks it unsaved until that button is clicked; leaving the page then asks
+// to save, not save, or keep editing (and reloading or closing the tab gets the browser's
+// own warning).
+const UNSAVED = new Set();
+const markUnsaved = e => {
+  if (!e.isTrusted || !e.target.closest) return;
+  const c = e.target.closest("[data-guard]");
+  if (c && c.closest("#view")) UNSAVED.add(c.dataset.guard);
+};
+document.addEventListener("input", markUnsaved, true);
+document.addEventListener("change", markUnsaved, true);
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button");
+  if (b) for (const sel of [...UNSAVED]) if (b.matches(sel)) {
+    UNSAVED.delete(sel);
+    // (a save that was refused, with its error showing, still counts as unsaved)
+    const t = document.getElementById("toast");
+    t.className = "";
+    setTimeout(() => { if (t.className.includes("err") && document.querySelector(sel)) UNSAVED.add(sel); }, 900);
+  }
+}, true);
+document.addEventListener("submit", e => {
+  for (const sel of [...UNSAVED]) if (e.target.querySelector(sel)) UNSAVED.delete(sel);
+}, true);
+window.addEventListener("beforeunload", e => { if (UNSAVED.size) { e.preventDefault(); e.returnValue = ""; } });
+// Saving on the way out: each unsaved card's Save button, then a moment for the answers; a
+// save that failed (its error shows) keeps the page open.
+async function saveUnsaved() {
+  const sels = [...UNSAVED], t = document.getElementById("toast");
+  t.className = "";
+  for (const sel of sels) { const b = q(sel); if (b) b.click(); }
+  await new Promise(r => setTimeout(r, 900));
+  if (t.className.includes("err")) { sels.forEach(x => UNSAVED.add(x)); return false; }
+  return true;
+}
+let shownHash = location.hash, routeBusy = false;
+window.addEventListener("hashchange", async () => {
+  if (routeBusy) return;
+  if (UNSAVED.size) {
+    const to = location.hash;
+    history.replaceState(null, "", shownHash || "#/");   // stay here while asking (no hashchange)
+    routeBusy = true;
+    const pick = await askSaveChanges("You changed settings here without saving. Save them before leaving?");
+    routeBusy = false;
+    if (pick === "keep") return;
+    if (pick === "save" && !(await saveUnsaved())) return;
+    UNSAVED.clear();
+    if (S.ui) applyTheme(S.ui);          // (a look tried but not kept goes back)
+    location.hash = to;
+    return;
+  }
+  shownHash = location.hash;
+  render();
+});
 // Narrow screens: the tabs fold into a Menu button; picking a tab closes it again.
 (function () {
   const top = q("header.top"), btn = q("#menuBtn");

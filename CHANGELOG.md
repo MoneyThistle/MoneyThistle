@@ -3,6 +3,16 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.5 (not released yet)
+
+- **Welcome email** for new people (when email is set up): who added them, their user name, the
+  addresses to open MoneyThistle at, what they can see, and a link to choose their own password
+  (once, for 3 days), so no starting password is needed. Adding a person can also put them in one
+  of your environments right away, and **Email a welcome** in the people list sends it again.
+- **Settings ask before losing changes:** leaving a Settings page (another section, another page)
+  with changes not yet saved asks to save, not save, or keep editing; reloading or closing the tab
+  gets the browser's own warning.
+
 ## 1.0.4 (2026-11-26)
 
 - A loan or mortgage brought in from another program (a plain loan account, without a rate or

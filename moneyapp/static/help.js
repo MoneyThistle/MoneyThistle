@@ -253,6 +253,9 @@ const HELP = {
       <ul>
         <li><b>People:</b> everyone signs in with their own user name and password. Administrators add sign-ins
           and reset passwords.</li>
+        <li><b>Welcome email:</b> with email set up (Settings › Notifications), adding someone can email them a welcome:
+          who added them, their user name, the addresses to open MoneyThistle at, what they can see, and a link to choose their
+          own password (it works once, for 3 days), so you don't have to make one up. <b>Email a welcome</b> in the list sends it again.</li>
         <li><b>Environments</b> are separate sets of accounts (Personal, Business, In-laws…). Only members see one.
           Owners add members as owner, editor (can change things) or viewer (can only look). Switch at the top right.</li>
         <li><b>Shared accounts:</b> show one account in another environment too (your checking in your spouse's

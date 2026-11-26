@@ -263,6 +263,9 @@ I18N.helpText({
       <ul>
         <li><b>Personnes :</b> chacun se connecte avec son propre nom d'utilisateur et mot de passe. Les administrateurs ajoutent
           des connexions et réinitialisent les mots de passe.</li>
+        <li><b>Courriel de bienvenue :</b> avec le courriel configuré (Paramètres › Notifications), ajouter quelqu'un peut lui envoyer une bienvenue :
+          qui l'a ajouté, son nom d'utilisateur, les adresses pour ouvrir MoneyThistle, ce qu'il ou elle peut voir, et un lien pour choisir
+          son propre mot de passe (il fonctionne une fois, pendant 3 jours). <b>Envoyer une bienvenue</b> dans la liste la renvoie.</li>
         <li><b>Environnements</b> : des ensembles de comptes distincts (Personnel, Entreprise, Beaux-parents…). Seuls les membres en
           voient un. Les propriétaires ajoutent des membres comme propriétaire, rédacteur (peut modifier) ou lecteur (consulte
           seulement). Changez en haut à droite.</li>

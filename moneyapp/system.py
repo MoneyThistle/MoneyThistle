@@ -432,10 +432,10 @@ class System:
     # ----- forgotten passwords ------------------------------------------------------
     RESET_MINUTES = 30
 
-    def start_reset(self, username):
+    def start_reset(self, username, minutes=None):
         """A one-time link token for someone who forgot their password: (user, token), or
         None when there's no such person, they have no email address, or they've asked
-        three times in the last hour."""
+        three times in the last hour. A welcome email's link lasts longer (minutes)."""
         u = self.q1("SELECT id, username, display_name, email FROM users WHERE username=?", ((username or "").strip(),))
         if not u or not u["email"]:
             return None
@@ -447,7 +447,7 @@ class System:
                 return None
             token = secrets.token_urlsafe(32)
             self.db.execute("INSERT INTO password_resets(token_hash,user_id,created,expires) VALUES(?,?,?,?)",
-                            (self._th(token), u["id"], now, now + self.RESET_MINUTES * 60))
+                            (self._th(token), u["id"], now, now + (minutes or self.RESET_MINUTES) * 60))
             self.db.commit()
         return u, token
 
