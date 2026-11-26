@@ -72,7 +72,7 @@ and double-click it. It brings its own private copy of Python (it never touches 
 installs for you only (no administrator rights), adds MoneyThistle to the Start menu and to
 *Settings → Apps → Installed apps* (with Uninstall), and opens it in the browser to set up.
 
-Until the setup is code-signed, Windows may say *"Windows protected your PC"* the first time:
+Until the setup is code-signed, Windows may say **"Windows protected your PC"** the first time:
 choose **More info → Run anyway**.
 
 Your money data is never touched by installing, updating or uninstalling (uninstall asks whether
@@ -80,29 +80,41 @@ to delete it, and suggests No).
 
 ### Unraid
 
-MoneyThistle runs from a ready-made image, `ghcr.io/moneythistle/moneythistle`, so nothing is
-copied to the server by hand. Until it's listed in Community Applications, add its template once:
+MoneyThistle is in Community Applications, and runs from a ready-made image,
+`ghcr.io/moneythistle/moneythistle`, so nothing is copied to the server by hand.
 
-1. Open the Unraid terminal (the `>_` icon) and run:
+1. **Apps** tab, search for **MoneyThistle**, and click **Install**.
+2. Check the settings, then **Apply**:
+   - **Web UI port:** 8080, unless another app is already using it.
+   - **Money data:** `/mnt/user/appdata/moneythistle/data`
+   - **Backups folder:** `/mnt/user/appdata/moneythistle/backups`
+   - **Time zone:** set yours (for example `America/Chicago` or
+     `Europe/Berlin`). It starts as `America/New_York`, and it decides
+     "today" for bills due and the budget month, so do not skip it.
 
-   ```
-   wget -O /boot/config/plugins/dockerMan/templates-user/my-MoneyThistle.xml https://raw.githubusercontent.com/MoneyThistle/MoneyThistle/main/unraid/moneythistle.xml
-   ```
-
-2. **Docker → Add Container**, choose **MoneyThistle** under *Template*, check the port, the two
-   folders and the time zone, and **Apply**. To choose other folders with Unraid's folder browser,
-   empty the box first, then click it: in newer Unraid versions the browser can't open a folder that doesn't exist yet
-   (it shows *Root filesystem directory not set*). The folders are made on Apply.
-3. Open `http://TOWER:8080` from any device on your network, or over Tailscale with the server's
-   Tailscale name, e.g. `http://tower.your-tailnet.ts.net:8080`. The first visit creates the
-   administrator's sign-in (do that right away); everything else, such as people, Nextcloud
-   backups, notifications and language, is set up in the app.
+   To choose other folders with Unraid's folder browser, empty the box first,
+   then click it: in newer Unraid versions the browser can't open a folder
+   that doesn't exist yet (it shows *Root filesystem directory not set*).
+   The folders are made on Apply.
+3. Open `http://TOWER:8080` from any device on your network, or over Tailscale
+   with the server's Tailscale name, e.g. `http://tower.your-tailnet.ts.net:8080`.
+   The first visit creates the administrator's sign-in (do that right away);
+   everything else, such as people, Nextcloud backups, notifications and
+   language, is set up in the app.
 
 Your money file is in `/mnt/user/appdata/moneythistle/data` and local backups in
 `/mnt/user/appdata/moneythistle/backups`, owned by `nobody:users` like other Unraid apps.
 
 If Unraid ends with *No such container: MoneyThistle*, the image couldn't be downloaded (the lines
 above it say why, for example *denied*): check that the server can reach `ghcr.io`, then Apply again.
+
+**Manual install, without Community Applications:** open the Unraid terminal
+(the `>_` icon), add the template once, then follow steps 2 and 3 above,
+choosing **MoneyThistle** under *Template* at **Docker → Add Container**:
+
+```
+wget -O /boot/config/plugins/dockerMan/templates-user/my-MoneyThistle.xml https://raw.githubusercontent.com/MoneyThistle/MoneyThistle/main/unraid/moneythistle.xml
+```
 
 ### Docker and Docker Compose
 
@@ -137,14 +149,14 @@ version number, nothing about you or your money, and you can turn this off under
 **Settings → This computer → Updates**. When there is one, administrators see a note on Home.
 
 - **Windows:** **Update now** downloads the new setup, checks it against the checksum published
-  with the release, and installs it: MoneyThistle saves, backs up, updates and starts again by
-  itself. Tick *Install new versions by itself* to skip the click.
+with the release, and installs it: MoneyThistle saves, backs up, updates and starts again by
+itself. Tick *Install new versions by itself* to skip the click.
 - **Unraid:** the Docker tab shows *update ready* for MoneyThistle; click it. An auto-update
-  plugin can do that for you. To stay on one version, change the template's *Repository* from
-  `:latest` to a version, like `ghcr.io/moneythistle/moneythistle:1.0.0` (exactly that version)
-  or `:1.0` (that version and its fixes).
+plugin can do that for you. To stay on one version, change the template's *Repository* from
+`:latest` to a version, like `ghcr.io/moneythistle/moneythistle:1.0.0` (exactly that version)
+or `:1.0` (that version and its fixes).
 - **Docker Compose:** `docker compose pull && docker compose up -d`. Pin a version the same way,
-  in `docker-compose.yml`.
+in `docker-compose.yml`.
 - **macOS and Linux:** replace the folder's files with the new version's, then restart.
 
 Your data is kept through every update.
@@ -159,8 +171,8 @@ also set a new password under People. If you're the only administrator and can't
 computer or server MoneyThistle runs on (being able to do that proves it's yours):
 
 ```
-python main.py --reset-password YOUR-USER-NAME                                 # in the MoneyThistle folder
-docker exec -it moneythistle python main.py --reset-password YOUR-USER-NAME   # Docker / Unraid
+python main.py --reset-password YOUR-USER-NAME                                  # in the MoneyThistle folder
+docker exec -it moneythistle python main.py --reset-password YOUR-USER-NAME    # Docker / Unraid
 python main.py --list-users                                                    # the user names
 ```
 
@@ -182,15 +194,15 @@ first sign-in in the browser (or give it as `APP_USERNAME` / `APP_PASSWORD`); it
 administrator and the owner of the first money file, the "Personal" environment.
 
 - **People** (administrators): add sign-ins, reset passwords, make someone an administrator.
-- **Environments**: separate sets of accounts (Personal, Business, In-laws...). Only members see
-  one. Owners add members as owner, editor (can change things) or viewer (can only look).
-- **Shared accounts**: show one account in another environment too (for example your checking in
-  your spouse's personal environment): one register, one balance, seen in both. View only, or
-  entering transactions as well; optionally with its bills & deposits ("Share related Bills &
-  Deposits"), so bills added on either side show on both. An owner of the other side approves.
-- **Connections**: to move money between environments (personal checking -> business checking),
-  an owner of one side asks and an owner of the other side approves and picks the account. Then
-  "Transfer to ..." in either register fills in the other side. Either owner can end it.
+- **Environments:** separate sets of accounts (Personal, Business, In-laws…). Only members see
+one. Owners add members as owner, editor (can change things) or viewer (can only look).
+- **Shared accounts:** show one account in another environment too (for example your checking in
+your spouse's personal environment): one register, one balance, seen in both. View only, or
+entering transactions as well; optionally with its bills & deposits ("Share related Bills &
+Deposits"), so bills added on either side show on both. An owner of the other side approves.
+- **Connections:** to move money between environments (personal checking -> business checking),
+an owner of one side asks and an owner of the other side approves and picks the account. Then
+"Transfer to …" in either register fills in the other side. Either owner can end it.
 
 Backups hold everything (all environments and sign-ins) in one zip. Over plain `http` on your own
 network and Tailscale (which is encrypted) this is fine; don't forward the port to the internet.
@@ -214,11 +226,11 @@ be restored from the Backups page.
 ### Starting over from a backup (lost computer, new server)
 
 1. Install MoneyThistle as usual. Don't create a sign-in.
-2. Open it: under *Set up MoneyThistle* choose **Start from a backup instead**, then pick a backup
-   file (`money-….zip` / `.zip.enc` + its backup password) or enter your Nextcloud backup folder and
-   choose one of its backups.
+2. Open it: under **Set up MoneyThistle** choose **Start from a backup instead**, then pick a backup
+file (`money-….zip` / `.zip.enc` + its backup password) or enter your Nextcloud backup folder and
+choose one of its backups.
 3. Sign in as before. Set again what belongs to the computer: notifications, other devices, start-up
-   (and the Nextcloud connection if you restored from a file).
+(and the Nextcloud connection if you restored from a file).
 
 Without a browser: stop MoneyThistle, run `python main.py --restore money-….zip.enc` (it asks for
 the backup password, or set `BACKUP_PASSWORD`), then start it.
