@@ -43,6 +43,15 @@ it. Keep the screens simple by default (the "Simple" view folds extras under "Mo
 
 Run the tests after every change and add a test for each new behaviour (`tests/test_app.py`).
 
+## Security
+
+Read `SECURITY.md` (what the app promises). When adding a route: the default scope `env` checks
+the person's role in the environment; `user` and `public` routes must check ownership themselves.
+`test_every_route_keeps_environments_apart` tries every route as outsiders and must keep passing:
+if a new route takes ids, add its kind to that test's `ids` map. The page's Content-Security-Policy
+(`CSP` in `server.py`) allows only the app's own scripts: no inline `<script>` or `onclick=`
+attributes in the screens; wire events in JavaScript.
+
 ## Data safety
 
 - Never open, change or delete the person's real data folder (`data/`, or wherever their install

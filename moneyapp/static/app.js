@@ -5157,7 +5157,8 @@ async function render() {
     if (S.pageOld && !q("#reloadNote")) {
       view().insertAdjacentHTML("afterbegin", `<div class="notice" id="reloadNote" style="display:flex;align-items:center;gap:10px">
         <span style="flex:1">MoneyThistle was updated while this page was open. Reload it to use the new version.</span>
-        <button class="small primary" onclick="location.reload()">Reload</button></div>`);
+        <button class="small primary" id="reloadNow">Reload</button></div>`);
+      q("#reloadNow").onclick = () => location.reload();   // (no inline handlers: the page's security policy allows only its own scripts)
     }
   } catch (e) {
     if (e instanceof NeedSignIn) {

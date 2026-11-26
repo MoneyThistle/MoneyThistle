@@ -3,6 +3,21 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.3 (2026-11-25)
+
+Security hardening (see the new SECURITY.md):
+
+- Changes are refused unless the browser says they come from MoneyThistle's own page (on top of
+  the header other websites can't send).
+- The page carries a Content-Security-Policy: the browser runs only MoneyThistle's own scripts,
+  loads only its own files and won't show it inside another site.
+- The limit on wrong passwords (10 per address in 10 minutes) now lasts through a restart.
+- A new automated test tries every one of the server's routes as someone signed out, someone
+  outside the environment, someone with one shared account and a viewer, and checks nothing
+  private is shown or changed.
+- SECURITY.md: what MoneyThistle protects against, what it doesn't, and how to report a problem
+  privately.
+
 ## 1.0.2 (2026-11-25)
 
 - A small coffee cup in the top bar and one quiet line at the bottom of the page (a different one

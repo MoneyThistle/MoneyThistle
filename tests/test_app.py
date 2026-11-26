@@ -805,6 +805,170 @@ DATA:OFXSGML
         a.call("POST", "/api/history/undo", {"op": ops[0]["op"]})   # the skip
         self.assertEqual(h.q1("SELECT next_date FROM bills WHERE id=?", (bid,))["next_date"], "2026-12-05")
 
+    def test_every_route_keeps_environments_apart(self):
+        """Every route the server has, tried by someone who must not get through: not signed
+        in, signed in but not a member, holding one shared account, and a viewer. A private
+        account is marked SECRETB everywhere (its name, entries, bill, receipt): no answer
+        to anyone outside may contain it, and nothing of it may change."""
+        app, base = self._serve()
+        alex = Client(base)
+        alex.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        today = dt.date.today().isoformat()
+        a1 = alex.call("POST", "/api/accounts", {"name": "Open Checking", "type": "Checking", "opening_balance": "100"}, env=1)["id"]
+        a2 = alex.call("POST", "/api/accounts", {"name": "SECRETB Savings", "type": "Savings", "opening_balance": "5000"}, env=1)["id"]
+        tx_b = alex.call("POST", "/api/transactions", {"account_id": a2, "amount": "-12.34", "payee": "SECRETB payee",
+                                                       "memo": "SECRETB memo"}, env=1)["id"]
+        alex.call("POST", "/api/transactions", {"account_id": a1, "amount": "-5", "payee": "Corner shop"}, env=1)
+        bill_b = alex.call("POST", "/api/bills", {"kind": "bill", "payee": "SECRETB bill", "account_id": a2, "amount": "9",
+                                                  "frequency": "Monthly", "next_date": today}, env=1)["id"]
+        att_b = alex.call("POST", f"/api/transactions/{tx_b}/attachments",
+                          {"name": "SECRETB.txt", "data": base64.b64encode(b"%PDF-1 SECRETB").decode()}, env=1)
+        att_b = (att_b.get("id") or (att_b.get("ids") or [0])[0]) if isinstance(att_b, dict) else 0
+        a3 = alex.call("POST", "/api/loans", {"name": "SECRETB Loan", "original_amount": "1000", "apr": "5",
+                                              "payments_per_year": 12, "num_payments": 12, "first_payment": today}, env=1)["id"]
+        for who, pw in (("eve", "eve-pass-123"), ("vic", "vic-pass-123")):
+            alex.call("POST", "/api/users", {"username": who, "password": pw})
+        alex.call("PUT", "/api/envs/1/members", {"username": "vic", "role": "viewer"})
+        eve, vic, anon = Client(base), Client(base), Client(base)
+        eve.call("POST", "/api/login", {"username": "eve", "password": "eve-pass-123"})
+        vic.call("POST", "/api/login", {"username": "vic", "password": "vic-pass-123"})
+        hers = eve.call("POST", "/api/envs", {"name": "Eve's home"})["id"]
+        sid = alex.call("POST", "/api/shares", {"env_id": 1, "account_id": a1, "to_user": "eve", "access": "edit",
+                                                "include_bills": True})["id"]
+        eve.call("POST", f"/api/shares/{sid}/approve", {"env_id": hers})
+
+        def snapshot():
+            accts = [{k: a[k] for k in ("id", "name", "balance", "closed")} for a in alex.call("GET", "/api/accounts", env=1)
+                     if a["id"] in (a2, a3)]
+            return json.dumps([accts, alex.call("GET", f"/api/transactions?account={a2}", env=1),
+                               [b for b in alex.call("GET", "/api/bills", env=1)["bills"] if b.get("account_id") == a2],
+                               alex.call("GET", f"/api/transactions/{tx_b}/attachments", env=1),
+                               {k: v for k, v in alex.call("GET", f"/api/loans/{a3}", env=1).items() if k in ("owed", "payment", "apr")},
+                               [(e["id"], e["name"], e["members"]) for e in alex.call("GET", "/api/me")["envs"]],
+                               alex.call("GET", "/api/categories", env=1)], sort_keys=True, default=str)
+        before = snapshot()
+        ids = {"accounts": a2, "transactions": tx_b, "bills": bill_b, "attachments": att_b or 1, "loans": a3,
+               "envs": 1, "members": 1, "users": 1, "shares": sid, "links": 1, "group": 1, "categories": 1,
+               "paystubs": 1, "transaction": tx_b}
+        body = {"name": "x", "payee": "x", "amount": "1", "date": today, "account_id": a2, "to_account_id": a2,
+                "env_id": 1, "username": "eve", "role": "owner", "confirm": "Personal", "access": "edit",
+                "to_user": "eve", "kind": "bill", "frequency": "Monthly", "next_date": today, "status": "R",
+                "data": base64.b64encode(b"%PDF-1").decode(), "value": "1", "balance": "1"}
+
+        def path_of(rx):
+            parts, out = rx.pattern.strip("^$").replace("\\.", ".").split("/"), []
+            for i, p in enumerate(parts):
+                if p == "(\\d+)":
+                    p = str(ids.get(parts[i - 1], ids.get(parts[i - 2], 1)))
+                elif p == "(transaction|bill)":
+                    p = "transaction"
+                out.append(p)
+            return "/".join(out)
+
+        def ask(c, method, path, env=None, share=None):
+            h = {"X-HomeLedger": "1", "Content-Type": "application/json"}
+            if env:
+                h["X-HomeLedger-Env"] = str(env)
+            if share:
+                h["X-HomeLedger-Share"] = str(share)
+            if method == "GET":
+                path += ("&" if "?" in path else "?") + f"account={a2}&id={a2}&env=1"
+            req = urllib.request.Request(base + path, method=method, headers=h,
+                                         data=None if method in ("GET", "DELETE") else json.dumps(body).encode())
+            try:
+                with c.opener.open(req) as r:
+                    return r.status, r.read().decode("utf-8", "replace")
+            except urllib.error.HTTPError as e:
+                return e.code, ""
+
+        skip = {"/api/logout", "/api/me"}            # (would sign the tester out or change them)
+        routes = [(m, path_of(rx), scope, share) for m, rx, fn, scope, share in app.routes]
+        self.assertGreater(len(routes), 100)
+        problems = []
+        for m, p, scope, share in routes:
+            if p in skip:
+                continue
+            # Not signed in: only the public routes answer.
+            if scope != "public":
+                st, _ = ask(anon, m, p, env=1)
+                if st != 401:
+                    problems.append(f"signed out {m} {p} -> {st}")
+            # Signed in, but not a member of environment 1.
+            st, text = ask(eve, m, p, env=1)
+            if scope in ("env", "admin") and st != 403:
+                problems.append(f"outsider {m} {p} -> {st}")
+            if "SECRETB" in text:
+                problems.append(f"outsider {m} {p} shows the private account")
+            # Through the one account shared with her: never the rest of the environment.
+            if scope == "env":
+                st, text = ask(eve, m, p, env=1, share=sid)
+                if share is None and st != 403:
+                    problems.append(f"shared account {m} {p} -> {st}")
+                if "SECRETB" in text:
+                    problems.append(f"shared account {m} {p} shows the private account")
+            # A viewer of environment 1: may look, never change.
+            st, _ = ask(vic, m, p, env=1)
+            if scope == "admin" and st != 403:
+                problems.append(f"viewer {m} {p} -> {st}")
+            if scope == "env" and m != "GET" and st != 403:
+                problems.append(f"viewer {m} {p} -> {st}")
+        self.assertEqual(problems, [])
+        self.assertEqual(snapshot(), before)          # nothing of the private account changed
+        # The CSV export (its own route): not for outsiders.
+        self.assertEqual(eve.status("GET", f"/api/export.csv?account={a2}", env=1), 403)
+        self.assertEqual(anon.status("GET", "/api/export.csv", env=1), 401)
+
+    def test_other_websites_and_page_policy(self):
+        from moneyapp.server import same_site_request
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+
+        def post(headers):
+            h = {"X-HomeLedger": "1", "X-HomeLedger-Env": "1", "Content-Type": "application/json", **headers}
+            req = urllib.request.Request(base + "/api/accounts", method="POST", headers=h,
+                                         data=json.dumps({"name": "X", "type": "Checking"}).encode())
+            try:
+                with c.opener.open(req) as r:
+                    return r.status
+            except urllib.error.HTTPError as e:
+                return e.code
+        host = base.split("//")[1]
+        self.assertEqual(post({"Sec-Fetch-Site": "cross-site"}), 403)
+        self.assertEqual(post({"Origin": "https://evil.example"}), 403)
+        self.assertEqual(post({"Origin": "null"}), 403)
+        self.assertEqual(post({"Sec-Fetch-Site": "same-origin", "Origin": base}), 200)
+        self.assertEqual(post({"Origin": "http://" + host}), 200)
+        # Behind a reverse proxy that changes Host: the address people use comes as X-Forwarded-Host.
+        self.assertTrue(same_site_request({"Origin": "https://money.home.lan", "Host": "127.0.0.1:8080",
+                                           "X-Forwarded-Host": "money.home.lan"}))
+        self.assertFalse(same_site_request({"Origin": "https://money.home.lan.evil.example", "Host": "money.home.lan"}))
+        # The page itself: only its own scripts, never inside another site.
+        with urllib.request.urlopen(base + "/") as r:
+            csp = r.headers.get("Content-Security-Policy") or ""
+        self.assertIn("script-src 'self'", csp)
+        self.assertIn("frame-ancestors 'none'", csp)
+        self.assertNotIn("unsafe-eval", csp)
+        # No inline scripts or handlers in the page or its screens (the policy would block them).
+        static = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "moneyapp", "static")
+        with open(os.path.join(static, "index.html"), encoding="utf-8") as f:
+            self.assertNotRegex(f.read(), r"<script>|\son[a-z]+=")
+        with open(os.path.join(static, "app.js"), encoding="utf-8") as f:
+            self.assertNotRegex(f.read(), r"""\son(click|change|input|load|error|submit)=["']""")
+
+    def test_sign_in_limit_survives_a_restart(self):
+        from moneyapp import system as sysmod
+        uid = self.system.create_user("alex", "correct-horse", "Alex", True)
+        for _ in range(sysmod.LOGIN_TRIES):
+            with self.assertRaises(ApiError):
+                self.system.login("alex", "wrong", addr="10.0.0.9")
+        again = System(self.dir)                    # MoneyThistle started again
+        with self.assertRaises(ApiError) as e:
+            again.login("alex", "correct-horse", addr="10.0.0.9")
+        self.assertEqual(e.exception.status, 429)
+        self.assertTrue(again.login("alex", "correct-horse", addr="10.0.0.10"))   # another address is fine
+        self.assertTrue(uid)
+
     def test_coffee_cup_switches(self):
         # Shown by default; each person can hide it for themselves; an administrator for everyone.
         app, base = self._serve()

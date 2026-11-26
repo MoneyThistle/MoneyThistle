@@ -90,6 +90,8 @@ CREATE TABLE IF NOT EXISTS backup_log (
 
 SESSION_DAYS = 30
 IDLE_MINUTES = 60      # a sign-in not kept on the device ends after this long unused
+LOGIN_TRIES = 10       # wrong passwords from one address...
+LOGIN_WINDOW = 600     # ...within this many seconds, then it must wait
 PBKDF2_ROUNDS = 200_000
 
 
@@ -130,7 +132,6 @@ class System:
         self._auto_ran = {}   # environment -> when automatic items were last recorded
         self._dirty = None
         self._last = None
-        self._fail = {}  # sign-in failures per address
         self._open()
 
     # ----- files ----------------------------------------------------------
@@ -162,6 +163,8 @@ class System:
                         "created REAL NOT NULL, expires REAL NOT NULL)")
         # Choices an administrator makes for everyone on this MoneyThistle (key -> text).
         self.db.execute("CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        # Wrong passwords per address, recently (to slow down guessing; see login).
+        self.db.execute("CREATE TABLE IF NOT EXISTS login_failures (addr TEXT NOT NULL, t REAL NOT NULL)")
         if not self.q1("SELECT 1 FROM environments"):
             # The money file that existed before environments becomes "Personal".
             self.db.execute("INSERT INTO environments(name,file,created) VALUES('Personal','money.db',?)", (_now(),))
@@ -482,16 +485,26 @@ class System:
 
     # ----- signing in -----------------------------------------------------------
     def login(self, username, password, addr="?", remember=True):
-        fails = [t for t in self._fail.get(addr, []) if time.time() - t < 600]
-        if len(fails) >= 10:
+        # Guessing is slowed down: each wrong try waits, and after LOGIN_TRIES wrong tries from
+        # one address in LOGIN_WINDOW seconds that address must wait. The count is kept in
+        # system.db, so restarting MoneyThistle doesn't reset it.
+        now = time.time()
+        with self.lock:
+            self.db.execute("DELETE FROM login_failures WHERE t < ?", (now - LOGIN_WINDOW,))
+            n = self.db.execute("SELECT COUNT(*) FROM login_failures WHERE addr=?", (addr,)).fetchone()[0]
+            self.db.commit()
+        if n >= LOGIN_TRIES:
             raise ApiError("Too many tries. Wait a few minutes.", 429)
         u = self.q1("SELECT * FROM users WHERE username=?", (username or "",))
         if not u or not check_password(password or "", u["pw_hash"]):
-            fails.append(time.time())
-            self._fail[addr] = fails
+            with self.lock:
+                self.db.execute("INSERT INTO login_failures(addr,t) VALUES(?,?)", (addr, now))
+                self.db.commit()
             time.sleep(0.5)
             raise ApiError("Wrong user name or password", 401)
-        self._fail.pop(addr, None)
+        with self.lock:
+            self.db.execute("DELETE FROM login_failures WHERE addr=?", (addr,))
+            self.db.commit()
         token = secrets.token_urlsafe(32)
         with self.lock:
             self.db.execute("DELETE FROM sessions WHERE expires < ?", (time.time(),))

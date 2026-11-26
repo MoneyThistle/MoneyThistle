@@ -50,6 +50,9 @@ so nobody mistakes it for MoneyThistle (saying it's "based on MoneyThistle" is w
 
 ## Keep it off the public internet
 
+(What MoneyThistle protects against, what it doesn't, and how to report a problem privately:
+[SECURITY.md](SECURITY.md).)
+
 **Never expose MoneyThistle to the public internet** (no port forwarding on your router, no public
 reverse proxy). Use it only on your home network (LAN) or through a private VPN such as Tailscale.
 It has sign-in, but it is not built or tested to withstand attacks from the internet, and nobody

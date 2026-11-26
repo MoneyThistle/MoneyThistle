@@ -33,6 +33,30 @@ STATIC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 mimetypes.add_type("application/manifest+json", ".webmanifest")   # the home-screen app description
 COOKIE = "hl_session"
 RAW_UPLOADS = ("/api/setup/restore-upload", "/api/backup/restore-upload")   # bodies that are files
+# The page may run only MoneyThistle's own scripts, load only its own files (pictures may
+# also be in-page data, like a receipt being added), talk only to its own server, and can't
+# be shown inside another site. A backstop: if a bug ever let someone slip code into a page,
+# the browser still refuses to run it. (Inline style attributes are allowed: they can't run code.)
+CSP = ("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+       "font-src 'self' data:; connect-src 'self'; frame-src 'self' blob:; worker-src 'self' blob:; "
+       "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
+
+
+def same_site_request(headers):
+    """A change comes from MoneyThistle's own page, as far as the browser says: its Sec-Fetch-Site
+    (sent by current browsers, whatever proxy is in front) is same-origin, or, from older browsers,
+    its Origin is this server's own address. Requests without either (scripts, older clients)
+    still need the X-HomeLedger header, which other sites' pages can't send."""
+    site = (headers.get("Sec-Fetch-Site") or "").lower()
+    if site:
+        return site in ("same-origin", "none")
+    origin = headers.get("Origin")
+    if not origin:
+        return True
+    host = urllib.parse.urlsplit(origin).netloc.lower()
+    allowed = {(headers.get("Host") or "").lower()} | {h.strip().lower() for h in
+                                                      (headers.get("X-Forwarded-Host") or "").split(",") if h.strip()}
+    return bool(host) and host in allowed
 
 
 class Raw:
@@ -1683,6 +1707,9 @@ def make_handler(app):
             # websites can't send without the server's permission.
             if method != "GET" and self.headers.get("X-HomeLedger") != "1":
                 return self._json(403, {"error": "Not allowed"})
+            # ...and from a page on this server, not another website (a second check).
+            if method != "GET" and not same_site_request(self.headers):
+                return self._json(403, {"error": "Not allowed from another website"})
             # A link to a file (a receipt opened in a new tab) can't send headers: its
             # shared account comes in the address instead, for reading only.
             ctx.q_share = q.get("share") if method == "GET" else None
@@ -1794,10 +1821,11 @@ def make_handler(app):
             if not full.startswith(STATIC) or not os.path.isfile(full):
                 full = os.path.join(STATIC, "index.html")
             ctype = mimetypes.guess_type(full)[0] or "application/octet-stream"
+            extra = {"Content-Security-Policy": CSP} if ctype == "text/html" else None
             if ctype.startswith("text/") or ctype.endswith("javascript"):
                 ctype += "; charset=utf-8"
             with open(full, "rb") as f:
-                self._send(200, f.read(), ctype)
+                self._send(200, f.read(), ctype, extra)
 
         def do_GET(self):
             self._dispatch("GET")
