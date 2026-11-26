@@ -200,7 +200,10 @@ const HELP = {
       <p>To set up your schedule again, open a register and click a bill, paycheck or transfer that repeats, then <b>Schedule…</b>.
       It fills in a new scheduled item from that entry: the payee, account, category and amount, and how often and the next
       date from the same payee's other entries in that account (an amount that changes is set to vary, at its average).
-      Check it and save.</p>` },
+      Check it and save.</p>
+      <p>A loan or mortgage comes across as a plain loan account, without its rate and payment. Open it and choose
+      <b>Set up loan details…</b>: they're filled in from its payments (check them against a statement), and then it has its
+      payment schedule, payoff date and <b>What if…</b>. Its register and balance stay as they are.</p>` },
     { id: "history", title: "Change history and undo", tab: "history", body: `
       <p>MoneyThistle records every entry, scheduled item, account, category and budget amount that's added, changed or
       deleted: who did it, when, in which environment, and how it looked before and after. It's kept for a year and is

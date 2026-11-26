@@ -1403,6 +1403,8 @@ async function editLoan(acc, presetName, preset) {
     payment_mode: "calc", payment: 0, escrow: 0, escrow_category_id: null, escrow_account_id: null,
     interest_category_id: null, pay_from_account_id: (S.accounts.find(a => a.type === "Checking") || {}).id, payee: "" }, preset || {});
   const name = acc ? acc.name : (presetName || "");
+  // An existing account getting loan terms (brought in from another program): its register stays.
+  const converting = !!(acc && !info);
   const catId = full => (S.cats.find(c => c.full_name === full) || {}).id;
   const intCat = L.interest_category_id || (/mortgage|home|house/i.test(name) ? catId("Loan : Mortgage Interest") : catId("Loan : Loan Interest"));
   const escrowVal = L.escrow_account_id ? "a:" + L.escrow_account_id : (L.escrow_category_id ? "c:" + L.escrow_category_id : "");
@@ -1431,11 +1433,14 @@ async function editLoan(acc, presetName, preset) {
     ${autoFields(info && info.bill ? info.bill : {})}
   </div>
   <div class="notice" id="loanPrev" style="margin:12px 0 0">Fill in the amount, rate and number of payments.</div>
-  <p class="small muted" style="margin-bottom:0">A loan that started a while ago: enter its original terms and first payment date; the balance owed now
+  ${converting ? `<p class="small muted" style="margin-bottom:0">Worked out from this account's register (${(preset && preset.found_payments) || 0} payments):
+  check each one against a statement. A payment found there may include escrow; if so, put the escrow part in "Escrow per payment"
+  and lower the payment. The register and its balance stay as they are; leave "Balance owed now" empty to keep it.</p>`
+  : `<p class="small muted" style="margin-bottom:0">A loan that started a while ago: enter its original terms and first payment date; the balance owed now
   is worked out from the schedule. If your statement says something different, type that amount in "Balance owed now".
-  ${info ? "Leave it empty to keep the current balance." : ""}</p>`;
+  ${info ? "Leave it empty to keep the current balance." : ""}</p>`}`;
   const btns = [{ label: "Cancel" }];
-  if (acc) btns.unshift({ label: "Delete loan", cls: "danger", action: async () => {
+  if (info) btns.unshift({ label: "Delete loan", cls: "danger", action: async () => {
     if (!(await confirmBox(`Delete "${acc.name}" and its history? Payments already recorded in other accounts stay there.`))) return false;
     await api("DELETE", "/api/accounts/" + acc.id); await loadBasics(); location.hash = "#/accounts"; render(); } });
   const collect = root => {
@@ -1455,7 +1460,7 @@ async function editLoan(acc, presetName, preset) {
     if (saved.bill) await api("PUT", `/api/bills/${saved.bill.id}/auto`, { auto: f.auto, auto_enter: f.auto_enter });
     await loadBasics(); location.hash = "#/accounts/" + r.id; render(); toast("Loan saved");
   } });
-  const p = dialog(acc ? "Loan details" : "New loan", body, btns);
+  const p = dialog(converting ? "Set up loan details" : (acc ? "Loan details" : "New loan"), body, btns);
   const root = q("#dlgBody");
   wireAutoFields();
   let timer;
@@ -1473,7 +1478,8 @@ async function editLoan(acc, presetName, preset) {
         q("#loanPrev").className = "notice ok";
         q("#loanPrev").innerHTML = `Each payment: <b>${fmt(pv.payment + escrow, true)}</b>
           (${fmt(pv.payment, true)} principal &amp; interest${escrow ? ` + ${fmt(escrow, true)} escrow` : ""}).
-          ${pv.payments_made ? `${pv.payments_made} of ${pv.num_payments} payments already made; owed now about <b>${fmt(pv.balance_now, true)}</b>.` : `Owed: <b>${fmt(pv.balance_now, true)}</b>.`}
+          ${converting && !f.balance_now ? `Owed now, from this account's register: <b>${fmt(Math.abs(acc.balance), true)}</b>.`
+            : (pv.payments_made ? `${pv.payments_made} of ${pv.num_payments} payments already made; owed now about <b>${fmt(pv.balance_now, true)}</b>.` : `Owed: <b>${fmt(pv.balance_now, true)}</b>.`)}
           Next payment ${niceDate(pv.next_payment_date)}.`;
       } catch (e) { q("#loanPrev").className = "notice err"; q("#loanPrev").textContent = e.message; }
     }, 250);
@@ -2277,7 +2283,10 @@ async function renderAccounts(id, sub) {
     <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>
       ${acc.reconciled_date ? `<span class="muted">Last balanced ${niceDate(acc.reconciled_date)} at ${fmt(acc.reconciled_balance, true)}</span>` : ""}</div>
     ${accountDetailsLine(acc)}
-    ${loan ? loanCard(loan) : ""}
+    ${loan ? loanCard(loan) : (acc.type === "Loan" && canEdit() && !acc._shared ? `<div class="notice" style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="flex:1;min-width:240px">This loan has no payment details yet (an account brought in from another program starts this way).
+      Add its rate and payment to see its payment schedule, payoff date and what-if payments. Its register and balance stay as they are.</span>
+      <button class="small primary" id="loanSetup">Set up loan details…</button></div>` : "")}
     <div class="card flush"><div class="register"><table id="reg">
       <tr><th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
       ${registerRows(rows)}
@@ -2319,6 +2328,7 @@ async function renderAccounts(id, sub) {
   qa("tr[data-group]").forEach(r => r.onclick = () => r.dataset.paystub
     ? paystubDialog(acc, +r.dataset.group, () => renderAccounts(id, { q: search }))
     : groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search }), acc));
+  if (q("#loanSetup")) q("#loanSetup").onclick = async () => editLoan(acc, null, await GET(`/api/loans/${acc.id}/suggest`));
   if (loan) {
     q("#loanPay").onclick = () => payLoan(acc.id, loan.bill ? { ...loan.bill, date: loan.bill.next_date } : null);
     q("#loanSched").onclick = () => { const w = q("#schedWrap"); w.style.display = w.style.display === "none" ? "" : "none"; };

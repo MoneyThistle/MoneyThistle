@@ -3,8 +3,13 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.4 (not released yet)
+## 1.0.4 (2026-11-26)
 
+- A loan or mortgage brought in from another program (a plain loan account, without a rate or
+  payment) now says so in its register and offers **Set up loan details…**, filled in from its own
+  payments: rate, lender, payment, how often and the paying account. Then it has its Loan card,
+  payment schedule, **Make a payment** and **What if…**; its register and balance stay as they are.
+- Saving a loan's details no longer clears the account's notes, favorite or closed mark.
 - In a register, entries dated after today have a bar on the left and a soft shade (amber in the
   light look, grey in the dark), so the past and the future are easy to tell apart.
 - Behind the scenes: **Schedule…** (from a register entry) and the payment a loan's **What if…**

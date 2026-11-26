@@ -14,10 +14,11 @@ cent; the fixed payment uses the standard amortization formula.
 
 import datetime as dt
 
-from .store import ApiError, next_occurrence, parse_date, to_cents
+from .store import ApiError, guess_frequency, next_occurrence, parse_date, to_cents
 
 FREQ_BY_PPY = {1: "Yearly", 2: "Twice a year", 4: "Every three months", 6: "Every other month",
                12: "Monthly", 24: "Twice a month", 26: "Every other week", 52: "Weekly"}
+PPY_BY_FREQ = {v: k for k, v in FREQ_BY_PPY.items()}
 
 
 def period_rate(apr, ppy):
@@ -239,6 +240,10 @@ def save(store, data, aid=None):
                 "favorite": data.get("favorite"), "closed": data.get("closed")}
         if aid:
             old = store.account(aid)
+            # (what the loan form doesn't ask about stays as it was: notes, favorite, closed)
+            for k in ("notes", "favorite", "closed"):
+                if k not in data:
+                    acct[k] = old.get(k)
             keep_opening = data.get("balance_now") in (None, "")
             acct["opening_balance"] = f"{(old['opening_balance'] if keep_opening else -owed_now) / 100:.2f}"
             acct["opening_date"] = old["opening_date"] if keep_opening else as_of.isoformat()
@@ -275,6 +280,49 @@ def _sync_bill(store, aid, t, next_date):
         store.db.execute("INSERT INTO bills(kind,payee,account_id,amount,frequency,next_date,anchor_day,"
                          "loan_account_id,memo) VALUES('loan',?,?,?,?,?,?,?,'')",
                          vals[:4] + (next_date.isoformat(), vals[4], aid))
+
+
+def suggest(store, aid, today=None):
+    """Loan terms for a loan account that has none yet (brought in from another program),
+    worked out from its own register: the rate from its details, the lender, the payments
+    (each one whole: when the money came as part of a split payment, the whole payment), how
+    often, where they come from, and the first one. A starting point for the person to check
+    against a statement; nothing is saved."""
+    today = today or dt.date.today()
+    acc = store.account(aid)
+    det = acc.get("details") or {}
+    owed = max(0, -acc["balance"])
+    rows = store.q("SELECT t.date, t.amount, o.account_id AS from_acct, o.group_id AS from_group "
+                   "FROM transactions t LEFT JOIN transactions o ON o.id=t.transfer_id "
+                   "WHERE t.account_id=? AND t.amount>0 ORDER BY t.date, t.id", (aid,))
+    pays = []
+    for r in rows:
+        amt = r["amount"]
+        if r["from_group"]:
+            g = store.q1("SELECT SUM(amount) AS s FROM transactions WHERE group_id=? AND account_id=?",
+                         (r["from_group"], r["from_acct"]))
+            amt = abs(g["s"] or 0) or amt
+        pays.append({"date": r["date"], "amount": amt, "from": r["from_acct"]})
+    recent = pays[-6:]
+    common = lambda xs: max(set(xs), key=xs.count) if xs else None   # noqa: E731
+    payment = common([p["amount"] for p in recent]) or 0
+    freq, _ = guess_frequency(sorted({p["date"] for p in pays}))
+    ppy = PPY_BY_FREQ.get(freq, 12)
+    try:
+        apr = float(det.get("interest_rate") or 0)
+    except (TypeError, ValueError):
+        apr = 0.0
+    if pays:
+        first = pays[0]["date"]
+    else:
+        first = (dt.date.fromisoformat(acc["opening_date"]) + dt.timedelta(days=30)).isoformat() \
+            if acc.get("opening_date") else today.isoformat()
+    left = len(schedule(owed, apr, ppy, payment, today, today.day)) if payment and owed else 0
+    return {"original_amount": abs(acc.get("opening_balance") or 0) or owed, "apr": apr, "payments_per_year": ppy,
+            "num_payments": max(1, min(1200, len(pays) + left)) if (pays or left) else 360,
+            "first_payment": first, "payment_mode": "fixed" if payment else "calc", "payment": payment,
+            "payee": det.get("institution") or "", "pay_from_account_id": common([p["from"] for p in recent if p["from"]]),
+            "found_payments": len(pays)}
 
 
 def _plan(store, aid):

@@ -205,7 +205,10 @@ I18N.helpText({
       <p>Para volver a armar tu calendario, abre un registro y haz clic en una factura, un sueldo o una transferencia que se repite, y luego
       en <b>Programar…</b>. Se llena un nuevo elemento programado a partir de ese movimiento: el beneficiario, la cuenta, la categoría y
       el monto, y la frecuencia y la próxima fecha según los otros movimientos del mismo beneficiario en esa cuenta (un monto que
-      cambia queda como variable, por su promedio). Revísalo y guárdalo.</p>` },
+      cambia queda como variable, por su promedio). Revísalo y guárdalo.</p>
+      <p>Un préstamo o hipoteca llega como una simple cuenta de préstamo, sin su tasa ni su pago. Ábrela y elige
+      <b>Configurar los detalles del préstamo…</b>: se completan a partir de sus pagos (revísalos con un estado de cuenta), y
+      entonces tiene su calendario de pagos, la fecha en que queda pagado y <b>¿Y si…?</b>. Su registro y su saldo quedan como están.</p>` },
     history: { title: "Historial de cambios y deshacer", body: `
       <p>MoneyThistle registra cada movimiento, elemento programado, cuenta, categoría y monto del presupuesto que se agrega,
       cambia o elimina: quién lo hizo, cuándo, en qué entorno y cómo estaba antes y después. Se guarda un año y va en cada respaldo.</p>

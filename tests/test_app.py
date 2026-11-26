@@ -1023,6 +1023,39 @@ DATA:OFXSGML
         with self.assertRaises(ApiError):
             st.schedule_from_entry(999999)
 
+    def test_loan_terms_for_an_imported_loan(self):
+        # A mortgage brought in from another program: a plain Loan account whose register holds
+        # the payments (principal as a transfer, interest beside it, as one split payment).
+        from moneyapp import loans
+        st = self.store
+        chk = st.save_account({"name": "Checking", "type": "Checking", "opening_balance": "20000"})
+        cats = {c["full_name"]: c["id"] for c in st.categories()}
+        home = st.save_account({"name": "House", "type": "Loan", "opening_balance": "-150000",
+                                "opening_date": "2025-12-20", "notes": "keep me", "favorite": True,
+                                "details": {"institution": "Truist", "interest_rate": "3.25"}})
+        for i, d in enumerate(("2026-01-05", "2026-02-05", "2026-03-05", "2026-04-05")):
+            p = st.save_transaction({"account_id": chk, "date": d, "payee": "Truist", "amount": "-700",
+                                     "transfer_account_id": home})
+            it = st.save_transaction({"account_id": chk, "date": d, "payee": "Truist", "amount": "-406.25",
+                                      "category_id": cats["Loan : Mortgage Interest"]})
+            st.db.execute("UPDATE transactions SET group_id=? WHERE id IN (?,?)", (900 + i, p, it))
+        st.db.commit()
+        before = st.account(home)["balance"]
+        s = loans.suggest(st, home, today=dt.date(2026, 4, 20))
+        self.assertEqual((s["apr"], s["payee"], s["payments_per_year"], s["pay_from_account_id"]), (3.25, "Truist", 12, chk))
+        self.assertEqual((s["payment"], s["payment_mode"], s["first_payment"], s["found_payments"]), (110625, "fixed", "2026-01-05", 4))
+        self.assertEqual(s["original_amount"], 15000000)
+        self.assertTrue(4 < s["num_payments"] <= 1200)
+        # Saving those terms: the register, its balance, notes and favorite stay as they were.
+        loans.save(st, {"name": "House", "type": "Loan", **{k: v for k, v in s.items() if k != "found_payments"},
+                        "original_amount": s["original_amount"] / 100, "payment": s["payment"] / 100}, home)
+        a = st.account(home)
+        self.assertEqual((a["balance"], a["notes"], bool(a["favorite"])), (before, "keep me", True))
+        info = loans.get(st, home)
+        self.assertEqual(info["owed"], -before)
+        self.assertTrue(info["payments_left"] > 0 and info["schedule"])
+        self.assertEqual(info["bill"]["account_id"], chk)
+
     def test_coffee_cup_switches(self):
         # Shown by default; each person can hide it for themselves; an administrator for everyone.
         app, base = self._serve()

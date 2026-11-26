@@ -204,7 +204,10 @@ I18N.helpText({
       <p>Para montar sua agenda de novo, abra um registro e clique numa conta, salário ou transferência que se repete, depois em
       <b>Agendar…</b>. Um novo item agendado é preenchido a partir desse lançamento: o favorecido, a conta, a categoria e o valor, e
       a frequência e a próxima data pelos outros lançamentos do mesmo favorecido nessa conta (um valor que muda fica variável, pela
-      média). Confira e salve.</p>` },
+      média). Confira e salve.</p>
+      <p>Um empréstimo ou financiamento chega como uma simples conta de empréstimo, sem a taxa e o pagamento. Abra a conta e escolha
+      <b>Configurar detalhes do empréstimo…</b>: eles são preenchidos a partir dos pagamentos (confira com um extrato), e então
+      ela tem cronograma de pagamentos, data de quitação e <b>E se…</b>. O registro e o saldo ficam como estão.</p>` },
     history: { title: "Histórico de alterações e desfazer", body: `
       <p>O MoneyThistle registra cada lançamento, item agendado, conta, categoria e valor de orçamento adicionado, alterado ou
       excluído: quem fez, quando, em qual ambiente e como estava antes e depois. Fica guardado por um ano e entra em todo backup.</p>

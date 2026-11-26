@@ -225,6 +225,8 @@ class App:
         # The loan calculator and a loan's "what if": arithmetic only, nothing is saved.
         # (GET, so people who may only look can use them too)
         r("GET", r"/api/loans/calculate", lambda q, b: loans.calculate(q), share="read")
+        # Loan terms worked out from an imported loan account's register (nothing saved).
+        r("GET", r"/api/loans/(\d+)/suggest", lambda q, b, i: loans.suggest(self.store, int(i)))
         r("GET", r"/api/loans/(\d+)/what-if", lambda q, b, i: self.loan_what_if(int(i), q), share="read")
         r("POST", r"/api/loans", lambda q, b: {"id": loans.save(self.store, b)})
         r("GET", r"/api/loans/(\d+)", lambda q, b, i: self.get_loan(int(i)), share="read")

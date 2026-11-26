@@ -66,6 +66,12 @@ split) are used when there are at least two. Worked out by the server (`store.gu
   monthly → every other week, which pays half the monthly payment 26 times a year (one extra
   monthly payment a year). The payment can be changed by hand. Escrow is left out.
 - "Months sooner" = months between the two payoff dates.
+- **Loan details for an imported loan** (`loans.suggest`): rate from the account's details,
+  lender from its bank or company, payment = the most common of the last 6 payments into it (a
+  payment that was part of a split counts whole), how often from their dates (as Schedule… guesses),
+  paying account = the most common source, first payment = the first one, loan amount = what was
+  owed when its register starts, number of payments = those made + those left at that payment.
+  The register's balance is kept as what's owed now.
 - **Loan calculator**: payments = years × payments a year (rounded, 1–1200). Price → payment: the
   loan is the price less the down payment, payment by the amortization formula. Payment →
   price: loan = payment × (1 − (1 + r)^−n) ÷ r (payment × n at 0%), rounded down to the cent;

@@ -207,7 +207,10 @@ I18N.helpText({
       <p>Pour refaire votre calendrier, ouvrez un registre et cliquez sur une facture, une paie ou un virement qui revient, puis
       <b>Planifier…</b>. Un nouvel élément prévu est rempli à partir de cette opération : le bénéficiaire, le compte, la catégorie et
       le montant, ainsi que la fréquence et la prochaine date d'après les autres opérations du même bénéficiaire dans ce compte
-      (un montant qui change est mis en variable, à sa moyenne). Vérifiez et enregistrez.</p>` },
+      (un montant qui change est mis en variable, à sa moyenne). Vérifiez et enregistrez.</p>
+      <p>Un prêt ou une hypothèque arrive comme simple compte de prêt, sans son taux ni son paiement. Ouvrez-le et choisissez
+      <b>Configurer les détails du prêt…</b> : ils sont remplis d'après ses paiements (vérifiez-les avec un relevé), puis il a son
+      échéancier, sa date de remboursement et <b>Et si…</b>. Son registre et son solde restent tels quels.</p>` },
     history: { title: "Historique des changements et annulation", body: `
       <p>MoneyThistle note chaque écriture, élément prévu, compte, catégorie et montant de budget ajouté, modifié ou supprimé : qui
       l'a fait, quand, dans quel environnement, et comment c'était avant et après. C'est gardé un an et fait partie de chaque sauvegarde.</p>
