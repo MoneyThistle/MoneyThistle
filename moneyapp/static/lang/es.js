@@ -469,6 +469,7 @@ I18N.add("es", {
 "Date paid": "Fecha de pago",
 "Date style": "Formato de fecha",
 "Date, memo": "Fecha, nota",
+"Dated after today": "Con fecha posterior a hoy",
 "Daycare": "Guardería",
 "Debts {}": "Deudas {}",
 "Decline": "Rechazar",

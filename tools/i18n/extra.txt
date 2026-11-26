@@ -404,3 +404,4 @@
 @Coffee cup hidden|Tasse de café masquée|Taza de café oculta|Xícara de café oculta
 @Coffee cup hidden for everyone|Tasse de café masquée pour tout le monde|Taza de café oculta para todos|Xícara de café oculta para todos
 @Coffee cup shown again (each person can still hide it)|Tasse de café affichée de nouveau (chacun peut encore la masquer)|Taza de café visible otra vez (cada persona puede ocultarla)|Xícara de café visível de novo (cada pessoa ainda pode ocultá-la)
+@Dated after today|Datée après aujourd'hui|Con fecha posterior a hoy|Com data depois de hoje

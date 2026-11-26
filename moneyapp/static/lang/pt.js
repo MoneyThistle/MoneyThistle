@@ -469,6 +469,7 @@ I18N.add("pt", {
 "Date paid": "Data do pagamento",
 "Date style": "Formato de data",
 "Date, memo": "Data, observação",
+"Dated after today": "Com data depois de hoje",
 "Daycare": "Creche",
 "Debts {}": "Dívidas {}",
 "Decline": "Recusar",

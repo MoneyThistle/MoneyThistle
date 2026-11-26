@@ -5,6 +5,8 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
 
 ## 1.0.4 (not released yet)
 
+- In a register, entries dated after today have a bar on the left and a soft shade (amber in the
+  light look, grey in the dark), so the past and the future are easy to tell apart.
 - Behind the scenes: **Schedule…** (from a register entry) and the payment a loan's **What if…**
   suggests for another "how often" are now worked out only by the server, so each rule lives in one
   place. Nothing changes on screen.

@@ -56,6 +56,7 @@ const HELP = {
         <li><b>Transfers:</b> as the category, pick "Transfer to …" another account. The matching entry is
           added to the other account by itself.</li>
         <li><b>Split entries</b> (a loan payment, a paystub) show as one line with their parts beneath.</li>
+        <li><b>Dated after today:</b> entries for days still to come have a bar on the left and a soft shade, so the past and the future are easy to tell apart.</li>
         <li><b>Order:</b> "Newest first" switches the order. Entries on the same day can be moved with ▲ ▼.</li>
         <li><b>Cleared and reconciled:</b> click the status column to mark an entry cleared (C) or reconciled (R).
           <b>Balance account</b> walks you through matching a statement.</li>

@@ -54,6 +54,7 @@ I18N.helpText({
         <li><b>Transferências:</b> como categoria, escolha "Transferência para …" outra conta. O lançamento correspondente é
           adicionado sozinho à outra conta.</li>
         <li><b>Lançamentos divididos</b> (um pagamento de empréstimo, um holerite) aparecem como uma linha com as partes embaixo.</li>
+        <li><b>Com data depois de hoje:</b> os lançamentos de dias que ainda vão chegar têm uma barra à esquerda e um fundo sombreado, para separar bem o passado do futuro.</li>
         <li><b>Ordem:</b> "Mais recentes primeiro" inverte a ordem. Lançamentos do mesmo dia podem ser movidos com ▲ ▼.</li>
         <li><b>Compensado e conciliado:</b> clique na coluna de situação para marcar um lançamento como compensado (C) ou
           conciliado (R). <b>Conciliar a conta</b> guia você para conferir um extrato do banco.</li>

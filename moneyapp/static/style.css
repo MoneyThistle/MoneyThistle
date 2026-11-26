@@ -140,6 +140,14 @@ h2 { font-size: 15px; margin: 0 0 10px; color: var(--heading); font-weight: 600;
 table { width: 100%; border-collapse: collapse; }
 th { text-align: left; font-weight: 600; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); padding: 6px 8px; background: var(--surface2); position: sticky; top: 0; }
 td { padding: 6px 8px; border-bottom: 1px solid var(--rowline); vertical-align: middle; }
+/* Entries dated after today: a bar on the left and a soft shade, so the past and the future are
+   easy to tell apart (light: amber; dark: grey, like the night look's other lines) */
+#reg tr.future > td { background: #fffbea; }
+#reg tr.future > td:first-child { box-shadow: inset 4px 0 0 var(--amber); }
+:root[data-theme="dark"] #reg tr.future > td { background: rgba(255, 255, 255, .075); }
+:root[data-theme="dark"] #reg tr.future > td:first-child { box-shadow: inset 4px 0 0 #a3afbf; }
+#reg tr.future.click:hover > td { background: var(--hover); }
+#reg tr.future.sel > td { background: var(--sel); }
 tr.click:hover td { background: var(--hover); cursor: pointer; }
 tr.sel td { background: var(--sel); }
 tr.overdue td:first-child { border-left: 3px solid var(--red); }

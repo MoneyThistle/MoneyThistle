@@ -55,6 +55,7 @@ I18N.helpText({
         <li><b>Transferencias:</b> como categoría, elige "Transferencia a …" otra cuenta. El movimiento correspondiente se agrega
           solo a la otra cuenta.</li>
         <li><b>Movimientos divididos</b> (un pago de préstamo, un recibo de nómina) aparecen como una línea con sus partes abajo.</li>
+        <li><b>Con fecha posterior a hoy:</b> los movimientos de días por venir tienen una barra a la izquierda y un fondo sombreado, para distinguir bien el pasado del futuro.</li>
         <li><b>Orden:</b> "Más recientes primero" cambia el orden. Los movimientos del mismo día se pueden mover con ▲ ▼.</li>
         <li><b>Conciliado y verificado:</b> haz clic en la columna de estado para marcar un movimiento como conciliado (C) o
           verificado (R). <b>Conciliar la cuenta</b> te guía para cuadrar un estado de cuenta.</li>

@@ -56,6 +56,7 @@ I18N.helpText({
         <li><b>Transferts :</b> comme catégorie, choisissez « Transfert vers … » un autre compte. L'écriture correspondante est
           ajoutée toute seule à l'autre compte.</li>
         <li><b>Écritures ventilées</b> (un paiement de prêt, un talon de paie) s'affichent comme une ligne avec leurs parties dessous.</li>
+        <li><b>Datées après aujourd'hui :</b> les écritures des jours à venir ont une barre à gauche et un fond teinté, pour bien séparer le passé de l'avenir.</li>
         <li><b>Ordre :</b> « Plus récentes d'abord » inverse l'ordre. Les écritures d'une même journée se déplacent avec ▲ ▼.</li>
         <li><b>Compensé et rapproché :</b> cliquez la colonne d'état pour marquer une écriture compensée (C) ou rapprochée (R).
           <b>Concilier le compte</b> vous guide pour faire correspondre un relevé.</li>

@@ -1774,10 +1774,12 @@ function registerRows(rows) {
     while (i + 1 < rows.length && rows[i + 1].group_id === t.group_id) parts.push(rows[++i]);
     out.push({ group: parts });
   }
+  // Entries dated after today get a bar and a shade (like a paper register's pencilled-in lines).
+  const today = todayISO();
   return out.map(r => {
     if (r.one) {
       const t = r.one;
-      return `<tr class="click" data-id="${t.id}"><td class="status ${t.status}" data-st="${t.id}" title="Click: blank → cleared → reconciled">${t.status || "·"}</td>
+      return `<tr class="click${t.date > today ? " future" : ""}"${t.date > today ? ' title="Dated after today"' : ""} data-id="${t.id}"><td class="status ${t.status}" data-st="${t.id}" title="Click: blank → cleared → reconciled">${t.status || "·"}</td>
         <td class="small">${niceDate(t.date)}${moveBtns(t)}</td><td class="small">${esc(t.number)}</td><td>${esc(t.payee)}${t.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}${t.attachments ? ` <span class="clip" title="${t.attachments} receipt${t.attachments === 1 ? "" : "s"} or file${t.attachments === 1 ? "" : "s"} attached">${CLIP_ICON}${t.attachments > 1 ? t.attachments : ""}</span>` : ""}${payPills(t)}</td>
         <td class="small">${esc(t.category_label)}${otherSide(t)}</td><td class="small muted">${esc(t.memo)}</td>
         <td class="num">${t.amount < 0 ? fmt(-t.amount, true, t) : ""}</td><td class="num">${t.amount > 0 ? fmt(t.amount, true, t) : ""}</td>
@@ -1792,13 +1794,13 @@ function registerRows(rows) {
       : `<span class="pill">Split</span> ${g.slice().reverse().map(p => esc(label(p))).join(" · ")}`;
     // One line; its parts fold out with ▸ (and stay open while the register is used).
     const open = REG_OPEN.has(String(top.group_id));
-    return `<tr class="click" data-group="${top.group_id}"${stub ? ' data-paystub="1"' : ""}><td class="status ${top.status}" data-gst="${top.group_id}" title="Click: blank → cleared → reconciled">${top.status || "·"}</td>
+    return `<tr class="click${top.date > today ? " future" : ""}"${top.date > today ? ' title="Dated after today"' : ""} data-group="${top.group_id}"${stub ? ' data-paystub="1"' : ""}><td class="status ${top.status}" data-gst="${top.group_id}" title="Click: blank → cleared → reconciled">${top.status || "·"}</td>
         <td class="small">${niceDate(top.date)}${moveBtns(top)}</td><td class="small">${esc(top.number)}</td><td>${esc(top.payee)}${top.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}
           <button type="button" class="tiny grp-tog" data-tog="${top.group_id}" aria-expanded="${open}" title="Show or hide its parts">${open ? "▾" : "▸"} ${g.length} parts</button></td>
         <td class="small">${summary}</td><td class="small muted"></td>
         <td class="num">${sum < 0 ? fmt(-sum, true, top) : ""}</td><td class="num">${sum > 0 ? fmt(sum, true, top) : ""}</td>
         <td class="num">${top.running_balance == null ? "" : fmt(top.running_balance, false, top)}</td></tr>` +
-      g.slice().reverse().map(p => `<tr class="small muted grp-part" data-part="${top.group_id}"${open ? "" : " hidden"}><td></td><td></td><td></td><td style="padding-left:22px">↳ ${esc(label(p))}</td>
+      g.slice().reverse().map(p => `<tr class="small muted grp-part${top.date > today ? " future" : ""}" data-part="${top.group_id}"${open ? "" : " hidden"}><td></td><td></td><td></td><td style="padding-left:22px">↳ ${esc(label(p))}</td>
         <td class="small">${esc(p.category_label || "(lender holds it)")}</td><td></td>
         <td class="num">${p.amount < 0 ? fmt(-p.amount, true, p) : ""}</td><td class="num">${p.amount > 0 ? fmt(p.amount, true, p) : ""}</td><td></td></tr>`).join("");
   }).join("");
