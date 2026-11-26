@@ -3,6 +3,12 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.4 (not released yet)
+
+- Behind the scenes: **Schedule…** (from a register entry) and the payment a loan's **What if…**
+  suggests for another "how often" are now worked out only by the server, so each rule lives in one
+  place. Nothing changes on screen.
+
 ## 1.0.3 (2026-11-25)
 
 Security hardening (see the new SECURITY.md):

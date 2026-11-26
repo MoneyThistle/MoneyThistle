@@ -52,7 +52,10 @@ guessed from the median gap between the same payee's entries in that account, sa
 14 and the recent days of the month repeat), 28 every time Every four weeks, ≤45 Monthly, ≤75 Every
 other month, ≤120 Every three months, ≤250 Twice a year, ≤500 Yearly, longer Every other year.
 "Last day of the month" when the last 6 all fell on a month end. The next date is the first after
-today. Amounts differing among the last 6 make it vary, at their average.
+today. Amounts differing among the last 6 make it vary, at their average. A split payment counts
+once, at its total, in its biggest part's category; entries shaped like the one opened (single or
+split) are used when there are at least two. Worked out by the server (`store.guess_frequency`,
+`Store.schedule_from_entry`); the next dates use the same rule as every scheduled item.
 
 ## Loan what-if and calculator (MoneyThistle's own; nothing is saved)
 

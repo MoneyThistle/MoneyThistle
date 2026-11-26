@@ -267,6 +267,8 @@ class App:
         r("GET", r"/api/reports/tax", lambda q, b: self.all_envs_tax(q.get("year") or dt.date.today().year - 1)
             if q.get("scope") == "all" else self.report_tax(q.get("year") or dt.date.today().year - 1))
         r("PUT", r"/api/tax/hsa-limit", lambda q, b: {"limit": self.store.set_hsa_limit(b.get("year"), b.get("amount"))})
+        # Schedule…: a new scheduled item worked out from a register entry (nothing saved).
+        r("GET", r"/api/transactions/(\d+)/schedule-guess", lambda q, b, i: self.store.schedule_from_entry(int(i)))
         r("PUT", r"/api/transactions/(\d+)/tax-year", lambda q, b, i: {"tax_year": self.store.set_tax_year(
             int(i), b.get("tax_year"))})
         # Paystubs: a paycheck's earnings, taxes and deductions.

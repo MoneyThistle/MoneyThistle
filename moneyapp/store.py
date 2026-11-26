@@ -249,6 +249,44 @@ def next_occurrence(d, frequency, anchor_day):
     return None  # Only once
 
 
+def guess_frequency(dates):
+    """How often something repeats, from its dates (ISO, oldest first, one per time it
+    happened): the median gap of the last 12 (see MECHANICS.md, "Schedule… from a register
+    entry"). Returns (frequency, last day of the month)."""
+    if len(dates) < 2:
+        return "Monthly", False
+    ds = [dt.date.fromisoformat(d) for d in dates]
+    gaps = [g for g in ((b - a).days for a, b in zip(ds, ds[1:])) if g > 0][-12:]
+    if not gaps:
+        return "Monthly", False
+    med = sorted(gaps)[len(gaps) // 2]
+    recent = ds[-6:]
+    month_end = all(d.day == calendar.monthrange(d.year, d.month)[1] for d in recent)
+    if med <= 3:
+        f = "Daily"
+    elif med <= 10:
+        f = "Weekly"
+    elif med <= 18:
+        # Every 14 days exactly, or the same few days of the month (the 1st and the 15th)?
+        f = "Every other week" if all(g == 14 for g in gaps) else \
+            ("Twice a month" if len({d.day for d in recent}) <= 3 else "Every other week")
+    elif med <= 29 and all(g == 28 for g in gaps):
+        f = "Every four weeks"
+    elif med <= 45:
+        f = "Monthly"
+    elif med <= 75:
+        f = "Every other month"
+    elif med <= 120:
+        f = "Every three months"
+    elif med <= 250:
+        f = "Twice a year"
+    elif med <= 500:
+        f = "Yearly"
+    else:
+        f = "Every other year"
+    return f, month_end and f in MONTH_BASED[:5]
+
+
 DEFAULT_BACKUP = {
     # Original defaults (mnyob99.dll 0x242a8afc): back up on close, keep 3,
     # compress, scheduled backup every 14 days, keep 3.
@@ -1347,6 +1385,75 @@ class Store:
         return {"reconciled": len(ids)}
 
     # ----- bills & deposits --------------------------------------------
+    def schedule_from_entry(self, tid, today=None):
+        """A new scheduled item started from a register entry (Schedule…, for after moving in
+        from another program): who, how much, the category and the account from the entry; how
+        often and the next date from the same payee's other entries in that account, shaped
+        like this one (single or split); an amount that differs from time to time varies, at
+        its average. Nothing is saved: the person checks it first. Also says whether that payee
+        is already scheduled on this account."""
+        t = self.q1("SELECT * FROM transactions WHERE id=?", (tid,))
+        if not t:
+            raise ApiError("No such transaction", 404)
+        today = today or dt.date.today()
+        acc, payee = t["account_id"], (t["payee"] or "").strip()
+        amount, cat, memo, other = t["amount"], t["category_id"], t["memo"] or "", None
+        if t["group_id"]:
+            # A split payment counts once, at its total, in the category of its biggest part.
+            parts = self.q("SELECT * FROM transactions WHERE group_id=? AND account_id=?", (t["group_id"], acc))
+            amount = sum(p["amount"] for p in parts)
+            same = [p for p in parts if (p["amount"] > 0) == (amount > 0)] or parts
+            cat, memo = max(same, key=lambda p: abs(p["amount"]))["category_id"], ""
+        elif t["transfer_id"]:
+            o = self.q1("SELECT account_id FROM transactions WHERE id=?", (t["transfer_id"],))
+            other = o["account_id"] if o else None
+        # The same payee's entries in this account, in the same direction (a split payment once).
+        rows, groups = [], {}
+        for r in (self.q("SELECT id, date, amount, group_id FROM transactions WHERE account_id=? AND "
+                         "lower(trim(payee))=lower(?) ORDER BY date, id", (acc, payee)) if payee else []):
+            if not r["group_id"]:
+                rows.append(dict(r))
+            elif r["group_id"] in groups:
+                groups[r["group_id"]]["amount"] += r["amount"]
+            else:
+                groups[r["group_id"]] = dict(r)
+                rows.append(groups[r["group_id"]])
+        like = [r for r in rows if (r["amount"] > 0) == (amount > 0) and r["amount"]]
+        shaped = [r for r in like if bool(r["group_id"]) == bool(t["group_id"])]
+        if len(shaped) >= 2:
+            like = shaped   # (take-home-only deposits and paystubs can follow different patterns)
+        dates = sorted({r["date"] for r in like}) or [t["date"]]
+        freq, last_day = guess_frequency(dates)
+        nxt = dt.date.fromisoformat(dates[-1])
+        anchor = 31 if last_day else nxt.day
+        for _ in range(1000):
+            if nxt > today:
+                break
+            nxt = next_occurrence(nxt, freq, anchor)
+        amounts = [abs(r["amount"]) for r in like[-6:]]
+        varies = len(set(amounts)) > 1
+        avg = int(round(sum(amounts) / len(amounts))) if varies else abs(amount)
+        start = {"payee": payee, "memo": memo, "frequency": freq, "last_day": last_day, "next_date": nxt.isoformat(),
+                 "amount": avg, "estimate": avg if varies else abs(amount), "amount_mode": "average" if varies else "fixed",
+                 "average_count": 12, "category_id": cat, "account_id": acc}
+        if other:
+            # A transfer: from the account the money left, to the one it reached.
+            start.update(kind="transfer", category_id=None, account_id=acc if amount < 0 else other,
+                         to_account_id=other if amount < 0 else acc)
+        else:
+            start["kind"] = "deposit" if amount > 0 else "bill"
+            # A paycheck: marked as one, a paystub, or pay in Wages & Salary (not the employer's match).
+            full = next((c["full_name"] for c in self.categories() if c["id"] == cat), "") if cat else ""
+            wages = bool(re.fullmatch(r"Wages & Salary( : (?!Employer Matching).*)?", full or ""))
+            stub = bool(t["group_id"]) and bool(self.q1("SELECT 1 FROM paystubs WHERE group_id=?", (t["group_id"],)))
+            if amount > 0 and (t["paycheck"] is not None or stub or wages):
+                start["paycheck"] = True
+        already = next(({"frequency": b["frequency"], "last_day": b.get("last_day"), "next_date": b["next_date"]}
+                        for b in self.bills() if not b.get("split_of") and payee
+                        and (b["payee"] or "").strip().lower() == payee.lower()
+                        and acc in (b["account_id"], b.get("to_account_id"))), None)
+        return {"start": start, "already": already}
+
     def bills(self):
         rows = self.q("SELECT b.*, a.name AS account_name, COALESCE(ta.name, la.name) AS to_account_name, "
                       "c.name AS category_name, p.name AS parent_category_name FROM bills b "

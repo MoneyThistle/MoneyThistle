@@ -969,6 +969,60 @@ DATA:OFXSGML
         self.assertTrue(again.login("alex", "correct-horse", addr="10.0.0.10"))   # another address is fine
         self.assertTrue(uid)
 
+    def test_schedule_from_an_entry(self):
+        from moneyapp.store import guess_frequency, next_occurrence
+        # How often: from the dates alone.
+        def series(start, freq, n):
+            d, out = dt.date.fromisoformat(start), []
+            for _ in range(n):
+                out.append(d.isoformat())
+                d = next_occurrence(d, freq, dt.date.fromisoformat(start).day)
+            return out
+        self.assertEqual(guess_frequency(series("2025-01-03", "Monthly", 8)), ("Monthly", False))
+        self.assertEqual(guess_frequency(series("2025-01-03", "Every other week", 8)), ("Every other week", False))
+        self.assertEqual(guess_frequency(series("2025-01-03", "Weekly", 8)), ("Weekly", False))
+        self.assertEqual(guess_frequency(["2025-01-01", "2025-01-15", "2025-02-01", "2025-02-15", "2025-03-01"]),
+                         ("Twice a month", False))
+        self.assertEqual(guess_frequency(["2025-01-31", "2025-02-28", "2025-03-31", "2025-04-30", "2025-05-31"]),
+                         ("Monthly", True))
+        self.assertEqual(guess_frequency(series("2024-01-10", "Every three months", 5)), ("Every three months", False))
+        self.assertEqual(guess_frequency(series("2020-04-15", "Yearly", 4)), ("Yearly", False))
+        self.assertEqual(guess_frequency(["2025-06-01"]), ("Monthly", False))
+        # From an entry: the same payee's history in that account.
+        st = self.store
+        chk = st.save_account({"name": "Checking", "type": "Checking", "opening_balance": "100"})
+        sav = st.save_account({"name": "Savings", "type": "Savings"})
+        cats = {c["full_name"]: c["id"] for c in st.categories()}
+        today = dt.date(2026, 6, 20)
+        last = None
+        for i, amt in enumerate(["-80.10", "-95.40", "-71.00"]):   # power bill, 5th of each month, varies
+            last = st.save_transaction({"account_id": chk, "date": f"2026-0{3 + i}-05", "payee": "City Power",
+                                       "amount": amt, "category_id": cats["Bills : Electricity"]})
+        g = st.schedule_from_entry(last, today=today)["start"]
+        self.assertEqual((g["kind"], g["frequency"], g["next_date"], g["amount_mode"]), ("bill", "Monthly", "2026-07-05", "average"))
+        self.assertEqual(g["amount"], round((8010 + 9540 + 7100) / 3))
+        self.assertEqual(g["category_id"], cats["Bills : Electricity"])
+        # Pay in Wages & Salary is a paycheck; every other week from its dates.
+        for d in ("2026-05-01", "2026-05-15", "2026-05-29", "2026-06-12"):
+            pay = st.save_transaction({"account_id": chk, "date": d, "payee": "Acme", "amount": "1500",
+                                      "category_id": cats["Wages & Salary : Net Pay"]})
+        g = st.schedule_from_entry(pay, today=today)["start"]
+        self.assertEqual((g["kind"], g["frequency"], g["next_date"], g["amount_mode"], g.get("paycheck")),
+                         ("deposit", "Every other week", "2026-06-26", "fixed", True))
+        # A transfer: from the account the money left, to the one it reached.
+        for d in ("2026-04-20", "2026-05-20", "2026-06-20"):
+            x = st.save_transaction({"account_id": chk, "date": d, "payee": "Save", "amount": "-200",
+                                    "transfer_account_id": sav})
+        g = st.schedule_from_entry(x, today=today)["start"]
+        self.assertEqual((g["kind"], g["account_id"], g["to_account_id"], g["next_date"]), ("transfer", chk, sav, "2026-07-20"))
+        # Already scheduled: said first.
+        self.assertIsNone(st.schedule_from_entry(last, today=today)["already"])
+        st.save_bill({"kind": "bill", "payee": "City Power", "account_id": chk, "amount": "80", "frequency": "Monthly",
+                      "next_date": "2026-07-05"})
+        self.assertEqual(st.schedule_from_entry(last, today=today)["already"]["next_date"], "2026-07-05")
+        with self.assertRaises(ApiError):
+            st.schedule_from_entry(999999)
+
     def test_coffee_cup_switches(self):
         # Shown by default; each person can hide it for themselves; an administrator for everyone.
         app, base = self._serve()

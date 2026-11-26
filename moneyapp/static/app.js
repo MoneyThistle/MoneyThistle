@@ -1581,9 +1581,6 @@ function whatIfResult(r) {
 async function loanWhatIf(L) {
   const ppy = L.payments_per_year;
   const choices = [ppy, ...[12, 24, 26].filter(v => v !== ppy)];
-  // (paying more often: the same amount a year, except monthly to every other week, which
-  // pays half the monthly payment each time: one extra monthly payment a year)
-  const conv = v => v == ppy ? L.payment : (ppy == 12 && v == 26 ? Math.round(L.payment / 2) : Math.round(L.payment * ppy / v));
   const body = `<p class="small muted" style="margin-top:0">Try other payments and see when this loan would be paid off and how much interest it would cost.
     Nothing here changes the loan or your schedule.</p>
     <div class="form">
@@ -1608,7 +1605,11 @@ async function loanWhatIf(L) {
       const qs = new URLSearchParams(Object.entries(f).filter(([, v]) => v !== "")).toString();
       const out = q("#wiOut", root);
       try {
-        out.innerHTML = whatIfResult(await GET(`/api/loans/${L.account.id}/what-if?${qs}`));
+        const r = await GET(`/api/loans/${L.account.id}/what-if?${qs}`);
+        out.innerHTML = whatIfResult(r);
+        // (left empty, the server suggests the payment for this "how often": see loans.converted_payment)
+        const pay = q("[name=payment]", root);
+        if (!pay.value.trim()) pay.value = dollars(r.then.payment);
         q("#wiShow", out).onclick = e => {
           const t = q("#wiSched", out), open = t.hidden;
           t.hidden = !open; e.target.setAttribute("aria-expanded", open);
@@ -1617,8 +1618,8 @@ async function loanWhatIf(L) {
       } catch (e) { out.innerHTML = `<div class="notice err">${esc(e.message)}</div>`; }
     }, 250);
   };
-  // A new "how often" starts from its usual payment, which can then be changed.
-  q("[name=payments_per_year]", root).addEventListener("change", e => { q("[name=payment]", root).value = dollars(conv(+e.target.value)); });
+  // A new "how often" starts from its usual payment (the server's suggestion), which can then be changed.
+  q("[name=payments_per_year]", root).addEventListener("change", () => { q("[name=payment]", root).value = ""; });
   qa("input,select", root).forEach(el => { el.addEventListener("input", refresh); el.addEventListener("change", refresh); });
   refresh();
   return p;
@@ -1824,9 +1825,8 @@ async function groupDialog(rows, gid, done, acc) {
       if (!(await confirmBox("Delete this whole payment (all parts, including the loan side)?"))) return false;
       await api("DELETE", "/api/transactions/group/" + gid); toast("Payment deleted"); done(); } },
      ...(acc && canEdit() && !acc._shared && !S.shareCtx ? [{ label: "Schedule…", action: () => {
-      // One scheduled item for the whole payment: its total, in the category of its biggest part.
-      const big = g.filter(p => Math.sign(p.amount) === Math.sign(total)).sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))[0] || g[0];
-      setTimeout(() => scheduleFromEntry(acc, { ...g[0], amount: total, memo: "", transfer_id: null, paystub: false, category_id: big.category_id }), 0);
+      // One scheduled item for the whole payment (the server counts its total).
+      setTimeout(() => scheduleFromEntry(acc, g[0]), 0);
      } }] : []),
      { label: "Close" },
      { label: "Save date", cls: "primary", action: async root => {
@@ -2835,96 +2835,14 @@ function importReview(acc, filename, text, pv) {
 // ---------- BILLS ----------
 // ---------- a scheduled item from a register entry ----------
 // After moving in from another program the schedule is empty: an entry in the register can
-// start one. Who, how much, the category and the account come from the entry; how often and
-// the next date are guessed from the same payee's other entries in this account (an amount
-// that differs from time to time is set to vary, at its average).
-function addFrequency(iso, freq, lastDay) {
-  const d = new Date(iso + "T00:00:00");
-  const iso2 = t => new Date(t.getTime() - t.getTimezoneOffset() * 60000).toISOString().slice(0, 10);   // (the local date)
-  const days = { "Daily": 1, "Weekly": 7, "Every other week": 14, "Every four weeks": 28 }[freq];
-  if (days) { d.setDate(d.getDate() + days); return iso2(d); }
-  if (freq === "Twice a month") {   // about half a month on: the 1st → the 16th → the 1st...
-    const day = d.getDate(), y = d.getFullYear(), m = d.getMonth();
-    const end = new Date(y, m + 1, 0).getDate();
-    return iso2(day < 15 ? new Date(y, m, Math.min(day + 15, end)) : new Date(y, m + 1, Math.max(day - 15, 1)));
-  }
-  const months = { "Monthly": 1, "Every other month": 2, "Every three months": 3, "Twice a year": 6, "Yearly": 12, "Every other year": 24 }[freq] || 1;
-  const day = d.getDate();
-  const t = new Date(d.getFullYear(), d.getMonth() + months, 1);
-  const last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
-  t.setDate(lastDay ? last : Math.min(day, last));
-  return iso2(t);
-}
-function guessSchedule(dates) {
-  // dates: oldest first, one per occurrence
-  if (dates.length < 2) return { frequency: "Monthly", last_day: false };
-  const ms = iso => new Date(iso + "T00:00:00").getTime();
-  const gaps = dates.slice(1).map((d, i) => Math.round((ms(d) - ms(dates[i])) / 86400000)).filter(g => g > 0).slice(-12);
-  if (!gaps.length) return { frequency: "Monthly", last_day: false };
-  const med = gaps.slice().sort((a, b) => a - b)[Math.floor(gaps.length / 2)];
-  const dayOf = iso => +iso.slice(8, 10);
-  const monthEnd = iso => { const d = new Date(iso + "T00:00:00"); return d.getDate() === new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); };
-  const recent = dates.slice(-6);
-  const lastDay = recent.every(monthEnd);
-  let frequency;
-  if (med <= 3) frequency = "Daily";
-  else if (med <= 10) frequency = "Weekly";
-  else if (med <= 18) frequency = gaps.every(g => g === 14) ? "Every other week"
-    : (new Set(recent.map(dayOf)).size <= 3 ? "Twice a month" : "Every other week");
-  else if (med <= 29 && gaps.every(g => g === 28)) frequency = "Every four weeks";
-  else if (med <= 45) frequency = "Monthly";
-  else if (med <= 75) frequency = "Every other month";
-  else if (med <= 120) frequency = "Every three months";
-  else if (med <= 250) frequency = "Twice a year";
-  else if (med <= 500) frequency = "Yearly";
-  else frequency = "Every other year";
-  return { frequency, last_day: lastDay && ["Monthly", "Every other month", "Every three months", "Twice a year", "Yearly"].includes(frequency) };
-}
+// start one. The server works it out (who, how much, the category and the account from the
+// entry; how often and the next date from the same payee's other entries in this account),
+// then the person checks it in the usual form.
 async function scheduleFromEntry(acc, tx) {
-  await loadBasics();
-  const payee = (tx.payee || "").trim();
-  // Already on the schedule? Say so first.
-  const bills = (await GET("/api/bills").catch(() => ({ bills: [] }))).bills || [];
-  const same = payee && bills.find(b => (b.payee || "").trim().toLowerCase() === payee.toLowerCase() &&
-    (b.account_id === acc.id || b.to_account_id === acc.id));
-  if (same && !(await confirmBox(`${payee} is already scheduled (${freqLabel(same)}, next ${niceDate(same.next_date)}). Schedule another one?`))) return;
-  // The same payee's entries in this account, same direction: how often, how much.
-  const found = payee ? await GET(`/api/transactions?account=${acc.id}&q=${encodeURIComponent(payee)}`).catch(() => []) : [];
-  // (a split payment, such as a paystub, counts once, at its total)
-  const groups = {}, rows = [];
-  for (const t of found) {
-    if (!t.group_id) { rows.push(t); continue; }
-    if (!groups[t.group_id]) rows.push(groups[t.group_id] = Object.assign({}, t, { amount: 0 }));
-    groups[t.group_id].amount += t.amount;
-  }
-  let like = rows.filter(t => (t.payee || "").trim().toLowerCase() === payee.toLowerCase() && Math.sign(t.amount) === Math.sign(tx.amount))
-    .sort((a, b) => a.date < b.date ? -1 : (a.date > b.date ? 1 : a.id - b.id));
-  // (entries shaped like this one, single or split, when there are enough: a payee's
-  // take-home-only deposits and its paystubs can follow different patterns)
-  const shaped = like.filter(t => !t.group_id === !tx.group_id);
-  if (shaped.length >= 2) like = shaped;
-  const dates = [...new Set((like.length ? like : [tx]).map(t => t.date))];
-  const g = guessSchedule(dates);
-  let next = dates[dates.length - 1];
-  for (let i = 0; i < 400 && next <= todayISO(); i++) next = addFrequency(next, g.frequency, g.last_day);
-  const amounts = like.slice(-6).map(t => Math.abs(t.amount));
-  const varies = new Set(amounts).size > 1;
-  const avg = varies ? Math.round(amounts.reduce((s, a) => s + a, 0) / amounts.length) : Math.abs(tx.amount);
-  const start = { payee, memo: tx.memo || "", frequency: g.frequency, last_day: g.last_day, next_date: next,
-    amount: avg, estimate: varies ? avg : Math.abs(tx.amount), amount_mode: varies ? "average" : "fixed", average_count: 12,
-    category_id: tx.category_id || null, account_id: acc.id };
-  if (tx.transfer_id) {
-    // A transfer: from the account the money left, to the one it reached.
-    Object.assign(start, { kind: "transfer", category_id: null,
-      account_id: tx.amount < 0 ? acc.id : tx.transfer_account_id, to_account_id: tx.amount < 0 ? tx.transfer_account_id : acc.id });
-  } else {
-    start.kind = tx.amount > 0 ? "deposit" : "bill";
-    // A paycheck: marked as one, a paystub, or pay in Wages & Salary (not the employer's match).
-    const cat = S.cats.find(c => c.id === tx.category_id) || {};
-    const wages = /^Wages & Salary( : (?!Employer Matching).*)?$/.test(cat.full_name || "");
-    if (tx.amount > 0 && (tx.paycheck != null || tx.paystub || wages)) start.paycheck = true;
-  }
-  return editBill(null, start.kind, start);
+  const g = await GET(`/api/transactions/${tx.id}/schedule-guess`);
+  const a = g.already;
+  if (a && !(await confirmBox(`${g.start.payee} is already scheduled (${freqLabel(a)}, next ${niceDate(a.next_date)}). Schedule another one?`))) return;
+  return editBill(null, g.start.kind, g.start);
 }
 
 async function editBill(bill, kind, start) {
