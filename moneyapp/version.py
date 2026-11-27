@@ -11,7 +11,7 @@ import os
 
 # The release number people see (Settings, the installer, GitHub releases). Raise it with
 # each release and add what changed to CHANGELOG.md: MAJOR.MINOR.PATCH (semantic versioning).
-VERSION = "1.0.4"
+VERSION = "1.0.5"
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

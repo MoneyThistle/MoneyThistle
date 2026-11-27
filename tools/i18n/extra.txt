@@ -440,3 +440,7 @@
 @A card can be paid from another environment's account when you own both environments|Une carte peut être payée depuis le compte d'un autre environnement quand les deux environnements vous appartiennent|Una tarjeta se puede pagar desde la cuenta de otro entorno cuando ambos entornos son tuyos|Um cartão pode ser pago com a conta de outro ambiente quando os dois ambientes são seus
 @Transfer to {} (deleted)|Transfert vers {} (supprimé)|Transferencia a {} (eliminada)|Transferência para {} (excluída)
 @Transfer from {} (deleted)|Transfert de {} (supprimé)|Transferencia desde {} (eliminada)|Transferência de {} (excluída)
+@{} ended or declined.|{} terminé(s) ou refusé(s).|{} terminado(s) o rechazado(s).|{} encerrado(s) ou recusado(s).
+@Clear them|Les effacer|Borrarlos|Limpar
+@Clear the connections and shared accounts that ended or were declined from these lists? Entries made through them stay as they are.|Retirer de ces listes les connexions et comptes partagés terminés ou refusés? Les écritures faites par leur biais restent telles quelles.|¿Quitar de estas listas las conexiones y cuentas compartidas terminadas o rechazadas? Los movimientos hechos a través de ellas quedan como están.|Tirar destas listas as conexões e contas compartilhadas encerradas ou recusadas? Os lançamentos feitos por elas ficam como estão.
+@Cleared|Effacé|Borrado|Limpo

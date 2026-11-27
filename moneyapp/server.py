@@ -148,6 +148,8 @@ class App:
         r("GET", r"/api/envs/(\d+)/accounts", self.env_accounts, "user")
         r("GET", r"/api/env-names", lambda q, b: self.system.all_env_names(), "user")
         r("GET", r"/api/links", lambda q, b: self.system.links_for(self.uid), "user")
+        # Ended or declined connections and shares: cleared from the lists.
+        r("POST", r"/api/connections/clear-ended", lambda q, b: self.system.clear_ended(self.uid), "user")
         r("POST", r"/api/links", self.request_link, "user")
         r("POST", r"/api/links/(\d+)/approve", lambda q, b, i: self.system.approve_link(self.uid, int(i), b.get("account_id")), "user")
         r("POST", r"/api/links/(\d+)/decline", lambda q, b, i: self.system.decline_link(self.uid, int(i)), "user")

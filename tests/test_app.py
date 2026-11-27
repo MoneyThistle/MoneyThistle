@@ -1888,6 +1888,25 @@ DATA:OFXSGML
         self.assertEqual(paid["category_label"], "Transfer to Visa (Personal)")
         self.assertEqual(self.system.store(hh).account(hchk)["balance"], 280000)    # its side stays
 
+    def test_clearing_ended_connections(self):
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        hh = c.call("POST", "/api/envs", {"name": "Household"})["id"]
+        a = c.call("POST", "/api/accounts", {"name": "Mine", "type": "Checking"}, env=1)["id"]
+        b = c.call("POST", "/api/accounts", {"name": "Ours", "type": "Checking"}, env=hh)["id"]
+        live = self.system.owned_link(1, 1, a, hh, b)
+        old = self.system.exec("INSERT INTO links(env_a,account_a,env_b,account_b,status,created_by,created) "
+                               "VALUES(1,?,?,?,'ended',1,'2026-01-01')", (a, hh, b))
+        c.call("POST", "/api/users", {"username": "kim", "password": "kim-pass-123"})
+        k = Client(base)
+        k.call("POST", "/api/login", {"username": "kim", "password": "kim-pass-123"})
+        self.assertEqual(k.call("POST", "/api/connections/clear-ended"), {"connections": 0, "shares": 0})   # not theirs
+        self.assertEqual(c.call("POST", "/api/connections/clear-ended")["connections"], 1)
+        ids = [l["id"] for l in c.call("GET", "/api/links")]
+        self.assertIn(live, ids)
+        self.assertNotIn(old, ids)
+
     def test_email_looks(self):
         # Emails go as plain text plus a dressed-up version: the wordmark inside the email
         # (nothing fetched), links, a button for a link on its own line, lists.

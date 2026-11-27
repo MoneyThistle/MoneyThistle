@@ -4778,6 +4778,9 @@ async function renderPeople(noEnv) {
     me.is_admin ? GET("/api/users") : Promise.resolve([]), GET("/api/shares"), GET("/api/people")]);
   const owned = S.me.envs.filter(e => e.role === "owner");
   const mailOn = !!(S.meta && S.meta.password_reset);   // (email is set up)
+  // Connections and shares that ended or were declined stay listed until cleared.
+  const gone = x => ["ended", "declined"].includes(x.status);
+  const endedL = links.filter(gone).length, endedS = shares.filter(gone).length;
   const roleSel = (name, cur) => `<select name="${name}">${["owner", "editor", "viewer"].map(r => `<option value="${r}" ${r === cur ? "selected" : ""}>${r}</option>`).join("")}</select>`;
   const statusPill = s => ({ pending: '<span class="pill amber">waiting for approval</span>', active: '<span class="pill green">connected</span>',
     declined: '<span class="pill red">declined</span>', ended: '<span class="pill">ended</span>' }[s] || s);
@@ -4839,6 +4842,7 @@ async function renderPeople(noEnv) {
           <td class="num">${l.can_approve ? `<button class="small primary" data-approve="${l.id}">Approve…</button> <button class="small" data-decline="${l.id}">Decline</button>`
             : (l.can_end ? `<button class="small" data-endlink="${l.id}">${l.status === "pending" ? "Cancel" : "End"}</button>` : "")}</td></tr>`).join("")}</table>
         ${links.length ? "" : `<div class="empty">No connections yet</div>`}
+        ${endedL ? `<p class="small muted" style="margin:8px 0 0">${endedL} ended or declined. <button class="small" data-clearended>Clear them</button></p>` : ""}
       </div>
       <div class="card"><div class="head"><h2>Shared accounts</h2>${owned.length ? '<button class="small primary" id="newShare">Share an account</button>' : ""}</div>
         <p class="small muted" style="margin-top:0">Show one account in another environment too, for example your checking account in your
@@ -4851,6 +4855,7 @@ async function renderPeople(noEnv) {
             ${s.i_own_a && ["pending", "active"].includes(s.status) ? `<button class="small" data-saccess="${s.id}:${s.access === "edit" ? "view" : "edit"}">${s.access === "edit" ? "Make view only" : "Allow entering"}</button> <button class="small" data-sbills="${s.id}:${s.include_bills ? 0 : 1}">${s.include_bills ? "Stop sharing bills" : "Share bills too"}</button>` : ""}
             ${s.can_end && !s.can_approve ? `<button class="small" data-send="${s.id}">${s.status === "pending" ? "Cancel" : "Stop sharing"}</button>` : ""}</td></tr>`).join("")}</table>
         ${shares.length ? "" : `<div class="empty">No shared accounts yet</div>`}
+        ${endedS ? `<p class="small muted" style="margin:8px 0 0">${endedS} ended or declined. <button class="small" data-clearended>Clear them</button></p>` : ""}
       </div>
     </div>
   </div>`;
@@ -4949,6 +4954,10 @@ async function renderPeople(noEnv) {
     fill();
     return p;
   };
+  qa("[data-clearended]").forEach(b => b.onclick = async () => {
+    if (!(await confirmBox("Clear the connections and shared accounts that ended or were declined from these lists? Entries made through them stay as they are."))) return;
+    run(() => api("POST", "/api/connections/clear-ended"), "Cleared");
+  });
   if (q("#newLink")) q("#newLink").onclick = async () => {
     const body = `<div class="form" style="grid-template-columns:1fr 1fr">
       <div><label>From your environment</label><select name="env_id">${owned.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join("")}</select></div>

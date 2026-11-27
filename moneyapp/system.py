@@ -862,6 +862,23 @@ class System:
             upcoming += [dict(u, from_env=tag) for u in st.upcoming(days) if u.get("x_link_id") == l["id"]]
         return bills, upcoming
 
+    def clear_ended(self, uid):
+        """Remove connections and shares that ended or were declined, from the lists of this
+        person: those where they own either side (or, for a share, are the person it was
+        offered to). Nothing else changes: entries made through them already stand on their own."""
+        mine = {e["id"] for e in self.my_envs(uid) if e["role"] == "owner"}
+        links = [l["id"] for l in self.q("SELECT id, env_a, env_b FROM links WHERE status IN ('ended','declined')")
+                 if l["env_a"] in mine or l["env_b"] in mine]
+        shares = [s["id"] for s in self.q("SELECT * FROM shares WHERE status IN ('ended','declined')")
+                  if self._share_party(uid, s)]
+        with self.lock:
+            for table, ids in (("links", links), ("shares", shares)):
+                if ids:
+                    self.db.execute(f"DELETE FROM {table} WHERE id IN ({','.join('?' * len(ids))})", ids)
+            self.db.commit()
+            self.changed()
+        return {"connections": len(links), "shares": len(shares)}
+
     def link_other_side(self, lid, env_id, account_id):
         l = self.q1("SELECT * FROM links WHERE id=? AND status='active'", (lid,))
         if not l:

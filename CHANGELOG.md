@@ -3,7 +3,7 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.5 (not released yet)
+## 1.0.5 (2026-11-26)
 
 - **Welcome email** for new people (when email is set up): who added them, their user name, the
   addresses to open MoneyThistle at, what they can see, and a link to choose their own password
@@ -22,6 +22,9 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
   change from either. It counts in the budget of the environment the money leaves, once.
 - **Reminders only for what needs you:** the daily summary leaves out automatic items (autopay,
   direct deposit) and includes the bills of accounts shared with you, each item once.
+- **Clear ended connections:** connections and shared accounts that ended or were declined no
+  longer pile up: **Clear them** (People & access) removes them from the lists. Entries made through
+  them stay as they are.
 - **Emails look like MoneyThistle:** the wordmark on the navy band, the message on a card, links you
   can click and a button for the password link (plain text still goes along for every email app).
 
