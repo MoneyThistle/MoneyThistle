@@ -3,7 +3,7 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.6 (not released yet)
+## 1.0.6 (2026-11-27)
 
 - **A card's payment can be changed in either place:** open it in Bills & Deposits to change which
   account pays it, the amount or the date (across environments too), and the card's details follow;
