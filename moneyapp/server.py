@@ -186,8 +186,8 @@ class App:
         # Money data, inside the chosen environment
         r("GET", r"/api/summary", lambda q, b: self.all_envs_summary(q, b) if q.get("scope") == "all" else self.summary(q, b))
         r("GET", r"/api/accounts", self.list_accounts, share="read")
-        r("POST", r"/api/accounts", lambda q, b: {"id": self.store.save_account(b)})
-        r("PUT", r"/api/accounts/(\d+)", lambda q, b, i: {"id": self.store.save_account(b, int(i))})
+        r("POST", r"/api/accounts", lambda q, b: {"id": self.save_account(b)})
+        r("PUT", r"/api/accounts/(\d+)", lambda q, b, i: {"id": self.save_account(b, int(i))})
         r("DELETE", r"/api/accounts/(\d+)", self.delete_account)
         r("POST", r"/api/accounts/(\d+)/value", lambda q, b, i: self.store.update_value(
             int(i), b.get("date"), b.get("value")), share="write")
@@ -415,7 +415,11 @@ class App:
             for x in bills + upcoming:
                 x["share_editable"] = self.system.bill_accounts(x) <= edit
                 # Names of accounts on the other side, for display.
-        return {"bills": bills, "upcoming": upcoming}
+            return {"bills": bills, "upcoming": upcoming}
+        # Items kept in another of this person's environments that pay into (or take from) an
+        # account here, like a card here paid from Household's checking: shown here too.
+        rb, ru = self.system.related_bills(self.uid, self.env_id, days)
+        return {"bills": bills, "upcoming": upcoming, "related": {"bills": rb, "upcoming": ru}}
 
     def get_loan(self, i):
         if self.share:
@@ -1536,6 +1540,13 @@ class App:
         if shared or self.ui_settings().get("budget_mode") == "schedule":
             s["budget"] = self.budget()   # the person's budget style, shared accounts included
         s["statements_due"] = self.store.statements_due()
+        if not getattr(self.ctx, "skip_shares_from", None):
+            # Items kept in another of this person's environments that pay an account here
+            # (a card here paid from Household's checking) are due here too.
+            _, ru = self.system.related_bills(self.uid, self.env_id, int(q.get("days", 14)))
+            if ru:
+                s["upcoming"] = sorted(s["upcoming"] + [dict(u, env_id=u["from_env"]["id"], env_name=u["from_env"]["name"])
+                                                        for u in ru], key=lambda u: (u["date"], u.get("payee") or ""))
         skip = getattr(self.ctx, "skip_shares_from", None) or ()
         s["shared_upcoming"] = [u for u in self.system.incoming_bills(self.uid, self.env_id, int(q.get("days", 14)))
                                 if u["share_env_id"] not in skip]
@@ -1664,17 +1675,56 @@ class App:
         self.system.detach_cross(self.env_id, int(i))
         self.store.delete_transaction(int(i))
 
+    def save_account(self, b, aid=None):
+        """Save an account; a card paid from an account in another environment (one this
+        person owns, like the others) gets its scheduled payment kept there."""
+        det = b.get("details") if isinstance(b.get("details"), dict) else None
+        xenv = int((det or {}).get("pay_from_env_id") or 0) if (det or {}).get("auto_pay") else 0
+        if xenv == self.env_id:
+            det.pop("pay_from_env_id", None)
+            xenv = 0
+        if xenv:
+            # Checked before anything is saved: both environments yours, the account there real.
+            for e in (xenv, self.env_id):
+                if self.system.role(self.uid, e) != "owner":
+                    raise ApiError("A card can be paid from another environment's account when you own both "
+                                   "environments", 403, field="pay_from_account_id")
+            if not self.system.account_name(xenv, int(det.get("pay_from_account_id") or 0)):
+                raise ApiError("Choose the account the card payment comes from", field="pay_from_account_id")
+        before = self.store.account(aid)["details"] if aid else {}
+        aid = self.store.save_account(b, aid)
+        a = self.store.account(aid)
+        now = a["details"]
+        was = (before.get("pay_from_env_id"), before.get("pay_from_account_id")) if before.get("auto_pay") else (None, None)
+        will = (now.get("pay_from_env_id"), now.get("pay_from_account_id")) if now.get("auto_pay") else (None, None)
+        if was[0] and was != will:
+            self.system.stop_card_payment(was[0], self.env_id, aid)
+        if will[0]:
+            self.system.set_card_payment(self.uid, will[0], will[1], self.env_id, aid, a["name"], now)
+        return aid
+
     def delete_account(self, q, b, i):
-        if self.system.q1("SELECT 1 FROM links WHERE status IN ('pending','active') AND "
-                          "((env_a=? AND account_a=?) OR (env_b=? AND account_b=?))",
-                          (self.env_id, int(i), self.env_id, int(i))):
-            raise ApiError("This account is connected to another environment. End that connection first "
-                           "(People & access).")
-        if self.system.q1("SELECT 1 FROM shares WHERE status IN ('pending','active') AND env_a=? AND account_a=?",
-                          (self.env_id, int(i))):
-            raise ApiError("This account is shared with another environment. Stop sharing it first "
-                           "(People & access).")
-        self.store.delete_account(int(i))
+        """Delete an account with its entries and schedule. Connected to or shared with another
+        environment, it says so first; asked again with end=1, those end and it goes."""
+        aid = int(i)
+        links = self.system.q("SELECT id FROM links WHERE status IN ('pending','active') AND "
+                              "((env_a=? AND account_a=?) OR (env_b=? AND account_b=?))",
+                              (self.env_id, aid, self.env_id, aid))
+        shares = self.system.q("SELECT id FROM shares WHERE status IN ('pending','active') AND env_a=? AND account_a=?",
+                               (self.env_id, aid))
+        if (links or shares) and q.get("end") != "1":
+            raise ApiError("This account is " + ("connected to" if links else "shared with") +
+                           " another environment. Deleting it ends that too.", 409, field="connected")
+        a = self.store.account(aid)
+        for s in shares:
+            self.system.end_share(self.uid, s["id"])
+        for l in links:
+            if self.system.q1("SELECT status FROM links WHERE id=?", (l["id"],))["status"] in ("pending", "active"):
+                self.system.end_link(self.uid, l["id"])
+        # A card paid from another environment: its payment there stops.
+        if a["details"].get("pay_from_env_id"):
+            self.system.stop_card_payment(a["details"]["pay_from_env_id"], self.env_id, aid)
+        self.store.delete_account(aid)
 
     def pay_loan(self, aid, b):
         """A payment made from the loan screen; if it's the scheduled one, move the schedule on."""

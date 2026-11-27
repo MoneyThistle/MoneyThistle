@@ -12,6 +12,18 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
 - **Settings ask before losing changes:** leaving a Settings page (another section, another page)
   with changes not yet saved asks to save, not save, or keep editing; reloading or closing the tab
   gets the browser's own warning.
+- **Deleting an account works when it's connected or shared:** it used to refuse without showing
+  why. Now it says so and offers to end the connection or sharing and delete it. Entries on the other
+  side of its transfers stay and keep saying where the money went ("Transfer to Visa (deleted)",
+  or "Transfer to Visa (Personal)" in another environment).
+- **A card paid from another environment's account:** a card's **Pay from** also lists accounts in
+  other environments you own. The payment is kept where the money leaves (say Household's checking),
+  connected by itself, and shows on the card's side too: its Bills & Deposits and Home, to record or
+  change from either. It counts in the budget of the environment the money leaves, once.
+- **Reminders only for what needs you:** the daily summary leaves out automatic items (autopay,
+  direct deposit) and includes the bills of accounts shared with you, each item once.
+- **Emails look like MoneyThistle:** the wordmark on the navy band, the message on a card, links you
+  can click and a button for the password link (plain text still goes along for every email app).
 
 ## 1.0.4 (2026-11-26)
 

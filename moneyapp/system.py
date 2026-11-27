@@ -767,10 +767,14 @@ class System:
                 st.db.execute("UPDATE bills SET active=0 WHERE x_link_id=?", (lid,))
                 st.db.commit()
             st = self.store(env)
+            # (each side keeps saying where its money went: "Transfer to Card (Personal)")
+            oe, oa = (l["env_b"], l["account_b"]) if env == l["env_a"] else (l["env_a"], l["account_a"])
+            where = f"{self.account_name(oe, oa) or '?'} ({self.env_name(oe)})"
             with st.lock:
                 st.db.execute("UPDATE transactions SET memo = CASE WHEN memo='' THEN ? ELSE memo || ' · ' || ? END, "
+                              "gone_transfer = CASE WHEN category_id IS NULL THEN ? ELSE gone_transfer END, "
                               "xlink_id=NULL, xtx_id=NULL WHERE xlink_id=?",
-                              ("transfer between environments", "transfer between environments", lid))
+                              ("transfer between environments", "transfer between environments", where, lid))
                 st.db.commit()
                 st.changed()
         self.exec("UPDATE links SET status='ended', ended_by=?, ended=? WHERE id=?", (uid, _now(), lid))
@@ -785,6 +789,78 @@ class System:
             out.append({"link_id": l["id"], "env_id": other_env, "env_name": self.env_name(other_env),
                         "account_id": other_acct, "account_name": self.account_name(other_env, other_acct)})
         return out
+
+    # ----- a card paid from an account in another environment ---------------------------
+    def owned_link(self, uid, env_a, acct_a, env_b, acct_b):
+        """The active connection between two accounts in different environments; made on the
+        spot when this person owns both (no request: they would only approve it themselves)."""
+        env_a, acct_a, env_b, acct_b = int(env_a), int(acct_a), int(env_b), int(acct_b)
+        l = self.q1("SELECT id FROM links WHERE status='active' AND ((env_a=? AND account_a=? AND env_b=? AND account_b=?) "
+                    "OR (env_a=? AND account_a=? AND env_b=? AND account_b=?))",
+                    (env_a, acct_a, env_b, acct_b, env_b, acct_b, env_a, acct_a))
+        if l:
+            return l["id"]
+        if env_a == env_b:
+            raise ApiError("Both accounts are in the same environment")
+        for e in (env_a, env_b):
+            if self.role(uid, e) != "owner":
+                raise ApiError("A card can be paid from another environment's account when you own both environments", 403)
+        if not self.account_name(env_a, acct_a) or not self.account_name(env_b, acct_b):
+            raise ApiError("Choose one of your accounts")
+        return self.exec("INSERT INTO links(env_a,account_a,env_b,account_b,status,created_by,created,approved_a_by,"
+                         "approved_b_by,approved,note) VALUES(?,?,?,?,'active',?,?,?,?,?,?)",
+                         (env_a, acct_a, env_b, acct_b, uid, _now(), uid, uid, _now(), "made for a card payment"))
+
+    def set_card_payment(self, uid, pay_env, pay_acct, card_env, card_id, card_name, det):
+        """A card's scheduled payment from an account in another environment: kept in the
+        environment the money leaves, as a transfer through their connection (one per card)."""
+        lid = self.owned_link(uid, pay_env, pay_acct, card_env, card_id)
+        st = self.store(pay_env)
+        key = f"{int(card_env)}:{int(card_id)}"
+        day = int(det["due_day"])
+        mode = "fixed" if det.get("pay_mode") == "fixed" else "average"
+        label = f"{card_name} ({self.env_name(card_env)})"
+        with st.lock:
+            b = st.q1("SELECT * FROM bills WHERE x_card=? ORDER BY active DESC, id DESC", (key,))
+            vals = (f"{card_name} payment", int(pay_acct), det.get("pay_amount") or 0, mode, day)
+            if b:
+                nd = b["next_date"] if b["active"] and b["anchor_day"] == day else st._next_due(day).isoformat()
+                st.db.execute("UPDATE bills SET kind='transfer', payee=?, account_id=?, to_account_id=NULL, card_account_id=NULL, "
+                              "amount=?, amount_mode=?, anchor_day=?, next_date=?, frequency='Monthly', x_link_id=?, "
+                              "x_dir='out', x_label=?, active=1 WHERE id=?", vals + (nd, lid, label, b["id"]))
+            else:
+                st.db.execute("INSERT INTO bills(kind,payee,account_id,amount,amount_mode,anchor_day,next_date,frequency,"
+                              "x_link_id,x_dir,x_label,x_card,memo) VALUES('transfer',?,?,?,?,?,?,'Monthly',?,'out',?,?,'')",
+                              vals + (st._next_due(day).isoformat(), lid, label, key))
+            st.db.commit()
+            st.changed()
+        return lid
+
+    def stop_card_payment(self, pay_env, card_env, card_id):
+        """The card is no longer paid from that environment: its scheduled payment there stops."""
+        try:
+            st = self.store(int(pay_env))
+        except ApiError:
+            return
+        with st.lock:
+            st.db.execute("UPDATE bills SET active=0 WHERE x_card=?", (f"{int(card_env)}:{int(card_id)}",))
+            st.db.commit()
+            st.changed()
+
+    def related_bills(self, uid, env_id, days=31):
+        """Scheduled items kept in another environment this person belongs to that move money
+        to or from an account here through a connection (a card here paid from Household's
+        checking): (bills, upcoming), each saying which environment it lives in."""
+        bills, upcoming = [], []
+        for l in self.q("SELECT * FROM links WHERE status='active' AND (env_a=? OR env_b=?)", (env_id, env_id)):
+            other = l["env_b"] if l["env_a"] == env_id else l["env_a"]
+            if other == env_id or not self.role(uid, other):
+                continue
+            st = self.store(other)
+            tag = {"id": other, "name": self.env_name(other)}
+            bills += [dict(b, from_env=tag) for b in st.bills() if b.get("x_link_id") == l["id"]]
+            upcoming += [dict(u, from_env=tag) for u in st.upcoming(days) if u.get("x_link_id") == l["id"]]
+        return bills, upcoming
 
     def link_other_side(self, lid, env_id, account_id):
         l = self.q1("SELECT * FROM links WHERE id=? AND status='active'", (lid,))

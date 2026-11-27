@@ -443,6 +443,14 @@ class Store:
         if "card_account_id" not in cols("bills"):
             # The scheduled payment a credit card's details keep up to date.
             self.db.execute("ALTER TABLE bills ADD COLUMN card_account_id INTEGER")
+        if "x_card" not in cols("bills"):
+            # A card in another environment paid from here: "<its environment>:<its account>".
+            self.db.execute("ALTER TABLE bills ADD COLUMN x_card TEXT")
+        if "gone_transfer" not in cols("transactions"):
+            # The other half of a transfer whose partner is gone (its account deleted, or the
+            # connection between environments ended): where the money went, so the entry still
+            # reads "Transfer to <account> (deleted)" or "Transfer to <account> (<environment>)".
+            self.db.execute("ALTER TABLE transactions ADD COLUMN gone_transfer TEXT")
         # Paystubs: a paycheck's earnings, taxes and deductions (see paystubs.py); its
         # entries are one group in the account the pay went into.
         self.db.execute("CREATE TABLE IF NOT EXISTS paystubs (group_id INTEGER PRIMARY KEY, "
@@ -779,9 +787,13 @@ class Store:
                 if not out.get("due_day"):
                     raise ApiError("To keep the card payment on the schedule, enter the day the payment is due", field="due_day")
                 src = int(d.get("pay_from_account_id") or 0)
-                if not src or not self.q1("SELECT 1 FROM accounts WHERE id=?", (src,)):
+                # (an account in another environment: the server checks it and keeps the payment there)
+                xenv = int(d.get("pay_from_env_id") or 0)
+                if not src or (not xenv and not self.q1("SELECT 1 FROM accounts WHERE id=?", (src,))):
                     raise ApiError("Choose the account the card payment comes from", field="pay_from_account_id")
                 out["pay_from_account_id"] = src
+                if xenv:
+                    out["pay_from_env_id"] = xenv
                 mode = d.get("pay_mode") or "varies"
                 if mode not in ("full", "fixed", "varies"):
                     raise ApiError("Payment amount must be full, fixed or varies", field="pay_mode")
@@ -946,7 +958,8 @@ class Store:
         the paying account to the card, monthly on the due day. Turned off, it stops
         (kept inactive, so what was paid stays counted)."""
         bill = self.q1("SELECT * FROM bills WHERE card_account_id=? ORDER BY active DESC, id DESC", (aid,))
-        if not det.get("auto_pay"):
+        if not det.get("auto_pay") or det.get("pay_from_env_id"):
+            # (paid from another environment: the payment is kept there, see System.set_card_payment)
             if bill:
                 self.db.execute("UPDATE bills SET active=0 WHERE card_account_id=?", (aid,))
             return
@@ -997,7 +1010,7 @@ class Store:
                 det = json.loads(old["details"] or "{}") if old else {}
             else:
                 det = {}
-            if det.get("pay_from_account_id") and det["pay_from_account_id"] == aid:
+            if det.get("pay_from_account_id") and det["pay_from_account_id"] == aid and not det.get("pay_from_env_id"):
                 raise ApiError("A card can't be paid from itself", field="pay_from_account_id")
             # Its currency: as given, else as it was (or the main currency for a new one).
             was = self.q1("SELECT currency FROM accounts WHERE id=?", (aid,)) if aid else None
@@ -1027,9 +1040,11 @@ class Store:
 
     def delete_account(self, aid):
         with self.lock:
-            # Linked halves of transfers in other accounts lose their partner.
-            self.db.execute("UPDATE transactions SET transfer_id=NULL WHERE transfer_id IN "
-                            "(SELECT id FROM transactions WHERE account_id=?)", (aid,))
+            # Linked halves of transfers in other accounts lose their partner, but keep saying
+            # where the money went: "Transfer to <the deleted account> (deleted)".
+            name = (self.q1("SELECT name FROM accounts WHERE id=?", (aid,)) or {}).get("name") or "?"
+            self.db.execute("UPDATE transactions SET transfer_id=NULL, gone_transfer=? WHERE transfer_id IN "
+                            "(SELECT id FROM transactions WHERE account_id=?)", (name + " (deleted)", aid))
             self.db.execute("DELETE FROM bills WHERE loan_account_id=?", (aid,))
             self.db.execute("DELETE FROM accounts WHERE id=?", (aid,))
             self.db.commit()
@@ -1055,6 +1070,8 @@ class Store:
             elif r["category_name"]:
                 r["category_label"] = (f"{r['parent_category_name']} : {r['category_name']}"
                                        if r["parent_category_name"] else r["category_name"])
+            elif r.get("gone_transfer"):
+                r["category_label"] = ("Transfer to " if r["amount"] < 0 else "Transfer from ") + r["gone_transfer"]
             else:
                 r["category_label"] = ""
         return rows

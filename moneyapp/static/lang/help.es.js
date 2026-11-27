@@ -261,6 +261,9 @@ I18N.helpText({
         <li><b>Correo de bienvenida:</b> con el correo configurado (Configuración › Notificaciones), al agregar a alguien se le puede enviar una bienvenida:
           quién lo agregó, su nombre de usuario, las direcciones para abrir MoneyThistle, qué puede ver y un enlace para elegir su
           propia contraseña (funciona una vez, durante 3 días). <b>Enviar bienvenida</b> en la lista la vuelve a enviar.</li>
+        <li><b>Una tarjeta pagada desde otro entorno:</b> en los detalles de una tarjeta, <b>Pagar desde</b> también muestra cuentas
+          de otros entornos que son tuyos. El pago se guarda donde sale el dinero (por ejemplo la cuenta corriente de Household),
+          conectado solo, y también se ve en Facturas y depósitos y en el Inicio de la tarjeta.</li>
         <li><b>Entornos</b> son grupos de cuentas separados (Personal, Negocio, Suegros…). Solo sus miembros los ven. Los dueños
           agregan miembros como dueño, editor (puede cambiar cosas) o lector (solo mira). Cambia arriba a la derecha.</li>
         <li><b>Cuentas compartidas:</b> muestra una cuenta también en otro entorno (tu cuenta corriente en el entorno de tu pareja):
@@ -331,6 +334,9 @@ I18N.helpText({
           dentro tiene un valor.</li>
       </ul>` },
     notifications: { title: "Notificaciones", body: `
+      <p>El resumen diario te recuerda lo que necesita tu atención: lo que no es automático y está por vencer o atrasado, en cada
+      entorno al que perteneces y cada cuenta compartida contigo, una vez cada uno. Lo automático (débitos automáticos, depósitos
+      directos) no aparece: ocurre solo.</p>
       <p>Configuración → Notificaciones envía un resumen diario (lo que vence, lo que se registró automáticamente, problemas de
       respaldo) por correo, Pushover, ntfy o Gotify. Cada persona configura el suyo; el correo puede usar la configuración
       compartida que ingresó un administrador, o la propia.</p>` },

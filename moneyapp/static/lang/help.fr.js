@@ -266,6 +266,9 @@ I18N.helpText({
         <li><b>Courriel de bienvenue :</b> avec le courriel configuré (Paramètres › Notifications), ajouter quelqu'un peut lui envoyer une bienvenue :
           qui l'a ajouté, son nom d'utilisateur, les adresses pour ouvrir MoneyThistle, ce qu'il ou elle peut voir, et un lien pour choisir
           son propre mot de passe (il fonctionne une fois, pendant 3 jours). <b>Envoyer une bienvenue</b> dans la liste la renvoie.</li>
+        <li><b>Une carte payée depuis un autre environnement :</b> dans les détails d'une carte, <b>Payer à partir de</b> liste aussi
+          les comptes des autres environnements qui vous appartiennent. Le paiement est gardé là où l'argent sort (par exemple le compte
+          chèques de Household), connecté tout seul, et s'affiche aussi dans Factures et dépôts et l'Accueil de la carte.</li>
         <li><b>Environnements</b> : des ensembles de comptes distincts (Personnel, Entreprise, Beaux-parents…). Seuls les membres en
           voient un. Les propriétaires ajoutent des membres comme propriétaire, rédacteur (peut modifier) ou lecteur (consulte
           seulement). Changez en haut à droite.</li>
@@ -342,6 +345,9 @@ I18N.helpText({
           quelque chose dedans a une valeur.</li>
       </ul>` },
     notifications: { title: "Notifications", body: `
+      <p>Le résumé quotidien rappelle ce qui demande votre attention : les éléments non automatiques bientôt dus ou en retard,
+      dans chaque environnement dont vous faites partie et chaque compte partagé avec vous, une seule fois chacun. Les automatiques
+      (prélèvements, dépôts directs) n'y sont pas : ils se font tout seuls.</p>
       <p>Paramètres → Notifications envoie un résumé quotidien (ce qui est dû, ce qui a été inscrit automatiquement, les problèmes
       de sauvegarde) par courriel, Pushover, ntfy ou Gotify. Chaque personne configure le sien; le courriel peut utiliser les
       paramètres partagés qu'un administrateur a entrés, ou les siens.</p>` },

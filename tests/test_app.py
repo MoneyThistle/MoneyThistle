@@ -303,9 +303,14 @@ DATA:OFXSGML
         yesterday = (dt.date.today() - dt.timedelta(days=1)).isoformat()
         st.save_bill({"kind": "bill", "payee": "Rent", "account_id": chk, "amount": "900",
                       "frequency": "Monthly", "next_date": yesterday})
+        # An automatic item (autopay) happens by itself: no reminder, due or late.
+        auto = st.save_bill({"kind": "bill", "payee": "Gym autopay", "account_id": chk, "amount": "30",
+                             "frequency": "Monthly", "next_date": yesterday})
+        st.set_bill_auto(auto, True, False)
         text = nt.summary()
         self.assertIn("OVERDUE", text)
         self.assertIn("Rent $900.00", text)
+        self.assertNotIn("Gym autopay", text)
         self.assertIn("forecast to go below zero", text)
         # Secrets are kept but never handed back; left empty, they stay.
         pub = nt.save({"ntfy": {"enabled": True, "server": f"http://127.0.0.1:{srv.server_address[1]}",
@@ -1827,6 +1832,75 @@ DATA:OFXSGML
         self.assertEqual(sorted(a["name"] for a in only["accounts"]), ["Business Checking", "Joint Checking"])
         self.assertEqual(len(c.call("GET", "/api/summary?scope=all&envs=999", env=1)["accounts"]), 1)
 
+    def test_card_paid_from_another_environment_and_deleting(self):
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        hh = c.call("POST", "/api/envs", {"name": "Household"})["id"]
+        hchk = c.call("POST", "/api/accounts", {"name": "Joint Checking", "type": "Checking", "opening_balance": "3000"}, env=hh)["id"]
+        due = (dt.date.today() + dt.timedelta(days=5)).day
+        card_det = {"due_day": due, "auto_pay": True, "pay_mode": "fixed", "pay_amount": "200",
+                    "pay_from_env_id": hh, "pay_from_account_id": hchk}
+        card = c.call("POST", "/api/accounts", {"name": "Visa", "type": "Credit Card", "opening_balance": "-500",
+                                                 "details": card_det}, env=1)["id"]
+        # Kept in Household (where the money leaves), through a connection made by itself.
+        hb = [b for b in c.call("GET", "/api/bills", env=hh)["bills"] if b["payee"] == "Visa payment"]
+        self.assertEqual(len(hb), 1)
+        self.assertEqual((hb[0]["account_id"], hb[0]["x_dir"], hb[0]["amount"]), (hchk, "out", 20000))
+        self.assertTrue(self.system.q1("SELECT 1 FROM links WHERE status='active' AND id=?", (hb[0]["x_link_id"],)))
+        # Shown in Personal too, saying where it lives; nothing scheduled twice.
+        mine = c.call("GET", "/api/bills", env=1)
+        self.assertEqual([b["payee"] for b in mine["bills"]], [])
+        self.assertEqual([(b["payee"], b["from_env"]["id"]) for b in mine["related"]["bills"]], [("Visa payment", hh)])
+        home = c.call("GET", "/api/summary?days=40", env=1)
+        self.assertTrue(any(u["payee"] == "Visa payment" and u["env_id"] == hh for u in home["upcoming"]))
+        # Recorded (in Household): the card owes less in Personal.
+        c.call("POST", f"/api/bills/{hb[0]['id']}/enter", {}, env=hh)
+        self.assertEqual(self.system.store(1).account(card)["balance"], -30000)
+        # Back to paying it from Personal: Household's stops, the card's own starts.
+        pchk = c.call("POST", "/api/accounts", {"name": "My Checking", "type": "Checking", "opening_balance": "800"}, env=1)["id"]
+        det = dict(card_det, pay_from_account_id=pchk)
+        det.pop("pay_from_env_id")
+        c.call("PUT", f"/api/accounts/{card}", {"name": "Visa", "type": "Credit Card", "opening_balance": "-500",
+                                               "details": det}, env=1)
+        self.assertFalse([b for b in c.call("GET", "/api/bills", env=hh)["bills"] if b["payee"] == "Visa payment"])
+        self.assertEqual([b["card_account_id"] for b in c.call("GET", "/api/bills", env=1)["bills"]], [card])
+        # Only between environments you own.
+        c.call("POST", "/api/users", {"username": "vic", "password": "vic-pass-123"})
+        c.call("PUT", "/api/envs/1/members", {"username": "vic", "role": "editor"})
+        v = Client(base)
+        v.call("POST", "/api/login", {"username": "vic", "password": "vic-pass-123"})
+        self.assertEqual(v.status("PUT", f"/api/accounts/{card}", {"name": "Visa", "type": "Credit Card",
+                                                                  "details": card_det}, env=1), 403)
+        # Deleting: a transfer to it keeps saying where it went; a connected account asks first.
+        st = self.system.store(1)
+        st.save_transaction({"account_id": pchk, "amount": "-50", "payee": "Pay card", "transfer_account_id": card})
+        req = c._req("DELETE", f"/api/accounts/{card}", None, 1)
+        with self.assertRaises(urllib.error.HTTPError) as e:
+            c.opener.open(req)
+        self.assertEqual(e.exception.code, 409)
+        self.assertEqual(json.loads(e.exception.read())["field"], "connected")
+        c.call("DELETE", f"/api/accounts/{card}?end=1", env=1)
+        self.assertFalse(any(a["id"] == card for a in st.accounts()))
+        left = [t for t in st.transactions(account_id=pchk) if t["payee"] == "Pay card"][0]
+        self.assertEqual(left["category_label"], "Transfer to Visa (deleted)")
+        paid = [t for t in self.system.store(hh).transactions(account_id=hchk) if t["amount"] == -20000][0]
+        self.assertEqual(paid["category_label"], "Transfer to Visa (Personal)")
+        self.assertEqual(self.system.store(hh).account(hchk)["balance"], 280000)    # its side stays
+
+    def test_email_looks(self):
+        # Emails go as plain text plus a dressed-up version: the wordmark inside the email
+        # (nothing fetched), links, a button for a link on its own line, lists.
+        from moneyapp.notify import email_html, _wordmark
+        h = email_html("Welcome to MoneyThistle", "Hello <Sam>,\n\n   http://x.lan:8080/#/reset/tok\n\n"
+                       "What you can see:\n  - Personal (owner)\n\nSee http://x.lan:8080/ any time.", "logo1")
+        self.assertIn('src="cid:logo1"', h)
+        self.assertIn("Choose your password", h)
+        self.assertIn('<li style="margin:3px 0">Personal (owner)</li>', h)
+        self.assertIn('<a href="http://x.lan:8080/"', h)
+        self.assertIn("Hello &lt;Sam&gt;", h)               # what people typed can't become markup
+        self.assertTrue(_wordmark().startswith(b"\x89PNG"))
+
     def test_welcome_email_for_a_new_person(self):
         app, base = self._serve()
         app.urls = ["http://127.0.0.1:8080/", "http://192.168.1.20:8080/", "http://tower.tail1234.ts.net:8080/"]
@@ -2440,7 +2514,7 @@ DATA:OFXSGML
         # Someone outside her environment can't use the share.
         self.assertEqual(shared(other, "GET", "/api/accounts")[0], 403)
         # The account can't be deleted while shared; ending the share removes it from her list.
-        self.assertEqual(me.status("DELETE", f"/api/accounts/{chk}", env=1), 400)
+        self.assertEqual(me.status("DELETE", f"/api/accounts/{chk}", env=1), 409)   # it asks first (end it and delete?)
         wife.call("POST", f"/api/shares/{sid}/end")
         self.assertEqual(wife.call("GET", "/api/shares/incoming", env=hers), [])
         self.assertEqual(shared(wife, "GET", "/api/accounts")[0], 403)

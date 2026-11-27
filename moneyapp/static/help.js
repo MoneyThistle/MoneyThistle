@@ -256,6 +256,9 @@ const HELP = {
         <li><b>Welcome email:</b> with email set up (Settings › Notifications), adding someone can email them a welcome:
           who added them, their user name, the addresses to open MoneyThistle at, what they can see, and a link to choose their
           own password (it works once, for 3 days), so you don't have to make one up. <b>Email a welcome</b> in the list sends it again.</li>
+        <li><b>A card paid from another environment:</b> in a card's details, <b>Pay from</b> also lists accounts in other
+          environments you own. The payment is kept where the money leaves (say Household's checking), connected by itself,
+          and shows on the card's Bills &amp; Deposits and Home too, to record or change from either side.</li>
         <li><b>Environments</b> are separate sets of accounts (Personal, Business, In-laws…). Only members see one.
           Owners add members as owner, editor (can change things) or viewer (can only look). Switch at the top right.</li>
         <li><b>Shared accounts:</b> show one account in another environment too (your checking in your spouse's
@@ -323,6 +326,9 @@ const HELP = {
           has a value.</li>
       </ul>` },
     { id: "notifications", title: "Notifications", tab: "settings/notifications", body: `
+      <p>The daily summary reminds you of what needs you: items that aren't automatic, coming due or late, in every
+      environment you're in and every account shared with you, each once. Automatic ones (autopay, direct deposit) aren't
+      in it: they happen by themselves.</p>
       <p>Settings → Notifications sends a daily summary (what's due, what was recorded automatically, backup
       problems) by email, Pushover, ntfy or Gotify. Each person sets up their own; email can use the shared mail
       settings an administrator entered, or the person's own.</p>` },

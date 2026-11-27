@@ -1103,6 +1103,11 @@ async function editAccount(acc) {
   if (acc && acc.has_loan) return editLoan(acc);
   const a = acc || { name: "", type: "Checking", opening_balance: 0, opening_date: todayISO() };
   const isLiab = t => (S.meta.liability_types || []).includes(t);
+  // A card can be paid from an account in another environment you own (both yours: the
+  // connection is made by itself).
+  const xsrc = envRole() === "owner" && !S.shareCtx ? await Promise.all((S.me.envs || []).filter(e => e.role === "owner" && e.id !== S.env)
+    .map(e => GET(`/api/envs/${e.id}/accounts`).then(list => ({ e, list: list.filter(x => !isLiab(x.type)) })).catch(() => ({ e, list: [] }))))
+    .then(r => r.filter(x => x.list.length)) : [];
   const body = `<div class="form">
     <div class="wide"><label class="req">Account name</label><input name="name" value="${esc(a.name)}" required></div>
     <div><label>Type</label><select name="type">${S.meta.account_types.map(t => `<option ${t === a.type ? "selected" : ""}>${t}</option>`).join("")}</select></div>
@@ -1113,7 +1118,7 @@ async function editAccount(acc) {
     <div><label class="check"><input type="checkbox" name="favorite" ${a.favorite ? "checked" : ""}> Favorite (list first)</label></div>
     ${acc ? `<div><label class="check"><input type="checkbox" name="closed" ${a.closed ? "checked" : ""}> Account is closed</label></div>` : ""}
   </div><p class="small muted">For credit cards and loans, enter what you owe as a positive number. <span class="req-note"><b>*</b> must be filled in.</span></p>
-  ${accountDetailsForm(a)}`;
+  ${accountDetailsForm(a, xsrc)}`;
   const btns = [{ label: "Cancel" }];
   const ownedElsewhere = (S.me.envs || []).filter(e => e.role === "owner" && e.id !== S.env);
   // Moving accounts between environments: an Everything feature.
@@ -1122,7 +1127,14 @@ async function editAccount(acc) {
   if (acc) btns.unshift({
     label: "Delete account", cls: "danger", action: async () => {
       if (!(await confirmBox(`Delete "${a.name}" and all of its transactions? Close it instead to keep its history.`))) return false;
-      await api("DELETE", "/api/accounts/" + a.id); await loadBasics(); location.hash = "#/accounts"; render(); return true;
+      // (the question took the window over: what follows is said in toasts and questions of its own)
+      try { await api("DELETE", "/api/accounts/" + a.id); }
+      catch (e) {
+        if (e.field !== "connected") { toast(e.message, true); return true; }
+        if (!(await confirmBox(e.message + " Delete it anyway?"))) return true;
+        try { await api("DELETE", `/api/accounts/${a.id}?end=1`); } catch (e2) { toast(e2.message, true); return true; }
+      }
+      await loadBasics(); location.hash = "#/accounts"; render(); toast("Account deleted"); return true;
     }
   });
   btns.push({
@@ -1131,6 +1143,9 @@ async function editAccount(acc) {
       // Detail fields are named d_<field>: gathered into one "details" object.
       f.details = {};
       for (const k of Object.keys(f)) if (k.startsWith("d_")) { f.details[k.slice(2)] = f[k]; delete f[k]; }
+      // "e<environment>:<account>": a card paid from an account in another environment.
+      const pf = String(f.details.pay_from_account_id || "");
+      if (pf.startsWith("e")) { const [e, x] = pf.slice(1).split(":"); f.details.pay_from_env_id = +e; f.details.pay_from_account_id = +x; }
       let ob = parseAmount(f.opening_balance) || 0;
       if (isLiab(f.type)) ob = -Math.abs(ob);
       f.opening_balance = ob.toFixed(2);
@@ -1203,7 +1218,7 @@ const BANK_TYPES = ["Checking", "Savings", "Money Market", "CD"];
 // Accounts whose value moves with what they hold: "Update value" (investments are reminded monthly).
 const VALUE_TYPES = ["Investment", "Retirement", "Asset"];
 const VALUE_REMIND_TYPES = ["Investment", "Retirement"];
-function accountDetailsForm(a) {
+function accountDetailsForm(a, xsrc) {
   const d = a.details || {};
   const has = Object.keys(d).some(k => d[k] !== "" && d[k] !== false && d[k] != null);
   const payFrom = d.pay_from_account_id || (S.accounts.find(x => x.type === "Checking") || {}).id;
@@ -1251,7 +1266,10 @@ function accountDetailsForm(a) {
       <label class="check" style="margin-top:10px"><input type="checkbox" name="d_auto_pay" ${d.auto_pay ? "checked" : ""}> Keep the card payment on my Bills &amp; Deposits schedule, every month on the due day</label>
       <div class="d-autopay" style="margin:6px 0 0 24px">
         <div class="form">
-          <div><label class="req">Pay from</label><select name="d_pay_from_account_id">${sources.length ? "" : `<option value="">(add a checking or savings account first)</option>`}${sources.map(x => `<option value="${x.id}" ${x.id == payFrom ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
+          <div><label class="req">Pay from</label><select name="d_pay_from_account_id">${sources.length || (xsrc || []).length ? "" : `<option value="">(add a checking or savings account first)</option>`}${(xsrc || []).length
+            ? `<optgroup label="${esc((S.me.envs.find(e => e.id === S.env) || {}).name || "")}">` : ""}${sources.map(x => `<option value="${x.id}" ${!d.pay_from_env_id && x.id == payFrom ? "selected" : ""}>${esc(x.name)}</option>`).join("")}${(xsrc || []).length ? "</optgroup>" : ""}
+            ${(xsrc || []).map(({ e, list }) => `<optgroup label="${esc(e.name)}">${list.map(x => `<option value="e${e.id}:${x.id}" ${d.pay_from_env_id == e.id && x.id == d.pay_from_account_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</optgroup>`).join("")}</select>
+            ${(xsrc || []).length ? `<div class="small muted" style="margin-top:2px">An account in another environment you own works too: the payment is kept there, and shows here as well.</div>` : ""}</div>
           <div><label id="lblPayAmt">Amount</label><input name="d_pay_amount" class="num" placeholder="0.00" value="${d.pay_amount ? dollars(d.pay_amount) : ""}"></div>
         </div>
         <label class="check"><input type="radio" name="d_pay_mode" value="varies" ${mode === "varies" ? "checked" : ""}> It varies: expect the average of what I've paid (the amount above until then)</label>
@@ -3238,9 +3256,14 @@ async function loadBillData(days) {
   const here = all ? ((S.me.envs.find(e => e.id === S.env) || {}).name || "") : "";
   const tagEnv = (x, e) => ({ ...x, _env: e, env_id: e.id, env_name: e.name, _key: `e${e.id}-a${x.account_id}`, _acct: `${x.account_name} · ${e.name}` });
   const hereTag = x => all ? { ...tag(x), env_id: S.env, env_name: here, _acct: `${x.account_name} · ${here}` } : tag(x);
+  // Items kept in another of my environments that pay an account here (a card here paid from
+  // Household's checking): shown with that environment, acted on there.
+  const rel = own.related || { bills: [], upcoming: [] };
+  const related = list => rel[list].filter(x => !(all && mine.has(x.from_env.id)))
+    .map(x => ({ ...tagEnv(x, x.from_env), _key: `e${x.from_env.id}-a${x.account_id}` }));
   return {
-    bills: own.bills.map(hereTag).concat(pickShared("bills"), ...others.map(({ e, d }) => d.bills.map(b => tagEnv(b, e)))),
-    upcoming: own.upcoming.map(hereTag).concat(pickShared("upcoming"), ...others.map(({ e, d }) => d.upcoming.map(u => tagEnv(u, e))))
+    bills: own.bills.map(hereTag).concat(related("bills"), pickShared("bills"), ...others.map(({ e, d }) => d.bills.map(b => tagEnv(b, e)))),
+    upcoming: own.upcoming.map(hereTag).concat(related("upcoming"), pickShared("upcoming"), ...others.map(({ e, d }) => d.upcoming.map(u => tagEnv(u, e))))
       .sort((a, b) => (a.date > b.date) - (a.date < b.date)),
     statements_due: (own.statements_due || []).concat(...others.map(({ e, d }) => (d.statements_due || []).map(x => ({ ...x, env_id: e.id, env_name: e.name })))),
   };

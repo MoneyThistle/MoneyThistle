@@ -19,7 +19,79 @@ import threading
 import time
 import urllib.parse
 import urllib.request
+import html as _html
+import re as _re
 from email.message import EmailMessage
+from email.utils import make_msgid
+
+_BRAND = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "brand", "wordmark-450.png")
+
+
+def _wordmark():
+    """The MoneyThistle wordmark (sent inside the email, so nothing is fetched from anywhere)."""
+    try:
+        with open(_BRAND, "rb") as f:
+            return f.read()
+    except OSError:
+        return None
+
+
+def email_html(title, body, logo_cid=None):
+    """An email's text as a small, tidy HTML page: the wordmark on the app's navy band, the
+    message on a white card. Paragraphs come from blank lines, "  - " lines become a list, web
+    addresses become links, and a link on a line of its own becomes a button (a password link
+    says what it's for). Everything else is the same words as the plain text."""
+    url = _re.compile(r"https?://\S+")
+
+    def inline(s):
+        out, last = [], 0
+        for m in url.finditer(s):
+            out.append(_html.escape(s[last:m.start()]))
+            u = m.group(0)
+            out.append(f'<a href="{_html.escape(u, quote=True)}" style="color:#1c4b8a">{_html.escape(u)}</a>')
+            last = m.end()
+        out.append(_html.escape(s[last:]))
+        return "".join(out)
+
+    blocks = []
+    for para in _re.split(r"\n\s*\n", body.strip("\n")):
+        lines = [ln.rstrip() for ln in para.split("\n") if ln.strip()]
+        if not lines:
+            continue
+        if len(lines) == 1 and url.fullmatch(lines[0].strip()):
+            u = lines[0].strip()
+            label = "Choose your password" if "#/reset/" in u else "Open MoneyThistle"
+            blocks.append(f'<p style="margin:18px 0"><a href="{_html.escape(u, quote=True)}" style="display:inline-block;'
+                          f'background:#1c4b8a;color:#ffffff;text-decoration:none;font-weight:600;padding:11px 20px;'
+                          f'border-radius:8px">{label}</a></p><p style="margin:0 0 14px;font-size:12px;color:#6b7a8c;'
+                          f'word-break:break-all">{_html.escape(u)}</p>')
+            continue
+        items = [ln.strip()[2:] for ln in lines if ln.strip().startswith("- ")]
+        head = [ln for ln in lines if not ln.strip().startswith("- ")]
+        if items and len(items) == len(lines) - len(head) and all(not ln.strip().startswith("- ") for ln in lines[:len(head)]):
+            if head:
+                blocks.append('<p style="margin:0 0 6px">' + "<br>".join(inline(h.strip()) for h in head) + "</p>")
+            blocks.append('<ul style="margin:0 0 14px;padding-left:20px">' +
+                          "".join(f'<li style="margin:3px 0">{inline(i)}</li>' for i in items) + "</ul>")
+            continue
+        blocks.append('<p style="margin:0 0 14px">' + "<br>".join(inline(ln.strip()) for ln in lines) + "</p>")
+    logo = (f'<img src="cid:{logo_cid}" alt="MoneyThistle" width="240" style="display:block;border:0;width:240px;'
+            f'max-width:70%;height:auto">' if logo_cid else
+            '<span style="font:700 22px Arial,sans-serif;color:#ffffff">MoneyThistle</span>')
+    return (f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">'
+            f'<title>{_html.escape(title)}</title></head>'
+            f'<body style="margin:0;padding:0;background:#eef1f6">'
+            f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f6">'
+            f'<tr><td align="center" style="padding:24px 12px">'
+            f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">'
+            f'<tr><td style="background:#13294b;border-radius:12px 12px 0 0;padding:18px 24px">{logo}</td></tr>'
+            f'<tr><td style="background:#ffffff;border-radius:0 0 12px 12px;padding:24px;'
+            f'font:15px/1.5 -apple-system,Segoe UI,Arial,sans-serif;color:#1d2733">'
+            f'<h1 style="margin:0 0 14px;font-size:19px;color:#13294b">{_html.escape(title.replace("MoneyThistle: ", ""))}</h1>'
+            f'{"".join(blocks)}</td></tr>'
+            f'<tr><td style="padding:12px 8px;font:12px/1.4 Arial,sans-serif;color:#6b7a8c;text-align:center">'
+            f'Sent by MoneyThistle, your household money app. It works on your home network, not from the internet.'
+            f'</td></tr></table></td></tr></table></body></html>')
 
 from .store import ApiError
 
@@ -231,7 +303,14 @@ class Notifier:
         msg["Subject"] = title
         msg["From"] = c.get("from") or c.get("username") or "moneythistle@localhost"
         msg["To"] = c["to"]
+        # Plain text for every email app, and a dressed-up version (the wordmark on the
+        # header band, links and buttons) for the ones that show it.
         msg.set_content(body)
+        logo = _wordmark()
+        cid = make_msgid(domain="moneythistle.local")
+        msg.add_alternative(email_html(title, body, cid[1:-1] if logo else None), subtype="html")
+        if logo:
+            msg.get_payload()[1].add_related(logo, "image", "png", cid=cid, filename="moneythistle.png")
         port, sec = int(c.get("port") or 587), c.get("security", "starttls")
         ctx = ssl.create_default_context()
         if sec == "ssl":
@@ -289,21 +368,36 @@ class Notifier:
         today = dt.date.today()
         since = s.get("last_sent_at") or 0
         parts = []
-        for eid in self._env_ids(who):
+        env_ids = self._env_ids(who)
+        seen = set()      # (environment, item, date): each item once, however it's reached
+        for eid in env_ids:
             name = (self.system.q1("SELECT name FROM environments WHERE id=?", (eid,)) or {}).get("name", "?")
             st = self.system.store(eid)
             lines = []
-            # (a deposit into more than one account: once, at its total)
+            # Only what needs the person: automatic items (autopay, direct deposit) happen by
+            # themselves, so they aren't reminded of, due or late. A deposit into more than one
+            # account: once, at its total.
             up = [dict(u, amount=u.get("split_total") or u["amount"]) for u in st.upcoming(max(s["due_days"], 0))
-                  if u["first"] and not u.get("split_of")]
+                  if u["first"] and not u.get("split_of") and not u.get("auto")]
+            if who != ADMIN:
+                # Items of accounts shared into this environment with their bills, kept elsewhere.
+                try:
+                    for u in self.system.incoming_bills(int(who), eid, max(s["due_days"], 0)):
+                        if u["first"] and not u.get("split_of") and not u.get("auto") and u["share_env_id"] not in env_ids:
+                            up.append(dict(u, amount=u.get("split_total") or u["amount"], _env=u["share_env_id"],
+                                           account_name=f"{u['account_name']}, shared"))
+                except Exception:
+                    pass
+            up = [u for u in up if (u.get("_env", eid), u["id"], u["date"]) not in seen]
+            seen.update((u.get("_env", eid), u["id"], u["date"]) for u in up)
+            up.sort(key=lambda u: (u["date"], u.get("payee") or ""))
             if s["overdue"]:
                 for u in (u for u in up if u["overdue"]):
                     lines.append(f"OVERDUE {u['date']}: {u['payee'] or u['kind']} {money(u['amount'])} ({u['account_name']})")
             if s["due_days"]:
                 for u in (u for u in up if not u["overdue"]):
                     when = "today" if u["date"] == today.isoformat() else u["date"]
-                    lines.append(f"Due {when}: {u['payee'] or u['kind']} {money(u['amount'])}"
-                                 f"{' (automatic)' if u.get('auto') else ''} ({u['account_name']})")
+                    lines.append(f"Due {when}: {u['payee'] or u['kind']} {money(u['amount'])} ({u['account_name']})")
             if s["statements"]:
                 for d in st.statements_due():
                     if d.get("kind") == "value":
