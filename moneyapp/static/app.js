@@ -2924,17 +2924,17 @@ async function editBill(bill, kind, start) {
     <div class="wide"><label>Pay to / receive from</label><input name="payee" value="${esc(b.payee)}" list="pl"></div>
     <div class="wide paycheckf" style="grid-column:1/-1"><label class="check"><input type="checkbox" name="paycheck" ${b.paycheck ? "checked" : ""}> This is a paycheck</label>
       <div class="small muted" style="margin-left:24px">The amount is your take-home pay (what reaches the account). When it comes in, record just that, or add the paystub too: gross pay and deductions.</div></div>
-    <div><label id="amtLabel">${varies ? "Starting estimate (optional)" : "Amount"}</label>
+    <div class="top"><label id="amtLabel">${varies ? "Starting estimate (optional)" : "Amount"}</label>
       <input name="amount" class="num" value="${est ? dollars(est) : ""}" placeholder="${varies ? "none yet" : "0.00"}">
       <div class="small muted" id="avgNote" style="margin-top:3px">${varies && hist.length ? `Average of the last ${hist.length}: <b>${fmt(b.amount, true)}</b> (${hist.map(h => fmt(h.amount, true)).join(", ")})` : (varies ? "Used until the first payment is recorded; after that the average takes over." : "")}</div></div>
-    ${card ? `<div><label>Pay from</label><select name="account_id">${acctOptions(b.account_id)}</select></div>
-      <div><label>To the card</label><div style="padding:6px 0"><b>${esc(cardName)}</b></div></div>
-      <div class="wide small muted" style="grid-column:1/-1">The card's monthly payment: what you change here (where it comes from, the amount, the day) changes the card's details too.</div>`
+    ${card ? `<div class="top"><label>Pay from</label><select name="account_id">${acctOptions(b.account_id)}</select></div>
+      <div class="top"><label>To the card</label><div style="padding:6px 0"><b>${esc(cardName)}</b></div></div>
+      <div class="wide small muted" style="grid-column:1/-1;margin-bottom:4px">The card's monthly payment: what you change here (where it comes from, the amount, the day) changes the card's details too.</div>`
     : xb ? `<div class="wide" style="grid-column:1/-1"><label>Between</label><div style="padding:6px 0"><b>${esc(S.accounts.find(a => a.id === b.account_id)?.name || "")}</b>
         ${b.x_dir === "out" ? "→" : "←"} <b>${esc(b.to_account_name || "")}</b> <span class="small muted">(the accounts of a transfer with another environment can't be changed; delete it and schedule a new one instead)</span></div></div>`
-      : `<div><label>Account</label><select name="account_id">${acctOptions(b.account_id)}${shOptions("")}</select></div>
-    <div class="xfer"><label>To account</label><select name="to_account_id">${acctOptions(b.to_account_id, null)}${shOptions("")}</select></div>
-    <div class="xcur" style="display:none"><label id="xcurLabel">Usually arrives</label><input name="received" class="num" placeholder="optional" value="${b.received ? dollars(b.received) : ""}">
+      : `<div class="top"><label>Account</label><select name="account_id">${acctOptions(b.account_id)}${shOptions("")}</select></div>
+    <div class="xfer top"><label>To account</label><select name="to_account_id">${acctOptions(b.to_account_id, null)}${shOptions("")}</select></div>
+    <div class="xcur top" style="display:none"><label id="xcurLabel">Usually arrives</label><input name="received" class="num" placeholder="optional" value="${b.received ? dollars(b.received) : ""}">
       <div class="small muted">The two accounts are in different currencies: what usually arrives (you can change it each time).</div></div>
     <div class="splitf wide" style="grid-column:1/-1">
       <div id="billSplits"></div>

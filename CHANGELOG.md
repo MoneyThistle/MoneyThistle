@@ -9,6 +9,8 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
   shows their total, are kept with your sign-in (per environment), so another browser or your phone
   shows the same. A choice made earlier in a browser carries over the first time.
 - Home's Looking ahead card now follows that choice too (it always showed the usual accounts).
+- Scheduled items: the amount, the account(s) and "To the card" line up side by side again (a note
+  under the amount pushed the other fields down).
 
 ## 1.0.6 (2026-11-27)
 
