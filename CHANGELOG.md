@@ -5,6 +5,9 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
 
 ## 1.0.6 (not released yet)
 
+- **Restart in Docker and Unraid:** Settings → This computer → Restart MoneyThistle stopped the
+  container, which stayed stopped (the page showed 502) until it was started from the Docker tab.
+  It now starts again by itself, in the same container.
 - Reminders: a new choice, **Automatic items coming due too** (Settings → Notifications), for those
   who want autopay and direct deposits in the daily summary as well. Off unless ticked, as in 1.0.5.
 - Narrow screens: rows of buttons wrap instead of running past the edge of their card (the people

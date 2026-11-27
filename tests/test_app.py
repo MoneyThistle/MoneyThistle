@@ -1893,6 +1893,19 @@ DATA:OFXSGML
         self.assertEqual(paid["category_label"], "Transfer to Visa (Personal)")
         self.assertEqual(self.system.store(hh).account(hchk)["balance"], 280000)    # its side stays
 
+    def test_restart_arguments(self):
+        # A restart (in place in a container, or as a fresh copy) keeps the data folder and port,
+        # opens no new browser tab and loads no sample data.
+        import main
+        old = sys.argv
+        try:
+            sys.argv = ["main.py", "--data", "/data", "--port", "9090", "--demo", "--host", "127.0.0.1"]
+            self.assertEqual(main.restart_args(), ["--data", "/data", "--port", "9090", "--no-browser"])
+        finally:
+            sys.argv = old
+        self._env(MONEYTHISTLE_INSTALL="docker")
+        self.assertTrue(main.in_container())
+
     def test_clearing_ended_connections(self):
         app, base = self._serve()
         c = Client(base)

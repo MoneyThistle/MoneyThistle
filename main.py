@@ -188,19 +188,30 @@ def network_settings(data_dir):
         return {}
 
 
-def restart_self():
-    """Start a fresh copy of this program with the same settings (it loads the
-    files as they are now, so updates take effect), detached like --background
-    when there's no console, then let this one finish."""
+def in_container():
+    """Running in a container: Docker's marker file, or the image's own setting."""
+    return os.path.exists("/.dockerenv") or os.environ.get("MONEYTHISTLE_INSTALL") == "docker"
+
+
+def restart_args():
+    """This copy's arguments for starting it again: no new browser tab, no sample data, and
+    not "--host 127.0.0.1", which older copies passed along (the Settings choice of where to
+    listen takes effect on restart)."""
     argv = [a for a in sys.argv[1:] if a not in ("--background", "--demo")]
-    # Older copies passed "--host 127.0.0.1" along; drop it so the Settings choice of
-    # where to listen takes effect on restart.
     for i in range(len(argv) - 1):
         if argv[i] == "--host" and argv[i + 1] == "127.0.0.1":
             del argv[i:i + 2]
             break
     if "--no-browser" not in argv:
         argv.append("--no-browser")
+    return argv
+
+
+def restart_self():
+    """Start a fresh copy of this program with the same settings (it loads the
+    files as they are now, so updates take effect), detached like --background
+    when there's no console, then let this one finish."""
+    argv = restart_args()
     cmd = [sys.executable, os.path.abspath(__file__)] + argv
     kw = {"cwd": os.path.dirname(os.path.abspath(__file__)), "close_fds": True}
     headless = sys.stdout is None or os.path.basename(sys.executable).lower().startswith("pythonw")
@@ -546,7 +557,7 @@ def main():
     url = f"http://{shown}:{args.port}/"
     # Checks use the plain IPv4 address: an older copy may only listen there.
     probe_url = f"http://127.0.0.1:{args.port}/" if shown == "localhost" else url
-    open_tab = not args.no_browser and not os.environ.get("NO_BROWSER") and not os.path.exists("/.dockerenv")
+    open_tab = not args.no_browser and not os.environ.get("NO_BROWSER") and not in_container()
 
     if args.stop:
         if probe(probe_url) is None:
@@ -608,7 +619,7 @@ def main():
     app.updates.start()   # once a day: is there a newer version? (see updates.py)
 
     reason = {"why": "the server loop ended", "restart": False}
-    in_docker = os.path.exists("/.dockerenv")
+    in_docker = in_container()
 
     def stop(why, restart=False):
         reason["why"] = why
@@ -621,7 +632,7 @@ def main():
     # port and address when they were given.
     app.launch_args = ["--data", os.path.abspath(args.data)] + \
         (["--port", str(args.port)] if args.port != 8080 else []) + (["--host", args.host] if args.host_given else [])
-    if not os.path.exists("/.dockerenv"):
+    if not in_container():
         threading.Thread(target=ensure_menu, args=(args.data, app.launch_args), daemon=True).start()
     app.request_restart = lambda: stop("the Restart button", restart=True)
     app.listen_host = args.host
@@ -631,7 +642,7 @@ def main():
     signal.signal(signal.SIGINT, lambda *_: stop("Ctrl+C or its window closing (SIGINT)"))
     if hasattr(signal, "SIGBREAK"):
         signal.signal(signal.SIGBREAK, lambda *_: stop("its window closing (SIGBREAK)"))
-    in_docker = os.path.exists("/.dockerenv")
+    in_docker = in_container()
     # Addresses to show: worked out at every start (never handed on to a restarted
     # copy). APP_URLS, when set by the person (Docker), is shown as given; a list of
     # only this-computer addresses is what older copies left behind, so it's ignored.
@@ -671,10 +682,19 @@ def main():
         say("Stopped.")
     if reason["restart"]:
         if in_docker:
-            # The container's restart policy starts it again (with the app files as
-            # they are now when /app is mounted from the server).
-            say("Restarting: the container will start it again.")
-            return 0
+            # In a container this is its main process: when it ends, the container stops, and
+            # nothing starts it again unless the container has a restart policy (Unraid's don't).
+            # So it starts afresh in its own place: the same process, the files as they are now.
+            say("Restarting...")
+            try:
+                sys.stdout.flush()
+                sys.stderr.flush()
+            except Exception:
+                pass
+            argv = [sys.executable, os.path.abspath(__file__)] + restart_args()
+            if os.name == "nt":   # (Windows hands these on as one line: paths with spaces need quotes)
+                argv = [f'"{a}"' if " " in a else a for a in argv]
+            os.execv(sys.executable, argv)
         say("Restarting with the current files...")
         restart_self()
     return 0
