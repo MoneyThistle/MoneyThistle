@@ -259,6 +259,7 @@ I18N.add("es", {
 "Asset": "Activo",
 "Assets {}": "Activos {}",
 "Automatic backups": "Respaldos automáticos",
+"Automatic items coming due too (autopay, direct deposit)": "También lo automático por vencer (débitos automáticos, depósitos directos)",
 "Automatic items recorded for you": "Elementos automáticos registrados por ti",
 "Automatic ⟳": "Automático ⟳",
 "Automatic ⟳:": "Automático ⟳:",

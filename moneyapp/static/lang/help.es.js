@@ -336,7 +336,7 @@ I18N.helpText({
     notifications: { title: "Notificaciones", body: `
       <p>El resumen diario te recuerda lo que necesita tu atención: lo que no es automático y está por vencer o atrasado, en cada
       entorno al que perteneces y cada cuenta compartida contigo, una vez cada uno. Lo automático (débitos automáticos, depósitos
-      directos) no aparece: ocurre solo.</p>
+      directos) no aparece, salvo que marques <i>También lo automático por vencer</i>: ocurre solo.</p>
       <p>Configuración → Notificaciones envía un resumen diario (lo que vence, lo que se registró automáticamente, problemas de
       respaldo) por correo, Pushover, ntfy o Gotify. Cada persona configura el suyo; el correo puede usar la configuración
       compartida que ingresó un administrador, o la propia.</p>` },

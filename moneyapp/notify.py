@@ -102,6 +102,7 @@ DEFAULTS = {
     "hour": 8,                  # local time the daily summary goes out
     "due_days": 3,              # items due within this many days (0: none)
     "overdue": True, "statements": True, "auto_recorded": True, "below_zero": True, "backups": True,
+    "auto_due": False,          # also remind of automatic items (autopay, direct deposit) coming due
     "email": {"enabled": False, "use_shared": False, "host": "", "port": 587, "security": "starttls",
               "username": "", "password": "", "from": "", "to": ""},
     "pushover": {"enabled": False, "app_token": "", "user_key": "", "device": ""},
@@ -199,7 +200,7 @@ class Notifier:
             if not 0 <= d <= 31:
                 raise ApiError("Days ahead must be 0 to 31")
             s["due_days"] = d
-        for k in ("overdue", "statements", "auto_recorded", "below_zero", "backups"):
+        for k in ("overdue", "statements", "auto_recorded", "below_zero", "backups", "auto_due"):
             if k in b:
                 s[k] = bool(b[k])
         for ch in CHANNELS:
@@ -374,16 +375,17 @@ class Notifier:
             name = (self.system.q1("SELECT name FROM environments WHERE id=?", (eid,)) or {}).get("name", "?")
             st = self.system.store(eid)
             lines = []
-            # Only what needs the person: automatic items (autopay, direct deposit) happen by
-            # themselves, so they aren't reminded of, due or late. A deposit into more than one
-            # account: once, at its total.
+            # What needs the person: automatic items (autopay, direct deposit) happen by themselves,
+            # so they're left out unless the person asked for them too (auto_due). A deposit into
+            # more than one account: once, at its total.
+            wanted = lambda u: s.get("auto_due") or not u.get("auto")   # noqa: E731
             up = [dict(u, amount=u.get("split_total") or u["amount"]) for u in st.upcoming(max(s["due_days"], 0))
-                  if u["first"] and not u.get("split_of") and not u.get("auto")]
+                  if u["first"] and not u.get("split_of") and wanted(u)]
             if who != ADMIN:
                 # Items of accounts shared into this environment with their bills, kept elsewhere.
                 try:
                     for u in self.system.incoming_bills(int(who), eid, max(s["due_days"], 0)):
-                        if u["first"] and not u.get("split_of") and not u.get("auto") and u["share_env_id"] not in env_ids:
+                        if u["first"] and not u.get("split_of") and wanted(u) and u["share_env_id"] not in env_ids:
                             up.append(dict(u, amount=u.get("split_total") or u["amount"], _env=u["share_env_id"],
                                            account_name=f"{u['account_name']}, shared"))
                 except Exception:
@@ -397,7 +399,8 @@ class Notifier:
             if s["due_days"]:
                 for u in (u for u in up if not u["overdue"]):
                     when = "today" if u["date"] == today.isoformat() else u["date"]
-                    lines.append(f"Due {when}: {u['payee'] or u['kind']} {money(u['amount'])} ({u['account_name']})")
+                    lines.append(f"Due {when}: {u['payee'] or u['kind']} {money(u['amount'])}"
+                                 f"{' (automatic)' if u.get('auto') else ''} ({u['account_name']})")
             if s["statements"]:
                 for d in st.statements_due():
                     if d.get("kind") == "value":

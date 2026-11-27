@@ -4146,7 +4146,7 @@ async function notifyCard() {
       <div><label>Send at (hour, 0-23)</label><input name="hour" class="num" value="${n.hour}"></div>
       <div><label>Bills due within (days, 0 = off)</label><input name="due_days" class="num" value="${n.due_days}"></div>
       <div class="wide" style="grid-column:1/-1">
-        ${[["overdue", "Overdue items"], ["statements", "Card statements to enter"], ["auto_recorded", "Automatic items recorded for you"],
+        ${[["overdue", "Overdue items"], ["statements", "Card statements to enter"], ["auto_due", "Automatic items coming due too (autopay, direct deposit)"], ["auto_recorded", "Automatic items recorded for you"],
           ["below_zero", "Accounts forecast to go below zero (next 14 days)"], ...(admin ? [["backups", "Backup problems"]] : [])]
           .map(([k, l]) => `<label class="check"><input type="checkbox" name="${k}" ${n[k] ? "checked" : ""}> ${l}</label>`).join("")}</div>
     </div>

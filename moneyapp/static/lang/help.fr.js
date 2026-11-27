@@ -347,7 +347,7 @@ I18N.helpText({
     notifications: { title: "Notifications", body: `
       <p>Le résumé quotidien rappelle ce qui demande votre attention : les éléments non automatiques bientôt dus ou en retard,
       dans chaque environnement dont vous faites partie et chaque compte partagé avec vous, une seule fois chacun. Les automatiques
-      (prélèvements, dépôts directs) n'y sont pas : ils se font tout seuls.</p>
+      (prélèvements, dépôts directs) n'y sont pas, sauf si vous cochez <i>Les éléments automatiques bientôt dus aussi</i> : ils se font tout seuls.</p>
       <p>Paramètres → Notifications envoie un résumé quotidien (ce qui est dû, ce qui a été inscrit automatiquement, les problèmes
       de sauvegarde) par courriel, Pushover, ntfy ou Gotify. Chaque personne configure le sien; le courriel peut utiliser les
       paramètres partagés qu'un administrateur a entrés, ou les siens.</p>` },

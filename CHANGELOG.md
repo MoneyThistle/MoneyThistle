@@ -3,6 +3,15 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.6 (not released yet)
+
+- Reminders: a new choice, **Automatic items coming due too** (Settings → Notifications), for those
+  who want autopay and direct deposits in the daily summary as well. Off unless ticked, as in 1.0.5.
+- Narrow screens: rows of buttons wrap instead of running past the edge of their card (the people
+  list, among others), long email addresses break, small tags stay whole, card headings put their
+  buttons under the title when needed, and money columns can wrap on phones. The People page's
+  introduction no longer slides under its Change history button.
+
 ## 1.0.5 (2026-11-26)
 
 - **Welcome email** for new people (when email is set up): who added them, their user name, the

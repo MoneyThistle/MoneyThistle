@@ -534,7 +534,8 @@ th.sortable { cursor: pointer; user-select: none; }
 .settabs a.on { color: var(--heading); font-weight: 600; border-bottom: 3px solid var(--accent); }   /* readable in every theme */
 .settab-select { display: none; width: 100%; margin: 0 0 14px; font-size: 16px; padding: 8px; }
 .subview > h1, .subview > .pagehead > h1 { display: none; }   /* the section's name is its tab */
-.subview > .pagehead { justify-content: flex-end; margin-top: 0; }
+.subview > .pagehead { justify-content: flex-end; margin-top: 0; margin-bottom: 6px; }
+.subview > .pagehead + p { margin-top: 0 !important; }   /* (text that tucks under a page title doesn't slide under its buttons) */
 .catedit { font-weight: normal; margin-left: 4px; }
 @media (max-width: 700px) {
   .settabs { display: none; }
@@ -606,3 +607,18 @@ th.sortable { cursor: pointer; user-select: none; }
 /* Split payments in the register: one line, parts folded out with the parts button */
 .grp-tog { margin-left: 6px; padding: 1px 6px; font-size: 12px; }
 tr.grp-part[hidden] { display: none; }
+
+/* ---------- Narrow screens: nothing runs past the edge of its card ----------
+   A cell of buttons may wrap onto more lines (number cells otherwise never wrap); long words
+   such as email addresses break; grid and form children may shrink below their content; a
+   card's heading puts its buttons under the title when they don't fit beside it. */
+td:has(button, .btn) { white-space: normal; }
+td:has(button, .btn) > button, td:has(button, .btn) > .btn { margin-top: 2px; margin-bottom: 2px; }
+td, .card p, .card li { overflow-wrap: break-word; }
+td .small, td .muted { overflow-wrap: anywhere; }   /* (an email address under a name) */
+@media (max-width: 480px) { td.num { white-space: normal; } }   /* (an amount and its date share a narrow column) */
+td.num, .pill, button, .btn { overflow-wrap: normal; }
+.pill { white-space: nowrap; }
+.grid > *, .form > * { min-width: 0; }
+.card { max-width: 100%; }
+.card .head { flex-wrap: wrap; gap: 6px 8px; }

@@ -312,6 +312,11 @@ DATA:OFXSGML
         self.assertIn("Rent $900.00", text)
         self.assertNotIn("Gym autopay", text)
         self.assertIn("forecast to go below zero", text)
+        # ...unless the person asks for those too.
+        nt.save({"auto_due": True})
+        self.assertIn("Gym autopay", nt.summary())
+        nt.save({"auto_due": False})
+        self.assertNotIn("Gym autopay", nt.summary())
         # Secrets are kept but never handed back; left empty, they stay.
         pub = nt.save({"ntfy": {"enabled": True, "server": f"http://127.0.0.1:{srv.server_address[1]}",
                                 "topic": "ledger-x7", "token": "tok123"}})

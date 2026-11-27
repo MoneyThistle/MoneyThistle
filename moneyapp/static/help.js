@@ -328,7 +328,7 @@ const HELP = {
     { id: "notifications", title: "Notifications", tab: "settings/notifications", body: `
       <p>The daily summary reminds you of what needs you: items that aren't automatic, coming due or late, in every
       environment you're in and every account shared with you, each once. Automatic ones (autopay, direct deposit) aren't
-      in it: they happen by themselves.</p>
+      in it unless you tick <i>Automatic items coming due too</i>: they happen by themselves.</p>
       <p>Settings → Notifications sends a daily summary (what's due, what was recorded automatically, backup
       problems) by email, Pushover, ntfy or Gotify. Each person sets up their own; email can use the shared mail
       settings an administrator entered, or the person's own.</p>` },
