@@ -2885,19 +2885,26 @@ async function editBill(bill, kind, start) {
   // (start: a new item already filled in, e.g. from a register entry)
   const b = bill || Object.assign({ kind: kind || "bill", payee: "", amount: 0, estimate: 0, amount_mode: "fixed", average_count: 12,
     frequency: "Monthly", next_date: todayISO(), account_id: (S.accounts[0] || {}).id }, start || {});
-  const xb = !!(bill && bill.x_link_id);   // transfer with another environment: its ends stay as they are
+  // A card's monthly payment (kept by the card's details): where it comes from can be changed
+  // here too, and the card's details follow. It always goes to the card.
+  const card = !!(bill && (bill.card_account_id || bill.x_card));
+  const cardName = card ? (bill.card_account_id ? (S.accounts.find(a => a.id === bill.card_account_id) || {}).name : bill.to_account_name) || "" : "";
+  const xb = !!(bill && bill.x_link_id) && !card;   // transfer with another environment: its ends stay as they are
   const varies = b.amount_mode === "average";
   const est = b.estimate != null ? b.estimate : b.amount;
   const hist = b.history || [];
   const body = `<div class="form">
-    <div><label>Type</label><select name="kind">${[["bill", "Bill (money out)"], ["deposit", "Deposit (money in)"], ["transfer", "Transfer"]].map(([k, l]) => `<option value="${k}" ${b.kind === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+    <div><label>Type</label><select name="kind" ${card ? "disabled" : ""}>${[["bill", "Bill (money out)"], ["deposit", "Deposit (money in)"], ["transfer", "Transfer"]].map(([k, l]) => `<option value="${k}" ${b.kind === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
     <div class="wide"><label>Pay to / receive from</label><input name="payee" value="${esc(b.payee)}" list="pl"></div>
     <div class="wide paycheckf" style="grid-column:1/-1"><label class="check"><input type="checkbox" name="paycheck" ${b.paycheck ? "checked" : ""}> This is a paycheck</label>
       <div class="small muted" style="margin-left:24px">The amount is your take-home pay (what reaches the account). When it comes in, record just that, or add the paystub too: gross pay and deductions.</div></div>
     <div><label id="amtLabel">${varies ? "Starting estimate (optional)" : "Amount"}</label>
       <input name="amount" class="num" value="${est ? dollars(est) : ""}" placeholder="${varies ? "none yet" : "0.00"}">
       <div class="small muted" id="avgNote" style="margin-top:3px">${varies && hist.length ? `Average of the last ${hist.length}: <b>${fmt(b.amount, true)}</b> (${hist.map(h => fmt(h.amount, true)).join(", ")})` : (varies ? "Used until the first payment is recorded; after that the average takes over." : "")}</div></div>
-    ${xb ? `<div class="wide" style="grid-column:1/-1"><label>Between</label><div style="padding:6px 0"><b>${esc(S.accounts.find(a => a.id === b.account_id)?.name || "")}</b>
+    ${card ? `<div><label>Pay from</label><select name="account_id">${acctOptions(b.account_id)}</select></div>
+      <div><label>To the card</label><div style="padding:6px 0"><b>${esc(cardName)}</b></div></div>
+      <div class="wide small muted" style="grid-column:1/-1">The card's monthly payment: what you change here (where it comes from, the amount, the day) changes the card's details too.</div>`
+    : xb ? `<div class="wide" style="grid-column:1/-1"><label>Between</label><div style="padding:6px 0"><b>${esc(S.accounts.find(a => a.id === b.account_id)?.name || "")}</b>
         ${b.x_dir === "out" ? "→" : "←"} <b>${esc(b.to_account_name || "")}</b> <span class="small muted">(the accounts of a transfer with another environment can't be changed; delete it and schedule a new one instead)</span></div></div>`
       : `<div><label>Account</label><select name="account_id">${acctOptions(b.account_id)}${shOptions("")}</select></div>
     <div class="xfer"><label>To account</label><select name="to_account_id">${acctOptions(b.to_account_id, null)}${shOptions("")}</select></div>
@@ -2931,6 +2938,7 @@ async function editBill(bill, kind, start) {
     if (!xb) f.splits = f.kind === "deposit" ? splits.filter(x => x.account_id || parseAmount(x.amount) > 0)
       .map(x => ({ id: x.id || null, account_id: +x.account_id || null, amount: x.amount, amount_mode: x.amount_mode })) : [];
     if (xb) { f.kind = "transfer"; delete f.account_id; delete f.to_account_id; }
+    if (card) { f.kind = "transfer"; f.splits = []; delete f.to_account_id; }
     const from = String(f.account_id || ""), to = String(f.to_account_id || "");
     const shOf = v => v.startsWith("sh:") ? sharedOpts.find(a => a.share_id == v.slice(3)) : null;
     const sFrom = shOf(from), sTo = f.kind === "transfer" ? shOf(to) : null;
@@ -3299,7 +3307,7 @@ async function billSkip(u) {
   catch (e) { toast(e.message, true); }
 }
 function billWhat(b) {
-  if (b.card_account_id) return "Card payment to " + (b.to_account_name || "") + (b.pay_full ? " (full balance)" : "") + " · set in the card's details";
+  if (b.card_account_id || b.x_card) return "Card payment to " + (b.to_account_name || "") + (b.pay_full ? " (full balance)" : "") + " · the card's details follow changes";
   if (b.kind === "transfer") return (b.x_dir === "in" ? "Transfer from " : "Transfer to ") + (b.to_account_name || "");
   if (b.kind === "loan") return "Loan payment: " + (b.to_account_name || "") + " (principal, interest, escrow)";
   return b.category_label || "";

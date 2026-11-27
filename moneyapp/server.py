@@ -25,7 +25,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from . import attachments, autostart, currencies, defaults, fileio, history, loans, migrate, moveacct, paystubs, version
 from .notify import Notifier
 from .demo import load_sample
-from .store import ApiError, to_cents
+from .store import ApiError, parse_date, to_cents
 
 # Raise when the screens need something new from the server; app.js checks it.
 API_VERSION = 7
@@ -356,6 +356,10 @@ class App:
 
     def save_bill(self, b, bid=None):
         b = dict(b)
+        if bid and not self.share:
+            old = self.store.q1("SELECT * FROM bills WHERE id=?", (bid,))
+            if old and (old.get("card_account_id") or old.get("x_card")):
+                return self._save_card_payment(old, b)
         if bid:
             self._shared_bill_ok(bid)
             old = self.store.q1("SELECT * FROM bills WHERE id=?", (bid,))
@@ -380,6 +384,46 @@ class App:
         elif not b.get("x_link_id"):
             self._shared_bill_body_ok(b)
         return self.store.save_bill(b, bid)
+
+    def _save_card_payment(self, old, b):
+        """A card's scheduled payment changed in Bills & Deposits: where it comes from, the
+        amount and the day. It stays the card's monthly payment, and the card's details follow,
+        so either place can change it (the card's details change the payment the same way)."""
+        b.update(kind="transfer", frequency="Monthly")
+        nd = parse_date(b.get("next_date") or old["next_date"], "next date")
+        terms = {"due_day": 31 if b.get("last_day") else nd.day}
+        mode = b.get("amount_mode") or old.get("amount_mode") or "fixed"
+        amt = abs(to_cents(b.get("amount") or 0, "amount"))
+        if old.get("card_account_id"):
+            card_env, card_id = self.env_id, old["card_account_id"]
+        else:
+            card_env, card_id = (int(x) for x in old["x_card"].split(":"))
+        cst = self.system.store(card_env)
+        det = dict(cst.account(card_id)["details"])
+        terms["pay_mode"] = "fixed" if mode == "fixed" else ("full" if det.get("pay_mode") == "full" else "varies")
+        terms["pay_amount"] = amt
+        new_from = int(b.get("account_id") or old["account_id"])
+        if old.get("card_account_id"):
+            # The card is here: an ordinary transfer to it, from any account here.
+            b["to_account_id"] = card_id
+            for k in ("x_link_id", "x_account_id", "x_dir", "x_label"):
+                b.pop(k, None)
+            bid = self.store.save_bill(b, old["id"])
+            terms.update(pay_from_account_id=new_from)
+            cst.set_details(card_id, terms, remove=("pay_from_env_id",))
+            return bid
+        # The card is in another environment, paid from here: another account here makes a new
+        # connection (made by itself, both environments being yours).
+        if new_from != old["account_id"]:
+            lid = self.system.owned_link(self.uid, self.env_id, new_from, card_env, card_id)
+        else:
+            lid = old["x_link_id"]
+        b.update(account_id=new_from, to_account_id=None, x_link_id=lid, x_dir="out", x_label=old.get("x_label"))
+        b.pop("x_account_id", None)
+        bid = self.store.save_bill(b, old["id"])
+        terms.update(pay_from_account_id=new_from, pay_from_env_id=self.env_id)
+        cst.set_details(card_id, terms)
+        return bid
 
     def enter_bill(self, bid, b):
         self._shared_bill_ok(bid)
@@ -879,6 +923,7 @@ class App:
     def rename_env(self, q, b, i):
         self.system.require(self.uid, int(i), "owner")
         self.system.rename_env(int(i), b.get("name"))
+        self.system.refresh_link_labels(int(i))
 
     def delete_env(self, q, b, i):
         self.system.require(self.uid, int(i), "owner")
@@ -1694,6 +1739,10 @@ class App:
             if not self.system.account_name(xenv, int(det.get("pay_from_account_id") or 0)):
                 raise ApiError("Choose the account the card payment comes from", field="pay_from_account_id")
         before = self.store.account(aid)["details"] if aid else {}
+        if aid and det and det.get("auto_pay"):
+            # A payment left behind by a move becomes the card's own again (not a second one).
+            names = {self.store.account(aid)["name"], (b.get("name") or "").strip()}
+            self.system.adopt_card_payment(self.env_id, aid, names, xenv or self.env_id)
         aid = self.store.save_account(b, aid)
         a = self.store.account(aid)
         now = a["details"]
@@ -1703,6 +1752,7 @@ class App:
             self.system.stop_card_payment(was[0], self.env_id, aid)
         if will[0]:
             self.system.set_card_payment(self.uid, will[0], will[1], self.env_id, aid, a["name"], now)
+        self.system.refresh_link_labels(self.env_id, aid)   # (a new name shows across environments too)
         return aid
 
     def delete_account(self, q, b, i):

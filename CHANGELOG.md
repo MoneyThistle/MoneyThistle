@@ -5,6 +5,12 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
 
 ## 1.0.6 (not released yet)
 
+- **A card's payment can be changed in either place:** open it in Bills & Deposits to change which
+  account pays it, the amount or the date (across environments too), and the card's details follow;
+  change the card's details and the payment follows. A payment left behind when a card or its paying
+  account was moved between environments no longer stays stuck on the old account: the card takes
+  it back the next time its details are saved, and stops any other copy.
+- Renaming an account or an environment updates the names shown on transfers between environments.
 - **Restart in Docker and Unraid:** Settings → This computer → Restart MoneyThistle stopped the
   container, which stayed stopped (the page showed 502) until it was started from the Docker tab.
   It now starts again by itself, in the same container.

@@ -1893,6 +1893,80 @@ DATA:OFXSGML
         self.assertEqual(paid["category_label"], "Transfer to Visa (Personal)")
         self.assertEqual(self.system.store(hh).account(hchk)["balance"], 280000)    # its side stays
 
+    def test_card_payment_changes_from_either_side(self):
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        wrong = c.call("POST", "/api/accounts", {"name": "Wrong Checking", "type": "Checking"}, env=1)["id"]
+        right = c.call("POST", "/api/accounts", {"name": "Right Checking", "type": "Checking"}, env=1)["id"]
+        day = (dt.date.today() + dt.timedelta(days=5)).day
+        det = {"due_day": day, "auto_pay": True, "pay_mode": "varies", "pay_amount": "100", "pay_from_account_id": wrong}
+        card = c.call("POST", "/api/accounts", {"name": "Visa", "type": "Credit Card", "details": det}, env=1)["id"]
+        st = self.system.store(1)
+        form = lambda d, **kw: dict(d, pay_amount=f"{d['pay_amount'] / 100:.2f}", **kw)   # as the screen sends it
+        bill = next(b for b in c.call("GET", "/api/bills", env=1)["bills"] if b.get("card_account_id") == card)
+        # Changed in Bills & Deposits: from another account, a set amount, another day.
+        nd = (dt.date.today() + dt.timedelta(days=9)).isoformat()
+        c.call("PUT", f"/api/bills/{bill['id']}", {"kind": "transfer", "payee": "Visa payment", "account_id": right,
+                                                  "amount": "150", "amount_mode": "fixed", "frequency": "Monthly",
+                                                  "next_date": nd}, env=1)
+        b2 = next(b for b in c.call("GET", "/api/bills", env=1)["bills"] if b["id"] == bill["id"])
+        self.assertEqual((b2["account_id"], b2["to_account_id"], b2["amount"], b2["card_account_id"]), (right, card, 15000, card))
+        d = st.account(card)["details"]
+        self.assertEqual((d["pay_from_account_id"], d["pay_mode"], d["pay_amount"], d["due_day"]),
+                         (right, "fixed", 15000, dt.date.fromisoformat(nd).day))
+        # ...and saving the card's details later keeps it (one payment, from the right account).
+        c.call("PUT", f"/api/accounts/{card}", {"name": "Visa", "type": "Credit Card", "details": form(d)}, env=1)
+        mine = [b for b in c.call("GET", "/api/bills", env=1)["bills"] if b["to_account_id"] == card]
+        self.assertEqual([(b["account_id"], b["amount"]) for b in mine], [(right, 15000)])
+        # Paid from Household: changed from Household's Bills & Deposits to its other account.
+        hh = c.call("POST", "/api/envs", {"name": "Household"})["id"]
+        h1 = c.call("POST", "/api/accounts", {"name": "Joint 1", "type": "Checking"}, env=hh)["id"]
+        h2 = c.call("POST", "/api/accounts", {"name": "Joint 2", "type": "Checking"}, env=hh)["id"]
+        c.call("PUT", f"/api/accounts/{card}", {"name": "Visa", "type": "Credit Card",
+                                               "details": form(d, pay_from_env_id=hh, pay_from_account_id=h1)}, env=1)
+        hb = next(b for b in c.call("GET", "/api/bills", env=hh)["bills"] if b.get("x_card"))
+        c.call("PUT", f"/api/bills/{hb['id']}", {"payee": "Visa payment", "account_id": h2, "amount": "150",
+                                                 "amount_mode": "fixed", "next_date": hb["next_date"]}, env=hh)
+        hb2 = next(b for b in c.call("GET", "/api/bills", env=hh)["bills"] if b.get("x_card"))
+        self.assertEqual(hb2["account_id"], h2)
+        self.assertEqual(self.system.link_other_side(hb2["x_link_id"], hh, h2), (1, card))
+        self.assertEqual((st.account(card)["details"]["pay_from_env_id"], st.account(card)["details"]["pay_from_account_id"]), (hh, h2))
+        self.assertEqual([b["account_id"] for b in c.call("GET", "/api/bills", env=1)["related"]["bills"]], [h2])
+        # Renamed, the card's new name shows on Household's side.
+        c.call("PUT", f"/api/accounts/{card}", {"name": "Visa Gold", "type": "Credit Card",
+                                               "details": form(st.account(card)["details"])}, env=1)
+        self.assertIn("Visa Gold (Personal)", [b["to_account_name"] for b in c.call("GET", "/api/bills", env=hh)["bills"]])
+
+    def test_card_payment_left_by_a_move_is_taken_back(self):
+        # A move leaves the card's payment as a plain transfer the card doesn't keep; saving
+        # the card's details takes it back instead of making a second one.
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        hh = c.call("POST", "/api/envs", {"name": "Household"})["id"]
+        h1 = c.call("POST", "/api/accounts", {"name": "Joint", "type": "Checking"}, env=hh)["id"]
+        p1 = c.call("POST", "/api/accounts", {"name": "Mine", "type": "Checking"}, env=1)["id"]
+        card = c.call("POST", "/api/accounts", {"name": "Visa", "type": "Credit Card"}, env=1)["id"]
+        lid = self.system.owned_link(1, hh, h1, 1, card)
+        self.system.store(hh).save_bill({"kind": "transfer", "payee": "Visa payment", "account_id": h1, "amount": "90",
+                                         "frequency": "Monthly", "next_date": dt.date.today().isoformat(),
+                                         "x_link_id": lid, "x_dir": "out", "x_label": "Visa (Personal)"})
+        day = (dt.date.today() + dt.timedelta(days=4)).day
+        det = {"due_day": day, "auto_pay": True, "pay_mode": "fixed", "pay_amount": "90",
+               "pay_from_env_id": hh, "pay_from_account_id": h1}
+        c.call("PUT", f"/api/accounts/{card}", {"name": "Visa", "type": "Credit Card", "details": det}, env=1)
+        hb = [b for b in c.call("GET", "/api/bills", env=hh)["bills"] if b["payee"] == "Visa payment"]
+        self.assertEqual(len(hb), 1)                                   # taken back, not a second one
+        self.assertEqual(hb[0]["x_card"], f"1:{card}")
+        # Now paid from Personal: Household's stops, Personal's is the only one.
+        det = dict(det, pay_from_account_id=p1)
+        det.pop("pay_from_env_id")
+        c.call("PUT", f"/api/accounts/{card}", {"name": "Visa", "type": "Credit Card", "details": det}, env=1)
+        self.assertFalse([b for b in c.call("GET", "/api/bills", env=hh)["bills"] if b["payee"] == "Visa payment"])
+        self.assertEqual([b["account_id"] for b in c.call("GET", "/api/bills", env=1)["bills"]
+                          if b["payee"] == "Visa payment"], [p1])
+
     def test_restart_arguments(self):
         # A restart (in place in a container, or as a fresh copy) keeps the data folder and port,
         # opens no new browser tab and loads no sample data.

@@ -412,6 +412,10 @@ const HELP = {
       Buy Me a Coffee page, for anyone who'd like to chip in; nothing is ever expected, and nothing is sent there unless you
       click. To hide them for yourself, untick them in Settings → Look → Coffee cup; an administrator can hide them for
       everyone there too.` },
+    { q: "Where do I change which account pays a credit card?", a: `In either place: the card's <b>Account details</b> (Pay from),
+      or its payment in <b>Bills &amp; Deposits</b> (open it and change Pay from, the amount or the date). Each follows the
+      other. A payment left behind when a card or account was moved between environments is taken back by the card the next
+      time its details are saved, so there's never a second one.` },
   ],
   terms: [
     { term: "Account", def: "Somewhere money is kept or owed: checking, savings, a credit card, a loan, an investment." },

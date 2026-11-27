@@ -421,6 +421,10 @@ I18N.helpText({
       página de Buy Me a Coffee de su autor, para quien quiera aportar; nunca se espera nada, y no se envía nada allí a menos
       que hagas clic. Para ocultarlas solo para ti, desmárcalas en Configuración → Apariencia → Taza de café; un
       administrador también puede ocultarlas para todos.` },
+    { q: "¿Dónde cambio la cuenta que paga una tarjeta de crédito?", a: `En cualquiera de los dos lugares: los <b>Detalles de la cuenta</b>
+      de la tarjeta (Pagar desde), o su pago en <b>Facturas y depósitos</b> (ábrelo y cambia la cuenta, el monto o la fecha).
+      Cada uno sigue al otro. Un pago que quedó atrás al mover una tarjeta o una cuenta entre entornos lo retoma la tarjeta la
+      próxima vez que se guardan sus detalles: nunca hay dos.` },
   ],
   terms: [
     { term: "Cuenta", def: "Donde se guarda o se debe dinero: cuenta corriente, ahorros, tarjeta de crédito, préstamo, inversión." },

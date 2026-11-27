@@ -436,6 +436,10 @@ I18N.helpText({
       page Buy Me a Coffee de son auteur, pour qui veut contribuer; rien n'est jamais attendu, et rien n'y est envoyé à moins
       que vous cliquiez. Pour les masquer pour vous, décochez-les dans Paramètres → Apparence → Tasse de café; un
       administrateur peut aussi les masquer pour tout le monde.` },
+    { q: "Où changer le compte qui paie une carte de crédit?", a: `À l'un ou l'autre endroit : les <b>Détails du compte</b> de la carte
+      (Payer à partir de), ou son paiement dans <b>Factures et dépôts</b> (ouvrez-le et changez le compte, le montant ou la date).
+      Chacun suit l'autre. Un paiement laissé derrière quand une carte ou un compte a changé d'environnement est repris par la
+      carte la prochaine fois que ses détails sont enregistrés : il n'y en a jamais deux.` },
   ],
   terms: [
     { term: "Compte", def: "Un endroit où de l'argent est gardé ou dû : chèques, épargne, carte de crédit, prêt, placement." },

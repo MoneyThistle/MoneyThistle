@@ -420,6 +420,10 @@ I18N.helpText({
       página Buy Me a Coffee do autor, para quem quiser contribuir; nada é esperado, e nada é enviado para lá a menos que
       você clique. Para ocultá-las só para você, desmarque em Configurações → Aparência → Xícara de café; um administrador
       também pode ocultá-las para todos.` },
+    { q: "Onde mudo a conta que paga um cartão de crédito?", a: `Em qualquer um dos dois lugares: os <b>Detalhes da conta</b> do cartão
+      (Pagar com), ou o pagamento dele em <b>Contas e depósitos</b> (abra e mude a conta, o valor ou a data). Um acompanha o
+      outro. Um pagamento que ficou para trás ao mover um cartão ou uma conta entre ambientes é retomado pelo cartão na próxima
+      vez que os detalhes dele forem salvos: nunca fica um segundo.` },
   ],
   terms: [
     { term: "Conta", def: "Um lugar onde há dinheiro guardado ou devido: conta corrente, poupança, cartão de crédito, empréstimo, investimento." },

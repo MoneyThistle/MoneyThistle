@@ -836,6 +836,65 @@ class System:
             st.changed()
         return lid
 
+    def refresh_link_labels(self, env_id, account_id=None):
+        """Scheduled transfers with another environment name the account at the far end
+        ("Visa (Personal)"): after a rename (of that account, or of its environment) they say
+        the new name."""
+        for l in self.q("SELECT * FROM links WHERE status='active' AND (env_a=? OR env_b=?)", (env_id, env_id)):
+            for here, acct, there in ((l["env_a"], l["account_a"], l["env_b"]), (l["env_b"], l["account_b"], l["env_a"])):
+                if here != env_id or (account_id and acct != account_id) or not acct:
+                    continue
+                label = f"{self.account_name(here, acct) or '?'} ({self.env_name(here)})"
+                st = self.store(there)
+                with st.lock:
+                    st.db.execute("UPDATE bills SET x_label=? WHERE x_link_id=?", (label, l["id"]))
+                    st.db.commit()
+
+    def card_orphans(self, card_env, card_id, names):
+        """Scheduled payments into a card that its details no longer keep (left behind when the
+        card or its paying account moved between environments): [(environment, bill)], found
+        by the name the card gave them ("<card> payment")."""
+        payees = [f"{n} payment" for n in names if n]
+        out = []
+        st = self.store(card_env)
+        for b in st.q("SELECT * FROM bills WHERE active=1 AND kind='transfer' AND to_account_id=? "
+                      "AND card_account_id IS NULL AND x_link_id IS NULL", (card_id,)):
+            if b["payee"] in payees:
+                out.append((card_env, b))
+        for l in self.q("SELECT * FROM links WHERE status='active' AND ((env_a=? AND account_a=?) OR (env_b=? AND account_b=?))",
+                        (card_env, card_id, card_env, card_id)):
+            other = l["env_b"] if (l["env_a"], l["account_a"]) == (card_env, card_id) else l["env_a"]
+            for b in self.store(other).q("SELECT * FROM bills WHERE active=1 AND x_link_id=? AND x_card IS NULL "
+                                         "AND COALESCE(x_dir,'out')='out'", (l["id"],)):
+                if b["payee"] in payees:
+                    out.append((other, b))
+        return out
+
+    def adopt_card_payment(self, card_env, card_id, names, pay_env):
+        """Before a card's details are saved: one payment left behind in the environment it's
+        now paid from becomes the card's own again (no second one is made); the others stop."""
+        key = f"{int(card_env)}:{int(card_id)}"
+        pst = self.store(pay_env)
+        if pay_env == card_env:
+            managed = pst.q1("SELECT 1 FROM bills WHERE card_account_id=? AND active=1", (card_id,))
+        else:
+            managed = pst.q1("SELECT 1 FROM bills WHERE x_card=? AND active=1", (key,))
+        taken = False
+        for env, b in self.card_orphans(card_env, card_id, names):
+            st = self.store(env)
+            with st.lock:
+                if env == pay_env and not managed and not taken:
+                    if env == card_env:
+                        st.db.execute("UPDATE bills SET card_account_id=? WHERE id=?", (card_id, b["id"]))
+                    else:
+                        st.db.execute("UPDATE bills SET x_card=? WHERE id=?", (key, b["id"]))
+                    taken = True
+                else:
+                    st.db.execute("UPDATE bills SET active=0 WHERE id=?", (b["id"],))
+                st.db.commit()
+                st.changed()
+        return taken
+
     def stop_card_payment(self, pay_env, card_env, card_id):
         """The card is no longer paid from that environment: its scheduled payment there stops."""
         try:

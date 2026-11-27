@@ -978,6 +978,21 @@ class Store:
                             "next_date,frequency,card_account_id,memo) VALUES('transfer',?,?,?,?,?,?,?,'Monthly',?,'')",
                             vals + (self._next_due(day).isoformat(), aid))
 
+    def set_details(self, aid, changes, remove=()):
+        """Change a few of an account's details in place (what its scheduled card payment says
+        when that's changed in Bills & Deposits), leaving the rest and its schedule alone."""
+        with self.lock:
+            r = self.q1("SELECT details FROM accounts WHERE id=?", (aid,))
+            if not r:
+                raise ApiError("No such account", 404)
+            det = json.loads(r["details"] or "{}")
+            det.update(changes)
+            for k in remove:
+                det.pop(k, None)
+            self.db.execute("UPDATE accounts SET details=? WHERE id=?", (json.dumps(det), aid))
+            self.db.commit()
+            self.changed()
+
     def account(self, aid):
         for a in self.accounts():
             if a["id"] == aid:
