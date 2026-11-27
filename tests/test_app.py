@@ -1967,6 +1967,22 @@ DATA:OFXSGML
         self.assertEqual([b["account_id"] for b in c.call("GET", "/api/bills", env=1)["bills"]
                           if b["payee"] == "Visa payment"], [p1])
 
+    def test_looking_ahead_choice_follows_the_person(self):
+        # The accounts Looking ahead shows are kept with the sign-in: another browser or a phone
+        # (a new sign-in) sees the same, per environment.
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        c.call("PUT", "/api/settings", {"forecast": {"1": ["3", "4", "s2"], "all": ["3"], "../x": ["9"]},
+                                        "forecast_total": False})
+        phone = Client(base)
+        phone.call("POST", "/api/login", {"username": "alex", "password": "correct-horse"})
+        s = phone.call("GET", "/api/settings")
+        self.assertEqual(s["forecast"], {"1": ["3", "4", "s2"], "all": ["3"]})
+        self.assertFalse(s["forecast_total"])
+        phone.call("PUT", "/api/settings", {"forecast": {"1": None}})        # back to the usual accounts
+        self.assertEqual(c.call("GET", "/api/settings")["forecast"], {"all": ["3"]})
+
     def test_restart_arguments(self):
         # A restart (in place in a container, or as a fresh copy) keeps the data folder and port,
         # opens no new browser tab and loads no sample data.

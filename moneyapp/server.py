@@ -997,6 +997,20 @@ class App:
             s["due_days"] = d
         if "home" in b:
             s["home"] = self.clean_home(b["home"])
+        if isinstance(b.get("forecast"), dict):
+            # Looking ahead: which accounts it shows, per environment ("all": all of them together).
+            fc = dict(s.get("forecast") or {})
+            for k, v in b["forecast"].items():
+                k = str(k)
+                if not re.fullmatch(r"all|\d{1,9}", k):
+                    continue
+                if v is None:
+                    fc.pop(k, None)
+                elif isinstance(v, list):
+                    fc[k] = [str(x)[:24] for x in v][:500]
+            s["forecast"] = dict(list(fc.items())[-50:])
+        if "forecast_total" in b:
+            s["forecast_total"] = bool(b["forecast_total"])
         if "coffee" in b:
             # The coffee cup and the line about donations: each person can hide them.
             s["coffee"] = bool(b["coffee"])

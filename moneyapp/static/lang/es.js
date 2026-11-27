@@ -2027,6 +2027,7 @@ I18N.add("es", {
 "optional, e.g. pay period": "opcional, p. ej. periodo de pago",
 "other adapter": "otro adaptador",
 "other deductions": "otras deducciones",
+"overdue": "atrasado",
 "overtime, bonus, commission...": "horas extra, bono, comisión...",
 "owner": "dueño",
 "paid {}": "pagado {}",

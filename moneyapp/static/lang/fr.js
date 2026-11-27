@@ -2027,6 +2027,7 @@ I18N.add("fr", {
 "optional, e.g. pay period": "facultatif, p. ex. période de paie",
 "other adapter": "autre carte réseau",
 "other deductions": "autres retenues",
+"overdue": "en retard",
 "overtime, bonus, commission...": "heures supplémentaires, prime, commission...",
 "owner": "propriétaire",
 "paid {}": "payé {}",

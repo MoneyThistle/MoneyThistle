@@ -3,6 +3,13 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.7 (not released yet)
+
+- **Looking ahead remembers your accounts everywhere:** which accounts it shows, and whether it
+  shows their total, are kept with your sign-in (per environment), so another browser or your phone
+  shows the same. A choice made earlier in a browser carries over the first time.
+- Home's Looking ahead card now follows that choice too (it always showed the usual accounts).
+
 ## 1.0.6 (2026-11-27)
 
 - **A card's payment can be changed in either place:** open it in Bills & Deposits to change which

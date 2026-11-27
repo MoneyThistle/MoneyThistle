@@ -874,12 +874,38 @@ const SPENDING_TYPES = ["Checking", "Savings", "Cash", "Credit Card", "Line of C
 
 // Which accounts the forecast chart shows: the ones ticked under Reports → Looking
 // ahead (remembered per environment), or by default the money accounts you spend from.
+// Which accounts Looking ahead shows (and whether it shows their total) is kept with your
+// sign-in, per environment (or for all your environments together), so every browser and phone
+// shows the same. A choice an older version kept in this browser is carried over once.
+function fcKey() { return reportScopeAll() ? "all" : String(S.env); }
+function fcSaved() {
+  const v = S.ui && S.ui.forecast && S.ui.forecast[fcKey()];
+  if (Array.isArray(v)) return v;
+  try {
+    const old = JSON.parse(localStorage.getItem("hl-forecast-" + fcKey()) || "null");
+    if (Array.isArray(old)) { fcSave(old); return old; }
+  } catch (e) { }
+  return null;
+}
+function fcSave(list) {
+  const key = fcKey();
+  if (S.ui) S.ui.forecast = Object.assign({}, S.ui.forecast, { [key]: list });
+  try { localStorage.removeItem("hl-forecast-" + key); } catch (e) { }
+  api("PUT", "/api/settings", { forecast: { [key]: list } }).catch(() => { });
+}
+function fcTotal() {
+  if (S.ui && typeof S.ui.forecast_total === "boolean") return S.ui.forecast_total;
+  return localStorage.getItem("hl-forecast-total") !== "0";
+}
+function fcSaveTotal(on) {
+  if (S.ui) S.ui.forecast_total = on;
+  api("PUT", "/api/settings", { forecast_total: on }).catch(() => { });
+}
 function forecastChoice(f) {
   const shown = f.accounts.filter(a => a.has_activity || SPENDING_TYPES.includes(a.type));
   const allIds = shown.filter(a => SPENDING_TYPES.includes(a.type) && !a.liability).map(a => String(a.id));
   const valid = new Set(shown.map(a => String(a.id)));
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem("hl-forecast-" + (allEnvs ? "all" : S.env)) || "null"); } catch (e) { saved = null; }
+  const saved = fcSaved();
   let chosen = (Array.isArray(saved) ? saved.map(String) : allIds).filter(id => valid.has(id));
   if (Array.isArray(saved) && saved.length && !chosen.length) chosen = allIds.slice();
   return { shown, allIds, chosen };
@@ -916,7 +942,7 @@ function homeForecast(f, H) {
     const ids = chosen.length ? chosen : allIds;
     const accs = f.accounts.filter(a => ids.includes(String(a.id)));
     inner = accs.length ? `<div id="homeFcChart" data-ids="${esc(JSON.stringify(ids))}"></div>
-      <div class="small fc-legend" style="margin-top:4px">${accs.map(a => `<span style="display:inline-block;margin-right:10px"><span class="fc-swatch" style="background:${fcColor(f, a.id)}"></span>${esc(a.name)}${a.low < 0 ? ' <span class="pill red">below 0</span>' : ""}</span>`).join("")}${accs.length > 1 && localStorage.getItem("hl-forecast-total") !== "0" ? '<span style="display:inline-block"><span class="fc-swatch dashed"></span>Total</span>' : ""}</div>
+      <div class="small fc-legend" style="margin-top:4px">${accs.map(a => `<span style="display:inline-block;margin-right:10px"><span class="fc-swatch" style="background:${fcColor(f, a.id)}"></span>${esc(a.name)}${a.low < 0 ? ' <span class="pill red">below 0</span>' : ""}</span>`).join("")}${accs.length > 1 && fcTotal() ? '<span style="display:inline-block"><span class="fc-swatch dashed"></span>Total</span>' : ""}</div>
       <p class="small muted" style="margin-bottom:0">Same accounts as Reports → Looking ahead; tick others there.</p>`
       : `<div class="empty">No accounts chosen for the chart</div>`;
   } else {
@@ -1042,7 +1068,7 @@ async function renderHome() {
   if (fcBox && fc) {
     const ids = JSON.parse(fcBox.dataset.ids);
     const w = Math.max(320, fcBox.clientWidth);
-    fcBox.innerHTML = forecastChart(fc, ids, { w, h: 210, total: localStorage.getItem("hl-forecast-total") !== "0" });
+    fcBox.innerHTML = forecastChart(fc, ids, { w, h: 210, total: fcTotal() });
   }
   // Came here from Settings → Customize Home.
   if (S.openCustomize) { S.openCustomize = false; customizeHome(); }
@@ -3653,11 +3679,10 @@ async function renderReports() {
     const shown = f.accounts.filter(a => a.has_activity || SPENDING_TYPES.includes(a.type));
     const allIds = shown.filter(a => SPENDING_TYPES.includes(a.type) && !a.liability).map(a => String(a.id));
     const valid = new Set(shown.map(a => String(a.id)));
-    let saved = null;
-    try { saved = JSON.parse(localStorage.getItem("hl-forecast-" + (allEnvs ? "all" : S.env)) || "null"); } catch (e) { saved = null; }
+    const saved = fcSaved();
     let chosen = (Array.isArray(saved) ? saved.map(String) : allIds).filter(id => valid.has(id));
     if (Array.isArray(saved) && saved.length && !chosen.length) chosen = allIds.slice();
-    let showTotal = localStorage.getItem("hl-forecast-total") !== "0";
+    let showTotal = fcTotal();
     // A scheduled item picked in the list stays marked while you change the period.
     const evKey = e => [e.date, e.payee, e.account_id, e.amount].join("|");
     const fStart = new Date(f.start + "T00:00:00");
@@ -3719,7 +3744,7 @@ async function renderReports() {
       });
     };
     qa("[data-fdays]").forEach(b => b.onclick = () => { reportState.fdays = +b.dataset.fdays; renderReports(); });
-    const keep = () => { localStorage.setItem("hl-forecast-" + (allEnvs ? "all" : S.env), JSON.stringify(chosen)); draw(); };
+    const keep = () => { fcSave(chosen); draw(); };
     // Toggle exactly the box that was clicked (ids are text: "3" or "s1" for a shared account).
     qa("[data-facct]").forEach(c => c.onchange = () => {
       const id = String(c.dataset.facct);
@@ -3727,8 +3752,8 @@ async function renderReports() {
       keep();
     });
     q("#fAll").onchange = e => { chosen = e.target.checked ? shown.map(a => String(a.id)) : []; keep(); };
-    q("#fReset").onclick = e => { e.preventDefault(); localStorage.removeItem("hl-forecast-" + (allEnvs ? "all" : S.env)); chosen = allIds.slice(); draw(); };
-    q("#fTotal").onchange = e => { showTotal = e.target.checked; localStorage.setItem("hl-forecast-total", showTotal ? "1" : "0"); draw(); };
+    q("#fReset").onclick = e => { e.preventDefault(); chosen = allIds.slice(); fcSave(null); draw(); };
+    q("#fTotal").onchange = e => { showTotal = e.target.checked; fcSaveTotal(showTotal); draw(); };
     q("#fUnmark").onclick = e => { e.preventDefault(); marked = null; st.fmark = null; draw(); };
     qa("[data-ev]").forEach(r => r.onclick = () => {
       const e = f.events[+r.dataset.ev];
