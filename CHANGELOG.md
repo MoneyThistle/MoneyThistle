@@ -3,7 +3,7 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
-## 1.0.7 (not released yet)
+## 1.0.7 (2026-11-27)
 
 - **Looking ahead remembers your accounts everywhere:** which accounts it shows, and whether it
   shows their total, are kept with your sign-in (per environment), so another browser or your phone
@@ -32,6 +32,9 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
 - **Accounts:** ☆ star an account to make it a favorite (first in its group). Unlock 🔒 the list to
   drag accounts into your own order (▲ ▼ on a phone). Favorites and order are each person's own.
   "New" is now "New account".
+- **One way to reorder, everywhere:** the Accounts list, a register's entries on the same day and
+  a paystub's lines all use the same 🔒: locked by default (no handles, nothing moves by accident),
+  open it to drag by the handle, or use ▲ ▼ on a phone. Alt+↑ ↓ still moves paystub lines.
 - **A paycheck with its paystub** opens in the entry line like any entry, with Receipts (keep the pay
   slip's PDF there); the paystub opens from its Paystub tag or the Paystub button.
 - **Averages:** a scheduled item shows "Average of the last N: $X"; click the amount for the amounts

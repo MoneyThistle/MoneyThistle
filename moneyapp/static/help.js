@@ -57,13 +57,13 @@ const HELP = {
           added to the other account by itself.</li>
         <li><b>Split entries</b> (a loan payment, a paystub) show as one line with their parts beneath.</li>
         <li><b>Dated after today:</b> entries for days still to come have a bar on the left and a soft shade, so the past and the future are easy to tell apart.</li>
-        <li><b>Order:</b> "Newest first" switches the order. Entries on the same day can be moved with ▲ ▼.</li>
+        <li><b>Order:</b> "Newest first" switches the order. Entries on the same day can be put in another order: open the 🔒 above the register, then drag an entry by its handle (on a phone, ▲ ▼).</li>
         <li><b>Cleared and reconciled:</b> click the status column to mark an entry cleared (C) or reconciled (R).
           <b>Balance account</b> walks you through matching a statement.</li>
         <li><b>Account details</b> keep the bank, account number, website, phone and interest rate, and for
           cards the limit and statement days.</li>
         <li><b>Favorites and order:</b> click the ☆ beside an account in the list to make it a favorite (★); favorites come first in their group.
-          To change the order, open the 🔒 at the top of the list, drag an account (on a phone, use ▲ ▼), then lock it again; leaving Accounts locks it too.
+          To change the order, open the 🔒 at the top of the list (the same lock is used wherever things can be reordered), drag an account (on a phone, use ▲ ▼), then lock it again; leaving Accounts locks it too.
           Favorites and order are yours alone: everyone using the same accounts keeps their own.</li>
         <li><b>A paycheck with its paystub:</b> clicking it shows it in the line at the bottom like any entry, with <b>Receipts</b> (keep a PDF of the pay slip there)
           and <b>Paystub</b>, which opens the paystub. The green <b>Paystub</b> tag on the line opens it directly.</li>
@@ -134,7 +134,7 @@ const HELP = {
         <li>Each tax or deduction goes to a category (Federal Income Tax, Insurance : Health…) or to one of your
           accounts (a 401(k), an HSA), where it shows up as money in. Don't keep that account in MoneyThistle? Use <b>Savings &amp; Investments</b>
           (Retirement Plan, HSA/FSA) instead. Each new paystub starts as a copy of the last one;
-          move lines with ▲ ▼ (or Alt+↑ ↓) to match your paystub's order.</li>
+          to match your paystub's order, open the 🔒 above the lines and drag a line by its handle (on a phone, ▲ ▼; Alt+↑ ↓ works any time).</li>
         <li><b>Paid into more than one account</b> ($250 into savings, $3,210.14 into checking): under <i>Deposited into</i>,
           choose <i>+ Add an account</i> and enter what reached each one. The take-home pay is their total. Works with
           take-home pay only too. A scheduled paycheck's amount can be the total or what reaches its own account. A scheduled deposit can list more than one account too (Bills &amp; Deposits, <i>+ Add an account</i>), each with a

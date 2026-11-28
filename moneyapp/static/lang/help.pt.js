@@ -55,13 +55,13 @@ I18N.helpText({
           adicionado sozinho à outra conta.</li>
         <li><b>Lançamentos divididos</b> (um pagamento de empréstimo, um holerite) aparecem como uma linha com as partes embaixo.</li>
         <li><b>Com data depois de hoje:</b> os lançamentos de dias que ainda vão chegar têm uma barra à esquerda e um fundo sombreado, para separar bem o passado do futuro.</li>
-        <li><b>Ordem:</b> "Mais recentes primeiro" inverte a ordem. Lançamentos do mesmo dia podem ser movidos com ▲ ▼.</li>
+        <li><b>Ordem:</b> "Mais recentes primeiro" inverte a ordem. Lançamentos do mesmo dia podem mudar de ordem: abra o 🔒 acima do extrato e arraste um lançamento pela alça (no celular, ▲ ▼).</li>
         <li><b>Compensado e conciliado:</b> clique na coluna de situação para marcar um lançamento como compensado (C) ou
           conciliado (R). <b>Conciliar a conta</b> guia você para conferir um extrato do banco.</li>
         <li><b>Detalhes da conta</b> guardam o banco, o número da conta, o site, o telefone e a taxa de juros e, nos cartões, o
           limite e os dias da fatura.</li>
         <li><b>Favoritas e ordem:</b> clique na ☆ ao lado de uma conta na lista para torná-la favorita (★); as favoritas vêm primeiro no grupo.
-          Para mudar a ordem, abra o 🔒 no alto da lista, arraste uma conta (no celular, ▲ ▼) e feche de novo; sair de Contas também fecha.
+          Para mudar a ordem, abra o 🔒 no alto da lista (o mesmo cadeado vale onde quer que dê para mudar a ordem), arraste uma conta (no celular, ▲ ▼) e feche de novo; sair de Contas também fecha.
           Favoritas e ordem são só suas: cada pessoa que usa as mesmas contas mantém as suas.</li>
         <li><b>Um salário com o holerite:</b> um clique o mostra na linha de baixo como qualquer lançamento, com <b>Recibos</b> (guarde ali o PDF do holerite)
           e <b>Holerite</b>, que abre o holerite. A etiqueta verde <b>Holerite</b> na linha o abre direto.</li>
@@ -134,7 +134,7 @@ I18N.helpText({
         <li>Cada imposto ou desconto vai para uma categoria (Imposto de renda federal, Seguros : Saúde…) ou para uma das suas
           contas (previdência, HSA), onde aparece como dinheiro entrando. Não acompanha essa conta no MoneyThistle? Use <b>Poupança e investimentos</b>
           (Plano de previdência, Conta de saúde). Cada novo holerite começa como cópia do anterior;
-          mova as linhas com ▲ ▼ (ou Alt+↑ ↓) para seguir a ordem do seu holerite.</li>
+          para seguir a ordem do seu holerite, abra o 🔒 acima das linhas e arraste uma linha pela alça (no celular, ▲ ▼; Alt+↑ ↓ funciona sempre).</li>
         <li><b>Salário depositado em mais de uma conta</b> (R$ 250 na poupança, R$ 3.210,14 na corrente): em <i>Depositado em</i>,
           escolha <i>+ Adicionar uma conta</i> e informe o que chegou em cada uma. O salário líquido é o total delas. Funciona
           também só com o salário líquido. O valor de um pagamento agendado pode ser o total ou o que chega na própria conta. Um depósito agendado também pode ter mais de uma conta (Contas e depósitos, <i>+ Adicionar uma conta</i>), cada uma

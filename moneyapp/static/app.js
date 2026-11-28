@@ -657,7 +657,7 @@ function dialog(title, body, buttons) {
     bodyEl.oninput = mark;
     bodyEl.onchange = mark;
     // (buttons inside it add, remove or move lines, or fill something in)
-    bodyEl.onclick = e => { if (e.isTrusted && e.target.closest("button")) changed = true; };
+    bodyEl.onclick = e => { if (e.isTrusted && e.target.closest("button") && !e.target.closest(".lockbtn")) changed = true; };
     const leave = async () => {
       const save = q("#dlgFoot button.primary");
       if (!changed || !save) { resolve(null); d.close(); return; }
@@ -1803,14 +1803,64 @@ document.addEventListener("click", async e => {
   } catch (err) { toast(err.message, true); }
 }, true);
 
-// Order within a day: arrows on entries that share their date with another, moving
-// it up or down as shown (oldest-first: up = earlier; newest-first: up = later).
-let regDayCount = {}, regOldestFirst = false;
+// Reordering anywhere (Accounts list, a register's day, paystub lines) is locked until its
+// 🔒 is opened: then a handle to drag (wider screens) or ▲ ▼ (small and touch screens).
+function lockButton(id, open) {
+  return `<button type="button" class="tiny lockbtn" id="${id}" aria-pressed="${open}" title="${open ? "Lock the order" : "Change the order"}" aria-label="${open ? "Lock the order" : "Change the order"}">${open ? "🔓" : "🔒"}</button>`;
+}
+// A handle can be grabbed only while unlocked: grabbing it lets its row be dragged.
+document.addEventListener("mousedown", e => {
+  const g = e.target.closest && e.target.closest(".unlocked .grip");
+  const r = g && g.closest("[data-acct], tr, [data-line]");
+  if (r) r.draggable = true;
+}, true);
+document.addEventListener("dragend", e => {
+  if (e.target && e.target.matches && e.target.matches("tr, [data-line]")) e.target.draggable = false;
+  qa(".dragging, .dropat").forEach(x => x.classList.remove("dragging", "dropat"));
+}, true);
+
+// Order within a day: entries that share their date with another can be moved up or down
+// as shown (oldest-first: up = earlier; newest-first: up = later), once the register's lock
+// is open (it locks again when you leave Accounts).
+let regDayCount = {}, regOldestFirst = false, regUnlocked = false;
+window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/accounts")) regUnlocked = false; });
 function moveBtns(t) {
   if ((regDayCount[t.date] || 0) < 2) return "";
   const up = regOldestFirst ? "earlier" : "later", down = regOldestFirst ? "later" : "earlier";
-  return `<span class="movebtns"><button type="button" class="tiny" data-move="${t.id}:${up}" title="Move up (${up} that day)" aria-label="Move up">▲</button><button type="button" class="tiny" data-move="${t.id}:${down}" title="Move down (${down} that day)" aria-label="Move down">▼</button></span>`;
+  return `<span class="movebtns"><span class="grip" data-regmove="${t.id}" data-date="${t.date}" title="Drag to move it within the day" aria-hidden="true">⋮⋮</span><span class="mvarrows"><button type="button" class="tiny" data-move="${t.id}:${up}" title="Move up (${up} that day)" aria-label="Move up">▲</button><button type="button" class="tiny" data-move="${t.id}:${down}" title="Move down (${down} that day)" aria-label="Move down">▼</button></span></span>`;
 }
+document.addEventListener("click", e => {
+  if (!(e.target.closest && e.target.closest("#regLock"))) return;
+  e.preventDefault(); e.stopPropagation();
+  regUnlocked = !regUnlocked; render();
+}, true);
+// Dragging an entry onto another of the same day: one step at a time, as the arrows do.
+document.addEventListener("dragstart", e => {
+  const r = e.target.closest && e.target.closest(".register.unlocked tr");
+  const g = r && q("[data-regmove]", r);
+  if (!g) return;
+  e.dataTransfer.setData("text/x-reg", g.dataset.regmove); e.dataTransfer.effectAllowed = "move";
+  r.classList.add("dragging");
+});
+const regDayRows = date => qa(`#reg [data-regmove][data-date="${date}"]`).map(g => g.dataset.regmove);
+document.addEventListener("dragover", e => {
+  const r = e.target.closest && e.target.closest(".register.unlocked tr");
+  const g = r && q("[data-regmove]", r), from = q(".register .dragging [data-regmove]");
+  if (!g || !from || g.dataset.date !== from.dataset.date) return;
+  e.preventDefault(); qa(".register .dropat").forEach(x => x !== r && x.classList.remove("dropat")); r.classList.add("dropat");
+});
+document.addEventListener("drop", async e => {
+  const r = e.target.closest && e.target.closest(".register.unlocked tr");
+  const g = r && q("[data-regmove]", r), id = e.dataTransfer.getData("text/x-reg");
+  if (!g || !id || g.dataset.regmove === id) return;
+  e.preventDefault();
+  const day = regDayRows(g.dataset.date), i = day.indexOf(id), j = day.indexOf(g.dataset.regmove);
+  if (i < 0 || j < 0) return;
+  const dir = j > i ? (regOldestFirst ? "later" : "earlier") : (regOldestFirst ? "earlier" : "later");
+  try { for (let n = 0; n < Math.abs(j - i); n++) await api("POST", `/api/transactions/${id}/move`, { direction: dir }); }
+  catch (err) { toast(err.message, true); }
+  render();
+});
 
 // Split payments (paystubs, loan payments, splits) opened with ▸ in the register this session.
 const REG_OPEN = new Set();
@@ -1998,8 +2048,9 @@ async function paystubDialog(acc, gid, done, start) {
     ${existing && (existing.flag || existing.complete) ? `<label class="check" style="margin:6px 0 0"><input type="checkbox" id="stubComplete" ${existing.complete ? "checked" : ""}> Complete as is: don't flag it</label>` : ""}
     ${from && !existing ? `<p class="small" style="margin:6px 0 0;color:var(--teal)">Started from your ${esc(niceDate(from.date))} paystub from ${esc(from.employer)}
       (take-home ${fmt(from.net, true)}): change only what's different this time.</p>` : ""}
-    <details class="more-fold" id="stubMore" ${detailsOpen ? "open" : ""}><summary>Paystub details: gross pay and deductions <span class="muted">(optional)</span></summary><div class="more-body">
-      <h3 style="margin:4px 0 4px">Earnings</h3>
+    <details class="more-fold" id="stubMore" ${detailsOpen ? "open" : ""}><summary>Paystub details: gross pay and deductions <span class="muted">(optional)</span></summary><div class="more-body reorder" id="stubLines">
+      <div class="acctlock" style="margin:0">${lockButton("stubLock", false)}</div>
+      <h3 style="margin:0 0 4px">Earnings</h3>
       <div id="stubEarn"></div><button type="button" class="small" data-addline="earn">+ Add an earning</button>
       <span class="small muted" style="margin-left:6px">overtime, bonus, commission...</span>
       <h3 style="margin:14px 0 4px">Taxes and deductions</h3>
@@ -2094,7 +2145,7 @@ async function paystubDialog(acc, gid, done, start) {
         <input class="ln-label" value="${esc(ln.label)}" placeholder="${ln.side === "earn" ? "Gross pay" : (ln.side === "add" ? "Reimbursement" : (ln.side === "split" ? "Direct deposit" : "What it's for"))}" aria-label="Line name">
         <select class="ln-to" name="line_${i}_to" aria-label="${ln.side === "deduct" ? "Where it goes" : (ln.side === "split" ? "Account it went into" : "Income category")}">${paystubTargets(ln.side, ln.to, +q("[name=account_id]", root).value)}</select>
         <input class="ln-amt num" name="line_${i}_amount" inputmode="decimal" placeholder="0.00" value="${esc(ln.amount)}" aria-label="Amount">
-        <span class="ln-btns"><button type="button" class="tiny" data-moveline="${i}" data-dir="-1" ${firstOf(ln, i) ? "disabled" : ""} title="Move up (Alt+↑)" aria-label="Move this line up">▲</button><button type="button" class="tiny" data-moveline="${i}" data-dir="1" ${lastOf(ln, i) ? "disabled" : ""} title="Move down (Alt+↓)" aria-label="Move this line down">▼</button><button type="button" class="tiny" data-delline="${i}" title="Remove this line" aria-label="Remove this line">✕</button></span></div>`;
+        <span class="ln-btns"><span class="grip" title="Drag to move this line" aria-hidden="true">⋮⋮</span><span class="mvarrows"><button type="button" class="tiny" data-moveline="${i}" data-dir="-1" ${firstOf(ln, i) ? "disabled" : ""} title="Move up (Alt+↑)" aria-label="Move this line up">▲</button><button type="button" class="tiny" data-moveline="${i}" data-dir="1" ${lastOf(ln, i) ? "disabled" : ""} title="Move down (Alt+↓)" aria-label="Move this line down">▼</button></span><button type="button" class="tiny" data-delline="${i}" title="Remove this line" aria-label="Remove this line">✕</button></span></div>`;
     // (lines move within their own part: earnings among earnings, deductions among deductions)
     for (const [side, box] of [["earn", "#stubEarn"], ["deduct", "#stubDeduct"], ["add", "#stubAdd"], ["split", "#stubSplit"]]) {
       q(box, root).innerHTML = lines.map((ln, i) => ln.side === side ? row(ln, i) : "").join("");
@@ -2115,6 +2166,25 @@ async function paystubDialog(acc, gid, done, start) {
     };
     qa("[data-moveline]", root).forEach(b => b.onclick = () =>
       move(+b.dataset.moveline, +b.dataset.dir, `[data-moveline][data-dir="${b.dataset.dir}"]:not([disabled])`, ".ln-label"));
+    // Dragging a line (by its handle, unlocked) onto another line of the same part.
+    qa(".stubline[data-line]", root).forEach(r => {
+      r.addEventListener("dragstart", e => {
+        if (!r.closest(".unlocked")) { e.preventDefault(); return; }
+        e.dataTransfer.setData("text/x-line", r.dataset.line); e.dataTransfer.effectAllowed = "move"; r.classList.add("dragging");
+      });
+      r.addEventListener("dragover", e => {
+        const from = q(".stubline.dragging", root);
+        if (!from || lines[+from.dataset.line].side !== lines[+r.dataset.line].side) return;
+        e.preventDefault(); qa(".stubline.dropat", root).forEach(x => x !== r && x.classList.remove("dropat")); r.classList.add("dropat");
+      });
+      r.addEventListener("drop", e => {
+        const i = +e.dataTransfer.getData("text/x-line"), j = +r.dataset.line;
+        if (Number.isNaN(i) || i === j || lines[i].side !== lines[j].side) return;
+        e.preventDefault(); read();
+        const [ln] = lines.splice(i, 1); lines.splice(j, 0, ln);
+        touched = true; draw();
+      });
+    });
     qa("[data-line]", root).forEach(r => r.addEventListener("keydown", e => {
       if (!e.altKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
       e.preventDefault();
@@ -2167,6 +2237,15 @@ async function paystubDialog(acc, gid, done, start) {
   q("[name=account_id]", root).onchange = () => { read(); draw(); };
   // Opening or closing the details is remembered for this person.
   q("#stubMore", root).addEventListener("toggle", e => rememberFold("paystub", e.target.open));
+  // The lines' order: locked until its 🔒 is opened (each time the paystub opens).
+  const stubLock = () => {
+    const box = q("#stubLines", root), open = !box.classList.contains("unlocked");
+    box.classList.toggle("unlocked", open);
+    const b = q("#stubLock", root);
+    b.setAttribute("aria-pressed", String(open)); b.textContent = open ? "🔓" : "🔒";
+    b.title = tr(open ? "Lock the order" : "Change the order"); b.setAttribute("aria-label", b.title);
+  };
+  q("#stubLock", root).onclick = stubLock;
   // A different employer: start from that employer's latest paystub, if any (only while
   // nothing has been typed into the lines yet).
   if (!existing) q("[name=employer]", root).addEventListener("change", async e => {
@@ -2295,7 +2374,7 @@ function accountsList(id, shared, activeSid, others) {
   const here = all ? (S.me.envs.find(e => e.id === S.env) || {}).name : "";
   const fav = acctPrefs().fav, un = acctUnlocked;
   return `<div class="card acctlist${un ? " unlocked" : ""}"><div class="head"><h2>Accounts${here ? ` <span class="small muted">· ${esc(here)}</span>` : ""}</h2><span><button class="small" id="newLoan">New loan</button> <button class="small primary" id="newAcct">New account</button></span></div>
-    ${S.accounts.length > 1 ? `<div class="acctlock"><button type="button" class="tiny lockbtn" id="acctLock" aria-pressed="${un}" title="${un ? "Lock the order" : "Change the order"}" aria-label="${un ? "Lock the order" : "Change the order"}">${un ? "🔓" : "🔒"}</button></div>` : ""}
+    ${S.accounts.length > 1 ? `<div class="acctlock">${lockButton("acctLock", un)}</div>` : ""}
     ${groupAccounts(acctSorted(S.accounts)).map(([name, l]) => `<div class="acctgroup"><div class="gname">${esc(name)}</div>
     ${l.map(a => `<a class="acctrow ${a.id == id ? "on" : ""} ${a.closed ? "closed" : ""} ${fav.has(a.id) ? "fav" : ""}" href="#/accounts/${a.id}" data-acct="${a.id}" data-fav="${fav.has(a.id) ? 1 : ""}"${un ? ' draggable="true"' : ""}>
       ${un ? `<span class="grip" aria-hidden="true">⋮⋮</span><span class="mvarrows"><button type="button" class="tiny" data-amove="${a.id}:-1" aria-label="Move up">▲</button><button type="button" class="tiny" data-amove="${a.id}:1" aria-label="Move down">▼</button></span>` : ""}
@@ -2328,7 +2407,7 @@ async function renderShared(sid) {
       ${sh.can_edit ? '<button id="recon">Balance account</button>' : ""}</div>
     <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>${BAL_HELP}
       <span class="muted">This account lives in ${esc(sh.shared_by)}'s ${esc(sh.env_name)}; you see the same register and its categories.</span></div>
-    <div class="card flush"><div class="register"><table id="reg">
+    <div class="card flush"><div class="register reorder${regUnlocked ? " unlocked" : ""}"><table id="reg">
       <tr><th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
       ${registerRows(rows)}
     </table>${rows.length ? "" : `<div class="empty">No transactions yet.</div>`}</div>
@@ -2421,7 +2500,7 @@ async function renderAccounts(id, sub) {
     <div class="toolbar"><h1 style="margin:0">${esc(acc.name)}</h1><span class="pill">${esc(acc.type)}</span><span class="grow"></span>
       <input id="search" placeholder="Search payee, memo…" value="${esc(search)}" style="width:200px">
       <button id="editAcct">Account details</button>${CARD_TYPES.includes(acc.type) && cardMode(acc.details) === "statement" && !acc._shared ? '<button id="stmtBtn" title="Enter the balance from this card\'s statement">Enter statement</button>' : ""}${VALUE_TYPES.includes(acc.type) && !acc._shared ? '<button id="valBtn" title="Type in what it\'s worth now, from its statement or website">Update value</button>' : ""}<button id="recon">Balance account</button>
-      <button id="import">Import file</button><a class="btn" href="/api/export.csv?account=${id}&env=${S.env}">Export CSV</a>${regOrderButton()}
+      <button id="import">Import file</button><a class="btn" href="/api/export.csv?account=${id}&env=${S.env}">Export CSV</a>${regOrderButton()}${lockButton("regLock", regUnlocked)}
       <button id="acctFiles" title="Receipts and papers kept with this account (not one entry): a purchase on a card, a warranty, a contract">${CLIP_ICON} Papers<span id="acctFilesN"></span></button></div>
     <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>${BAL_HELP}
       ${acc.reconciled_date ? `<span class="muted">Last balanced ${niceDate(acc.reconciled_date)} at ${fmt(acc.reconciled_balance, true)}</span>` : ""}</div>
@@ -2430,7 +2509,7 @@ async function renderAccounts(id, sub) {
       <span style="flex:1;min-width:240px">This loan has no payment details yet (an account brought in from another program starts this way).
       Add its rate and payment to see its payment schedule, payoff date and what-if payments. Its register and balance stay as they are.</span>
       <button class="small primary" id="loanSetup">Set up loan details…</button></div>` : "")}
-    <div class="card flush"><div class="register"><table id="reg">
+    <div class="card flush"><div class="register reorder${regUnlocked ? " unlocked" : ""}"><table id="reg">
       <tr><th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
       ${registerRows(rows)}
     </table>${rows.length ? "" : `<div class="empty">No transactions${search ? " match" : " yet. Type one in below"}.</div>`}</div>
@@ -2450,7 +2529,7 @@ async function renderAccounts(id, sub) {
   q("#acctFiles").onclick = () => attachDialog({ acc }, filesCount);
   q("#search").onkeydown = e => { if (e.key === "Enter") renderAccounts(id, { q: e.target.value }); };
   qa("tr[data-id]").forEach(r => r.onclick = (e) => {
-    if (e.target.dataset.st) return;
+    if (e.target.dataset.st || e.target.closest(".grip")) return;
     qa("tr.sel").forEach(x => x.classList.remove("sel")); r.classList.add("sel");
     entryForm(acc, rows.find(t => t.id == r.dataset.id), () => renderAccounts(id, { q: search }));
   });
@@ -2478,7 +2557,7 @@ async function renderAccounts(id, sub) {
   const openStub = gid => paystubDialog(acc, +gid, backTo(gid));
   qa("[data-stubtag]").forEach(t => t.onclick = e => { e.stopPropagation(); openStub(t.dataset.stubtag); });
   qa("tr[data-group]").forEach(r => r.onclick = e => {
-    if (e.target.closest("[data-tog],[data-gst],[data-move],[data-stubtag]")) return;
+    if (e.target.closest("[data-tog],[data-gst],[data-move],[data-stubtag],.grip")) return;
     if (!r.dataset.paystub) return groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search }), acc);
     qa("tr.sel").forEach(x => x.classList.remove("sel")); r.classList.add("sel");
     paystubEntryView(acc, rows.filter(t => t.group_id == r.dataset.group), () => openStub(r.dataset.group),

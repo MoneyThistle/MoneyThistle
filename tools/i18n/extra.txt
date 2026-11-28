@@ -474,5 +474,7 @@
 @Make it a favorite|En faire un favori|Hacerla favorita|Tornar favorita
 @Lock the order|Verrouiller l'ordre|Fijar el orden|Travar a ordem
 @Change the order|Changer l'ordre|Cambiar el orden|Mudar a ordem
+@Drag to move it within the day|Faites glisser pour la déplacer dans la journée|Arrastra para moverlo dentro del día|Arraste para movê-lo dentro do dia
+@Drag to move this line|Faites glisser pour déplacer cette ligne|Arrastra para mover esta línea|Arraste para mover esta linha
 @Ended connections cleared|Connexions terminées effacées|Conexiones terminadas borradas|Conexões encerradas apagadas
 @Your checking, savings, cards, loans and investments, each with its register. New entries are typed in the bar at the bottom of a register; you can also import a bank file or record a whole paystub.|Vos comptes chèques, épargne, cartes, prêts et placements, chacun avec son registre. Les nouvelles opérations se tapent dans la barre au bas d'un registre; vous pouvez aussi importer un fichier bancaire ou inscrire un talon de paie complet.|Tus cuentas de cheques, ahorros, tarjetas, préstamos e inversiones, cada una con su registro. Los movimientos nuevos se escriben en la barra al pie de un registro; también puedes importar un archivo del banco o anotar un recibo de nómina completo.|Sua conta corrente, poupança, cartões, empréstimos e investimentos, cada um com seu extrato. Lançamentos novos são digitados na barra no pé do extrato; você também pode importar um arquivo do banco ou lançar um holerite completo.

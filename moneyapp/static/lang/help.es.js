@@ -56,13 +56,13 @@ I18N.helpText({
           solo a la otra cuenta.</li>
         <li><b>Movimientos divididos</b> (un pago de préstamo, un recibo de nómina) aparecen como una línea con sus partes abajo.</li>
         <li><b>Con fecha posterior a hoy:</b> los movimientos de días por venir tienen una barra a la izquierda y un fondo sombreado, para distinguir bien el pasado del futuro.</li>
-        <li><b>Orden:</b> "Más recientes primero" cambia el orden. Los movimientos del mismo día se pueden mover con ▲ ▼.</li>
+        <li><b>Orden:</b> "Más recientes primero" cambia el orden. Los movimientos del mismo día pueden cambiar de orden: abre el 🔒 sobre el registro y arrastra un movimiento por su asa (en el teléfono, ▲ ▼).</li>
         <li><b>Conciliado y verificado:</b> haz clic en la columna de estado para marcar un movimiento como conciliado (C) o
           verificado (R). <b>Conciliar la cuenta</b> te guía para cuadrar un estado de cuenta.</li>
         <li><b>Detalles de la cuenta</b> guardan el banco, el número de cuenta, el sitio web, el teléfono y la tasa de interés y,
           para tarjetas, el límite y los días del estado de cuenta.</li>
         <li><b>Favoritas y orden:</b> haz clic en la ☆ junto a una cuenta de la lista para hacerla favorita (★); las favoritas van primero en su grupo.
-          Para cambiar el orden, abre el 🔒 arriba de la lista, arrastra una cuenta (en el teléfono, ▲ ▼) y vuelve a cerrarlo; salir de Cuentas también lo cierra.
+          Para cambiar el orden, abre el 🔒 arriba de la lista (el mismo candado sirve donde sea que se pueda cambiar el orden), arrastra una cuenta (en el teléfono, ▲ ▼) y vuelve a cerrarlo; salir de Cuentas también lo cierra.
           Favoritas y orden son solo tuyos: cada persona que usa las mismas cuentas mantiene los suyos.</li>
         <li><b>Un pago de nómina con su recibo:</b> un clic lo muestra en la línea de abajo como cualquier movimiento, con <b>Recibos</b> (guarda ahí el PDF del recibo de nómina)
           y <b>Recibo de nómina</b>, que lo abre. La etiqueta verde <b>Recibo de nómina</b> en la línea lo abre directamente.</li>
@@ -136,7 +136,7 @@ I18N.helpText({
         <li>Cada impuesto o deducción va a una categoría (Impuesto federal sobre la renta, Seguros : Salud…) o a una de tus cuentas
           (un 401(k), una HSA), donde aparece como dinero que entra. ¿No llevas esa cuenta en MoneyThistle? Usa <b>Ahorros e inversiones</b>
           (Plan de jubilación, Cuenta de salud) en su lugar. Cada recibo nuevo empieza como copia del anterior;
-          mueve las líneas con ▲ ▼ (o Alt+↑ ↓) para seguir el orden de tu recibo.</li>
+          para seguir el orden de tu recibo, abre el 🔒 sobre las líneas y arrastra una línea por su asa (en el teléfono, ▲ ▼; Alt+↑ ↓ funciona siempre).</li>
         <li><b>Pago depositado en más de una cuenta</b> ($250 a ahorros, $3,210.14 a cheques): en <i>Depositado en</i>,
           elige <i>+ Agregar una cuenta</i> e ingresa lo que llegó a cada una. El pago neto es su total. También funciona
           solo con el pago neto. El monto de un pago programado puede ser el total o lo que llega a su propia cuenta. Un depósito programado también puede tener varias cuentas (Facturas y depósitos, <i>+ Agregar una cuenta</i>), cada

@@ -57,13 +57,13 @@ I18N.helpText({
           ajoutée toute seule à l'autre compte.</li>
         <li><b>Écritures ventilées</b> (un paiement de prêt, un talon de paie) s'affichent comme une ligne avec leurs parties dessous.</li>
         <li><b>Datées après aujourd'hui :</b> les écritures des jours à venir ont une barre à gauche et un fond teinté, pour bien séparer le passé de l'avenir.</li>
-        <li><b>Ordre :</b> « Plus récentes d'abord » inverse l'ordre. Les écritures d'une même journée se déplacent avec ▲ ▼.</li>
+        <li><b>Ordre :</b> « Plus récentes d'abord » inverse l'ordre. Les écritures d'une même journée peuvent changer d'ordre : ouvrez le 🔒 au-dessus du registre, puis faites glisser une écriture par sa poignée (sur un téléphone, ▲ ▼).</li>
         <li><b>Compensé et rapproché :</b> cliquez la colonne d'état pour marquer une écriture compensée (C) ou rapprochée (R).
           <b>Concilier le compte</b> vous guide pour faire correspondre un relevé.</li>
         <li><b>Détails du compte</b> gardent la banque, le numéro de compte, le site Web, le téléphone et le taux d'intérêt et, pour
           les cartes, la limite et les jours du relevé.</li>
         <li><b>Favoris et ordre :</b> cliquez sur le ☆ à côté d'un compte dans la liste pour en faire un favori (★); les favoris passent en tête de leur groupe.
-          Pour changer l'ordre, ouvrez le 🔒 en haut de la liste, faites glisser un compte (sur un téléphone, ▲ ▼), puis verrouillez de nouveau; quitter Comptes le verrouille aussi.
+          Pour changer l'ordre, ouvrez le 🔒 en haut de la liste (le même verrou sert partout où l'on peut changer l'ordre), faites glisser un compte (sur un téléphone, ▲ ▼), puis verrouillez de nouveau; quitter Comptes le verrouille aussi.
           Favoris et ordre sont à vous seul : chaque personne qui utilise les mêmes comptes garde les siens.</li>
         <li><b>Une paie avec son talon :</b> un clic l'affiche dans la ligne du bas comme toute opération, avec <b>Reçus</b> (gardez-y le PDF du talon de paie)
           et <b>Talon de paie</b>, qui ouvre le talon. L'étiquette verte <b>Talon de paie</b> sur la ligne l'ouvre directement.</li>
@@ -137,7 +137,7 @@ I18N.helpText({
         <li>Chaque impôt ou retenue va dans une catégorie (Impôt fédéral sur le revenu, Assurances : Santé…) ou dans un de vos
           comptes (un REER/401(k), un HSA), où il apparaît comme argent qui entre. Vous ne suivez pas ce compte dans MoneyThistle? Utilisez plutôt
           <b>Épargne et placements</b> (Régime de retraite, Compte santé). Chaque nouveau talon commence comme une copie du
-          dernier; déplacez les lignes avec ▲ ▼ (ou Alt+↑ ↓) pour suivre l'ordre de votre talon.</li>
+          dernier; pour suivre l'ordre de votre talon, ouvrez le 🔒 au-dessus des lignes et faites glisser une ligne par sa poignée (sur un téléphone, ▲ ▼; Alt+↑ ↓ fonctionne en tout temps).</li>
         <li><b>Paie versée dans plus d'un compte</b> (250 $ dans l'épargne, 3 210,14 $ dans le chèques) : sous <i>Déposé dans</i>,
           choisissez <i>+ Ajouter un compte</i> et entrez ce qui est arrivé dans chacun. La paie nette est leur total. Fonctionne
           aussi avec la paie nette seule. Le montant d'une paie planifiée peut être le total ou ce qui arrive dans son propre compte. Un dépôt planifié peut aussi avoir plusieurs comptes (Factures et dépôts, <i>+ Ajouter un compte</i>), chacun avec un

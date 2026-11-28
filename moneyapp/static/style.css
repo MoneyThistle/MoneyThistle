@@ -142,19 +142,24 @@ h2 { font-size: 15px; margin: 0 0 10px; color: var(--heading); font-weight: 600;
 .acctrow .star { background: none; border: none; padding: 0 2px; margin: 0; font-size: 15px; line-height: 1; color: var(--muted); cursor: pointer; }
 .acctrow.fav .star { color: #d9a400; }
 .acctrow .star:hover { color: #d9a400; }
-/* Reordering: locked by default; open, rows get a handle (drag) or arrows (small screens). */
+/* Reordering, the same everywhere (Accounts list, a register's same-day entries, paystub
+   lines): locked by default, so there's nothing to move by accident. Opened with its 🔒,
+   rows get a handle to drag on wider screens, or ▲ ▼ on small and touch screens. */
 .acctlock { display: flex; justify-content: flex-end; margin: -4px 0 2px; }
 .lockbtn { background: none; border: 1px solid transparent; font-size: 13px; }
-.acctlist.unlocked .lockbtn { border-color: var(--accent); }
-.acctrow .grip { cursor: grab; color: var(--muted); letter-spacing: -2px; padding-right: 2px; }
-.acctrow .mvarrows { display: none; gap: 2px; }
+.lockbtn[aria-pressed="true"] { border-color: var(--accent); }
+.grip, .mvarrows { display: none; }
+.unlocked .grip { display: inline-block; cursor: grab; color: var(--muted); letter-spacing: -2px; padding: 0 2px; user-select: none; }
+.mvarrows { gap: 2px; vertical-align: middle; }
 .acctlist.unlocked .acctrow { cursor: grab; }
-.acctrow.dragging { opacity: .5; }
-.acctrow.dropat { box-shadow: inset 0 0 0 2px var(--accent); }
+.dragging { opacity: .5; }
+.dropat { box-shadow: inset 0 0 0 2px var(--accent); }
 @media (max-width: 760px), (pointer: coarse) {
-  .acctrow .grip { display: none; }
-  .acctrow .mvarrows { display: inline-flex; }
+  .unlocked .grip { display: none; }
+  .unlocked .mvarrows { display: inline-flex; }
 }
+/* (a register shows its lock only when two entries share a day) */
+body:not(:has(#reg .grip)) #regLock { display: none; }
 .networth { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; display: flex; justify-content: space-between; font-weight: 600; }
 
 table { width: 100%; border-collapse: collapse; }
@@ -253,8 +258,7 @@ label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px
   body.on-quick .fab { display: none; }
   #where { padding-bottom: 80px; }
 }
-.movebtns { display: inline-flex; gap: 2px; margin-left: 6px; opacity: .35; vertical-align: middle; }
-tr:hover .movebtns, .movebtns:focus-within { opacity: 1; }
+.movebtns { margin-left: 6px; }
 button.tiny { font-size: 9px; line-height: 1; padding: 2px 4px; min-height: 0; border-radius: 4px; }
 #where .pubwarn { flex-basis: 100%; color: var(--out-text); }
 .acct-more { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }

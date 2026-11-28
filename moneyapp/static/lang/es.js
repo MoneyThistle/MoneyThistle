@@ -540,6 +540,8 @@ I18N.add("es", {
 "Download it and check it opens": "Descárgalo y revisa que abra",
 "Download spreadsheet (CSV)": "Descargar hoja de cálculo (CSV)",
 "Downloaded {} KB from {}{} and every file in it read without errors.": "Se descargaron {} KB de {}{} y cada archivo se leyó sin errores.",
+"Drag to move it within the day": "Arrastra para moverlo dentro del día",
+"Drag to move this line": "Arrastra para mover esta línea",
 "Due": "Vence",
 "Due today": "Vence hoy",
 "Each account can be listed once": "Cada cuenta puede aparecer una sola vez",
