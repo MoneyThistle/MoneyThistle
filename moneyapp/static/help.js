@@ -62,6 +62,20 @@ const HELP = {
           <b>Balance account</b> walks you through matching a statement.</li>
         <li><b>Account details</b> keep the bank, account number, website, phone and interest rate, and for
           cards the limit and statement days.</li>
+        <li><b>Favorites and order:</b> click the ☆ beside an account in the list to make it a favorite (★); favorites come first in their group.
+          To change the order, open the 🔒 at the top of the list, drag an account (on a phone, use ▲ ▼), then lock it again; leaving Accounts locks it too.
+          Favorites and order are yours alone: everyone using the same accounts keeps their own.</li>
+        <li><b>A paycheck with its paystub:</b> clicking it shows it in the line at the bottom like any entry, with <b>Receipts</b> (keep a PDF of the pay slip there)
+          and <b>Paystub</b>, which opens the paystub. The green <b>Paystub</b> tag on the line opens it directly.</li>
+      </ul>` },
+    { id: "balances", title: "Balance and Cleared", tab: "accounts", body: `
+      <p>Each account shows two totals side by side.</p>
+      <ul>
+        <li><b>Balance</b> is everything entered in the register: every entry, cleared or not, including entries dated after today.</li>
+        <li><b>Cleared</b> counts only the entries marked cleared (C) or reconciled (R): what the bank has already seen. It's the one to compare with the bank's own balance.</li>
+        <li><b>Why they differ:</b> checks not cashed yet, card charges still pending, deposits not posted yet and entries dated in the future count in Balance but not in Cleared.</li>
+        <li><b>When to look closer:</b> a gap that comes and goes is normal. A gap that keeps growing, or entries weeks old still not cleared, usually means something that never reached the bank or was entered twice.
+          <b>Balance account</b> walks through a statement and marks what matches. An account that has never been balanced shows a big gap simply because nothing is marked yet.</li>
       </ul>` },
     { id: "cards", title: "Credit cards", tab: "accounts", body: `
       <p>Each card is kept one of two ways (Account details → <i>How do you keep this card?</i>):</p>
@@ -140,6 +154,12 @@ const HELP = {
         <li><b>Automatic ⟳:</b> mark items that happen by themselves (autopay, direct deposit). Choose
           <i>record it for me</i> and MoneyThistle enters each one on its date, marked ⟳ in the register.</li>
         <li>Home lists what's due soon; Reports → Looking ahead uses the schedule to forecast balances.</li>
+        <li><b>Coming up</b> shows every time an item happens in the days chosen. Only the earliest can be entered or skipped; the later ones show what's coming.
+          The busiest account comes first, and the cards fill the columns so a long one leaves no gap beside it.</li>
+        <li><b>Show automatic</b> (ticked) lists automatic items too; untick it to see only what needs you. Your choice is remembered on every device.</li>
+        <li><b>Pay this bill ↗</b> opens the website a bill is paid on: type it under <i>More options</i> (<i>Website to pay it</i>). Card and loan payments use the website in the card's or loan's details.
+          Deposits and transfers get <b>View account ↗</b>, to the account's website.</li>
+        <li><b>An average:</b> click the averaged amount in a scheduled item to see the amounts it comes from, with their dates.</li>
       </ul>
       <p>Colors and symbols: money in is green <b>+</b>, money out is orange <b>−</b>, moves between your own
       accounts are blue <b>⇄</b>.</p>` },
@@ -369,6 +389,8 @@ const HELP = {
           starts again, or tick <i>Install new versions by itself</i>. On Unraid, the Docker tab's <i>update ready</i>
           updates the container; with Docker Compose, pull and start it again. Your data is kept.</li>
         <li><b>Where things are:</b> the app files, data folder, backups and log are listed under Settings.</li>
+        <li><b>Saving:</b> a section with settings to change has <b>Save</b> and <b>Discard changes</b> at its top and bottom, greyed out until something changes
+          (the section's name gets a dot meanwhile). Leaving with changes not saved asks first. Buttons that do something at once (Add person, Back up now, Send test) work on their own.</li>
       </ul>` },
     { id: "safety", title: "Keeping it safe", tab: "settings", body: `
       <p><b>Never expose MoneyThistle to the public internet</b> (no port forwarding, no public reverse proxy).

@@ -61,6 +61,20 @@ I18N.helpText({
           verificado (R). <b>Conciliar la cuenta</b> te guía para cuadrar un estado de cuenta.</li>
         <li><b>Detalles de la cuenta</b> guardan el banco, el número de cuenta, el sitio web, el teléfono y la tasa de interés y,
           para tarjetas, el límite y los días del estado de cuenta.</li>
+        <li><b>Favoritas y orden:</b> haz clic en la ☆ junto a una cuenta de la lista para hacerla favorita (★); las favoritas van primero en su grupo.
+          Para cambiar el orden, abre el 🔒 arriba de la lista, arrastra una cuenta (en el teléfono, ▲ ▼) y vuelve a cerrarlo; salir de Cuentas también lo cierra.
+          Favoritas y orden son solo tuyos: cada persona que usa las mismas cuentas mantiene los suyos.</li>
+        <li><b>Un pago de nómina con su recibo:</b> un clic lo muestra en la línea de abajo como cualquier movimiento, con <b>Recibos</b> (guarda ahí el PDF del recibo de nómina)
+          y <b>Recibo de nómina</b>, que lo abre. La etiqueta verde <b>Recibo de nómina</b> en la línea lo abre directamente.</li>
+      </ul>` },
+    balances: { title: "Saldo y saldo compensado", body: `
+      <p>Cada cuenta muestra dos totales lado a lado.</p>
+      <ul>
+        <li>El <b>saldo</b> cuenta todo lo anotado en el registro: cada movimiento, compensado o no, incluso los fechados después de hoy.</li>
+        <li>El <b>saldo compensado</b> cuenta solo los movimientos marcados como compensados (C) o conciliados (R): lo que el banco ya vio. Es el que se compara con el saldo del banco.</li>
+        <li><b>Por qué difieren:</b> cheques aún no cobrados, cargos de tarjeta pendientes, depósitos aún no acreditados y movimientos con fecha futura cuentan en el saldo, pero no en el compensado.</li>
+        <li><b>Cuándo revisar:</b> una diferencia que va y viene es normal. Una que no deja de crecer, o movimientos de hace semanas aún sin compensar, suele indicar algo que nunca llegó al banco o que se anotó dos veces.
+          <b>Conciliar la cuenta</b> recorre un estado de cuenta y marca lo que coincide. Una cuenta nunca conciliada muestra una gran diferencia solo porque aún no hay nada marcado.</li>
       </ul>` },
     cards: { title: "Tarjetas de crédito", body: `
       <p>Cada tarjeta se lleva de una de dos formas (Detalles de la cuenta → <i>¿Cómo llevas esta tarjeta?</i>):</p>
@@ -142,6 +156,12 @@ I18N.helpText({
         <li><b>Automático ⟳:</b> marca los elementos que pasan solos (pago automático, depósito directo). Elige
           <i>registrarlo por mí</i> y MoneyThistle registra cada uno en su fecha, marcado con ⟳ en el registro.</li>
         <li>El Inicio lista lo que vence pronto; Informes → Lo que viene usa el calendario para pronosticar saldos.</li>
+        <li><b>Próximamente</b> muestra cada vez que un elemento ocurre en los días elegidos. Solo el primero se puede registrar u omitir; los siguientes muestran lo que viene.
+          La cuenta con más movimientos va primero, y las tarjetas llenan las columnas para que una larga no deje un hueco al lado.</li>
+        <li><b>Mostrar automáticos</b> (marcado) incluye también lo automático; desmárcalo para ver solo lo que necesita tu atención. Tu elección se recuerda en todos tus dispositivos.</li>
+        <li><b>Pagar esta factura ↗</b> abre el sitio donde se paga: escríbelo en <i>Más opciones</i> (<i>Sitio para pagarla</i>). Los pagos de tarjeta y de préstamo usan el sitio de los detalles de la tarjeta o del préstamo.
+          Los depósitos y transferencias tienen <b>Ver cuenta ↗</b>, al sitio de la cuenta.</li>
+        <li><b>Un promedio:</b> haz clic en el monto promedio de un elemento programado para ver los montos de los que sale, con sus fechas.</li>
       </ul>
       <p>Colores y símbolos: el dinero que entra es verde <b>+</b>, el que sale es naranja <b>−</b>, los movimientos entre tus
       propias cuentas son azules <b>⇄</b>.</p>` },
@@ -378,6 +398,8 @@ I18N.helpText({
           instala y reinicia, o marca <i>Instalar las versiones nuevas por sí solo</i>. En Unraid, el <i>update ready</i>
           de la pestaña Docker actualiza el contenedor; con Docker Compose, haz pull y vuelve a iniciarlo. Tus datos se quedan.</li>
         <li><b>Dónde están las cosas:</b> los archivos de la app, la carpeta de datos, los respaldos y el registro aparecen en Configuración.</li>
+        <li><b>Guardar:</b> una sección con ajustes para cambiar tiene <b>Guardar</b> y <b>Descartar cambios</b> arriba y abajo, en gris hasta que algo cambie
+          (mientras tanto el nombre de la sección lleva un punto). Salir con cambios sin guardar pregunta primero. Los botones que actúan de inmediato (Agregar persona, Respaldar ahora, Enviar prueba) funcionan por su cuenta.</li>
       </ul>` },
     safety: { title: "Mantenerlo seguro", body: `
       <p><b>Nunca expongas MoneyThistle al internet público</b> (sin reenvío de puertos, sin proxy inverso público).

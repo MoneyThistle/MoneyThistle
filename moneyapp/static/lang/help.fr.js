@@ -62,6 +62,20 @@ I18N.helpText({
           <b>Concilier le compte</b> vous guide pour faire correspondre un relevé.</li>
         <li><b>Détails du compte</b> gardent la banque, le numéro de compte, le site Web, le téléphone et le taux d'intérêt et, pour
           les cartes, la limite et les jours du relevé.</li>
+        <li><b>Favoris et ordre :</b> cliquez sur le ☆ à côté d'un compte dans la liste pour en faire un favori (★); les favoris passent en tête de leur groupe.
+          Pour changer l'ordre, ouvrez le 🔒 en haut de la liste, faites glisser un compte (sur un téléphone, ▲ ▼), puis verrouillez de nouveau; quitter Comptes le verrouille aussi.
+          Favoris et ordre sont à vous seul : chaque personne qui utilise les mêmes comptes garde les siens.</li>
+        <li><b>Une paie avec son talon :</b> un clic l'affiche dans la ligne du bas comme toute opération, avec <b>Reçus</b> (gardez-y le PDF du talon de paie)
+          et <b>Talon de paie</b>, qui ouvre le talon. L'étiquette verte <b>Talon de paie</b> sur la ligne l'ouvre directement.</li>
+      </ul>` },
+    balances: { title: "Solde et solde compensé", body: `
+      <p>Chaque compte affiche deux totaux côte à côte.</p>
+      <ul>
+        <li>Le <b>solde</b> compte tout ce qui est inscrit au registre : chaque opération, compensée ou non, y compris celles datées après aujourd'hui.</li>
+        <li>Le <b>solde compensé</b> ne compte que les opérations marquées compensées (C) ou rapprochées (R) : ce que la banque a déjà vu. C'est celui à comparer au solde de la banque.</li>
+        <li><b>Pourquoi ils diffèrent :</b> les chèques pas encore encaissés, les achats par carte en attente, les dépôts pas encore inscrits et les opérations datées dans le futur comptent dans le solde, pas dans le solde compensé.</li>
+        <li><b>Quand y regarder de plus près :</b> un écart qui va et vient est normal. Un écart qui grandit sans cesse, ou des opérations vieilles de plusieurs semaines toujours pas compensées, signale souvent quelque chose qui n'est jamais arrivé à la banque ou qui a été inscrit deux fois.
+          <b>Concilier le compte</b> parcourt un relevé et marque ce qui concorde. Un compte jamais rapproché montre un grand écart simplement parce que rien n'est encore marqué.</li>
       </ul>` },
     cards: { title: "Cartes de crédit", body: `
       <p>Chaque carte est tenue de l'une de deux façons (Détails du compte → <i>Comment tenez-vous cette carte?</i>) :</p>
@@ -143,6 +157,12 @@ I18N.helpText({
         <li><b>Automatique ⟳ :</b> marquez les éléments qui se font tout seuls (paiement automatique, dépôt direct). Choisissez
           <i>l'inscrire pour moi</i> et MoneyThistle inscrit chacun à sa date, marqué ⟳ dans le registre.</li>
         <li>L'accueil liste ce qui est bientôt dû; Rapports → Prévisions utilise le calendrier pour prévoir les soldes.</li>
+        <li><b>À venir</b> montre chaque fois qu'un élément revient dans les jours choisis. Seul le premier peut être inscrit ou sauté; les suivants montrent ce qui s'en vient.
+          Le compte le plus chargé vient en premier, et les cartes remplissent les colonnes pour qu'une longue ne laisse pas de vide à côté.</li>
+        <li><b>Afficher les automatiques</b> (coché) montre aussi les éléments automatiques; décochez pour ne voir que ce qui demande votre attention. Votre choix est retenu sur tous vos appareils.</li>
+        <li><b>Payer cette facture ↗</b> ouvre le site où la facture se paie : tapez-le sous <i>Plus d'options</i> (<i>Site pour la payer</i>). Les paiements de carte et de prêt utilisent le site des détails de la carte ou du prêt.
+          Les dépôts et virements ont <b>Voir le compte ↗</b>, vers le site du compte.</li>
+        <li><b>Une moyenne :</b> cliquez sur le montant moyen d'un élément prévu pour voir les montants d'où elle vient, avec leurs dates.</li>
       </ul>
       <p>Couleurs et symboles : l'argent qui entre est vert <b>+</b>, l'argent qui sort est orange <b>−</b>, les déplacements entre
       vos propres comptes sont bleus <b>⇄</b>.</p>` },
@@ -391,6 +411,8 @@ I18N.helpText({
           Vos données restent.</li>
         <li><b>Où trouver les choses :</b> les fichiers de l'application, le dossier de données, les sauvegardes et le journal sont
           listés dans les Paramètres.</li>
+        <li><b>Enregistrer :</b> une section avec des paramètres à changer a <b>Enregistrer</b> et <b>Annuler les changements</b> en haut et en bas, grisés tant que rien ne change
+          (le nom de la section porte un point en attendant). Quitter avec des changements non enregistrés demande d'abord. Les boutons qui agissent tout de suite (Ajouter une personne, Sauvegarder maintenant, Envoyer un test) fonctionnent seuls.</li>
       </ul>` },
     safety: { title: "Le garder en sécurité", body: `
       <p><b>N'exposez jamais MoneyThistle à l'Internet public</b> (pas de redirection de port, pas de mandataire inverse public).

@@ -75,7 +75,7 @@ def screenshot(out_path, page="home", theme=None, accent=None, width=1280, heigh
     tmp = tempfile.mkdtemp(prefix="moneythistle-shot-")
     try:
         system, store, backups, app = build(os.path.join(tmp, "data"))
-        load_sample(store)
+        load_sample(store, system.data_dir)
         store.set_setting("sample_data", False)   # (pictures of the app, without the sample-data bar)
         uid = system.users()[0]["id"] if system.has_users() else \
             system.create_user("demo", "demo-password", "Sam Sample", True)
@@ -597,7 +597,7 @@ def main():
     else:
         say("First start: open the address below and create the first (administrator) sign-in. "
             "Do that before anyone else can reach it.")
-    if args.demo and load_sample(store):
+    if args.demo and load_sample(store, system.data_dir):
         say("Loaded sample data.")
     try:
         httpd = make_server(app, args.host, args.port)

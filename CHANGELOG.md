@@ -10,7 +10,40 @@ can need you to do something when updating, MINOR adds features, PATCH fixes thi
   shows the same. A choice made earlier in a browser carries over the first time.
 - Home's Looking ahead card now follows that choice too (it always showed the usual accounts).
 - Scheduled items: the amount, the account(s) and "To the card" line up side by side again (a note
-  under the amount pushed the other fields down).
+  under the amount pushed the other fields down). Fixed once for every form (bills, deposits,
+  paychecks, transfers, loans, settings): fields now line up from the top everywhere.
+- **Bills & Deposits, Coming up:**
+  - **Show automatic (N)**, ticked by default: untick it to hide autopay and direct deposits and see
+    only what needs you. N counts them for the days shown; the choice follows you to every browser.
+  - **Pay this bill ↗** opens where a bill is paid (a new *Website to pay it* field under More
+    options; card and loan payments use the card's or loan's website). Deposits and transfers get
+    **View account ↗**, to the account's website.
+  - The account cards fill balanced columns, busiest account first, instead of rows that left a
+    big empty space beside a long card. One column on a phone.
+  - Later occurrences of an item no longer say "later": only the earliest has Enter and Skip.
+  - Enter and Skip stack instead of being cut off at the edge of a narrow card.
+- **A dialog belongs to its page:** leaving a page (a tab, Back) with a dialog open closes it, or
+  asks once to save it when something in it was changed. It used to stay on top of the next page
+  and block it.
+- **Settings:** each section that holds settings has one **Save** and **Discard changes** bar at its
+  top and bottom, greyed out until something changes (the section's name gets a dot meanwhile).
+  Leaving with unsaved changes names the section. Your data and This computer, which are actions,
+  have none.
+- **Accounts:** ☆ star an account to make it a favorite (first in its group). Unlock 🔒 the list to
+  drag accounts into your own order (▲ ▼ on a phone). Favorites and order are each person's own.
+  "New" is now "New account".
+- **A paycheck with its paystub** opens in the entry line like any entry, with Receipts (keep the pay
+  slip's PDF there); the paystub opens from its Paystub tag or the Paystub button.
+- **Averages:** a scheduled item shows "Average of the last N: $X"; click the amount for the amounts
+  and dates it comes from.
+- **Balance and Cleared:** one ? beside them opens a new Help guide on what each means and when a
+  gap between them is worth a look.
+- **Move in** says which files it reads before you choose one, and calls an OFX bank download what
+  it is (it said "This CSV has no Account column").
+- **Home's Looking ahead** is a 30-day glance ("Looking ahead: next 30 days"); longer ranges are in
+  Reports. The tour now opens each page it describes, from first sign-in and from Help alike.
+- The sample data comes with a sample receipt and a sample statement, so Files has something to show.
+- French, Spanish and Portuguese: "Cleared" in the register was translated as "erased"; fixed.
 
 ## 1.0.6 (2026-11-27)
 

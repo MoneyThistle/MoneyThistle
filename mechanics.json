@@ -42,6 +42,12 @@
     {"name": "languages", "group": "languages", "value": "en-US, fr-CA, es-419, pt-BR", "source": "person's request"},
     {"name": "category name shown", "group": "languages", "value": "name in the person's language, else the category's own name", "source": "person's request"},
     {"name": "bank connectivity", "group": "scope", "value": false, "source": "person's request"},
-    {"name": "file import formats", "group": "scope", "value": "CSV, QIF", "estimated": true}
+    {"name": "file import formats", "group": "scope", "value": "CSV, QIF", "estimated": true},
+    {"name": "home looking ahead days", "group": "forecast", "value": 30, "source": "person's ruling"},
+    {"name": "coming up: actionable occurrence", "group": "schedule", "value": "earliest only", "source": "person's design"},
+    {"name": "coming up: card order", "group": "schedule", "value": "most items first, then name; balanced columns", "source": "person's design"},
+    {"name": "show automatic items by default", "group": "schedule", "value": true, "source": "person's design"},
+    {"name": "account favorites and order kept", "group": "accounts", "value": "per person, per environment", "source": "person's design"},
+    {"name": "cleared balance counts", "group": "accounts", "value": "entries marked C or R"}
   ]
 }

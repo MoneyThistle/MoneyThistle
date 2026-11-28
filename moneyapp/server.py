@@ -295,7 +295,7 @@ class App:
         r("POST", r"/api/migrate/preview", lambda q, b: migrate.preview(self.store, b.get("files"), b.get("aliases")))
         r("POST", r"/api/migrate", lambda q, b: migrate.bring_in(self.store, b.get("files"), b.get("choices"),
                                                                 b.get("aliases")))
-        r("POST", r"/api/sample", lambda q, b: {"loaded": load_sample(self.store)})
+        r("POST", r"/api/sample", lambda q, b: {"loaded": load_sample(self.store, self.system.data_dir)})
 
     def route(self, method, pattern, fn, scope="env", share=None):
         # share: what someone opening an account shared into their environment may do
@@ -1009,6 +1009,26 @@ class App:
                 elif isinstance(v, list):
                     fc[k] = [str(x)[:24] for x in v][:500]
             s["forecast"] = dict(list(fc.items())[-50:])
+        if isinstance(b.get("accts"), dict):
+            # The Accounts list, per environment and per person: favorites (starred) and the
+            # order inside each group. Kept with the person, never on the account (accounts are
+            # shared between people, who each keep their own layout).
+            ac = dict(s.get("accts") or {})
+            for k, v in b["accts"].items():
+                k = str(k)
+                if not re.fullmatch(r"\d{1,9}", k):
+                    continue
+                if v is None:
+                    ac.pop(k, None)
+                elif isinstance(v, dict):
+                    ids = lambda x: [int(i) for i in (x if isinstance(x, list) else [])
+                                     if isinstance(i, int) or (isinstance(i, str) and i.isdigit())][:2000]
+                    ac.pop(k, None)
+                    ac[k] = {"fav": ids(v.get("fav")), "order": ids(v.get("order"))}
+            s["accts"] = dict(list(ac.items())[-50:])
+        if "bills_show_auto" in b:
+            # Bills & Deposits: show automatic items in "Coming up" (or only what needs you).
+            s["bills_show_auto"] = bool(b["bills_show_auto"])
         if "forecast_total" in b:
             s["forecast_total"] = bool(b["forecast_total"])
         if "coffee" in b:

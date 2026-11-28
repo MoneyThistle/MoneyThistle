@@ -514,6 +514,60 @@ DATA:OFXSGML
         self.store.skip_bill(bid)
         self.assertEqual(self.store.bills()[0]["next_date"], "2026-05-10")
 
+    def test_bill_links_to_pay_and_to_the_account(self):
+        # A bill can keep the website it's paid on ("Pay this bill"); money in or between
+        # accounts links to the account's own website ("View account"); a loan's payment to
+        # the loan's website. Only web addresses are kept.
+        a = self.store.save_account({"name": "Chk", "type": "Checking", "details": {"website": "bank.example.com"}})
+        s = self.store.save_account({"name": "Sav", "type": "Savings"})
+        bill = self.store.save_bill({"kind": "bill", "payee": "Power", "account_id": a, "amount": "20",
+                                     "frequency": "Monthly", "next_date": "2030-03-10", "pay_url": "power.example.com/pay"})
+        dep = self.store.save_bill({"kind": "deposit", "payee": "Payroll", "account_id": a, "amount": "900",
+                                    "frequency": "Monthly", "next_date": "2030-03-01"})
+        xfer = self.store.save_bill({"kind": "transfer", "payee": "Saving", "account_id": a, "to_account_id": s,
+                                     "amount": "50", "frequency": "Monthly", "next_date": "2030-03-02"})
+        by = {b["id"]: b for b in self.store.bills()}
+        self.assertEqual(by[bill]["pay_url"], "https://power.example.com/pay")
+        self.assertEqual(by[dep]["account_url"], "https://bank.example.com")
+        self.assertEqual(by[xfer]["account_url"], "https://bank.example.com")
+        self.assertEqual(by[dep]["pay_url"], "")
+        for bad in ("javascript:alert(1)", "not a site", "ftp://x.example.com"):
+            with self.assertRaises(ApiError):
+                self.store.save_bill({"kind": "bill", "payee": "Power", "account_id": a, "amount": "20",
+                                      "frequency": "Monthly", "next_date": "2030-03-10", "pay_url": bad}, bill)
+        self.assertEqual({b["id"]: b for b in self.store.bills()}[bill]["pay_url"], "https://power.example.com/pay")
+        self.store.save_bill({"kind": "bill", "payee": "Power", "account_id": a, "amount": "20",
+                              "frequency": "Monthly", "next_date": "2030-03-10", "pay_url": ""}, bill)
+        self.assertEqual({b["id"]: b for b in self.store.bills()}[bill]["pay_url"], "")
+
+    def test_move_in_names_the_file_it_got(self):
+        # An OFX bank download is called what it is, never "a CSV"; a PDF is refused plainly.
+        from moneyapp import migrate
+        ofx = base64.b64encode(b"OFXHEADER:100\nDATA:OFXSGML\n<OFX><BANKMSGSRSV1></BANKMSGSRSV1></OFX>").decode()
+        with self.assertRaises(ApiError) as e:
+            migrate.read([{"filename": "sample-checking.ofx", "content": ofx}])
+        self.assertIn("This OFX file is a single-account bank download", str(e.exception))
+        self.assertNotIn("CSV has", str(e.exception))
+        with self.assertRaises(ApiError) as e:
+            migrate.read([{"filename": "statement.pdf", "content": base64.b64encode(b"%PDF-1.4 ...").decode()}])
+        self.assertIn("isn't a QIF or CSV export", str(e.exception))
+
+    def test_sample_data_has_example_files(self):
+        # Files isn't empty with the sample data: a receipt with a grocery entry and a
+        # statement kept with Everyday Checking (both plainly marked as samples).
+        from moneyapp import attachments
+        d = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, d, True)
+        self.assertTrue(load_sample(self.store, d))
+        files = attachments.search(self.store)
+        self.assertEqual(sorted(f["name"] for f in files), ["sample-receipt.pdf", "sample-statement.pdf"])
+        rec = next(f for f in files if f["name"] == "sample-receipt.pdf")
+        self.assertIsNotNone(rec["transaction_id"])
+        st = next(f for f in files if f["name"] == "sample-statement.pdf")
+        self.assertEqual(st["account_name"], "Everyday Checking")
+        data = attachments.read(d, attachments.get(self.store, st["id"]))
+        self.assertTrue(data.startswith(b"%PDF-") and b"SAMPLE" in data)
+
     def test_sample_reports_budget(self):
         self.assertTrue(load_sample(self.store))
         s = self.store.summary()
@@ -1982,6 +2036,17 @@ DATA:OFXSGML
         self.assertFalse(s["forecast_total"])
         phone.call("PUT", "/api/settings", {"forecast": {"1": None}})        # back to the usual accounts
         self.assertEqual(c.call("GET", "/api/settings")["forecast"], {"all": ["3"]})
+        # Bills & Deposits: hiding automatic items follows the person the same way.
+        self.assertNotIn("bills_show_auto", c.call("GET", "/api/settings"))   # (shown unless turned off)
+        phone.call("PUT", "/api/settings", {"bills_show_auto": False})
+        self.assertFalse(c.call("GET", "/api/settings")["bills_show_auto"])
+        # The Accounts list: favorites and order are the person's own, per environment.
+        phone.call("PUT", "/api/settings", {"accts": {"1": {"fav": [3, "4"], "order": [4, 3, 7, "x"]}, "nope": {"fav": [1]}}})
+        self.assertEqual(c.call("GET", "/api/settings")["accts"], {"1": {"fav": [3, 4], "order": [4, 3, 7]}})
+        bo = Client(base)   # someone else keeps their own
+        c.call("POST", "/api/users", {"username": "bo", "password": "battery-staple", "display_name": "Bo"})
+        bo.call("POST", "/api/login", {"username": "bo", "password": "battery-staple"})
+        self.assertNotIn("accts", bo.call("GET", "/api/settings"))
 
     def test_restart_arguments(self):
         # A restart (in place in a container, or as a fresh copy) keeps the data folder and port,

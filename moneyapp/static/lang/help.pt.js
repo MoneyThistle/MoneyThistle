@@ -60,6 +60,20 @@ I18N.helpText({
           conciliado (R). <b>Conciliar a conta</b> guia você para conferir um extrato do banco.</li>
         <li><b>Detalhes da conta</b> guardam o banco, o número da conta, o site, o telefone e a taxa de juros e, nos cartões, o
           limite e os dias da fatura.</li>
+        <li><b>Favoritas e ordem:</b> clique na ☆ ao lado de uma conta na lista para torná-la favorita (★); as favoritas vêm primeiro no grupo.
+          Para mudar a ordem, abra o 🔒 no alto da lista, arraste uma conta (no celular, ▲ ▼) e feche de novo; sair de Contas também fecha.
+          Favoritas e ordem são só suas: cada pessoa que usa as mesmas contas mantém as suas.</li>
+        <li><b>Um salário com o holerite:</b> um clique o mostra na linha de baixo como qualquer lançamento, com <b>Recibos</b> (guarde ali o PDF do holerite)
+          e <b>Holerite</b>, que abre o holerite. A etiqueta verde <b>Holerite</b> na linha o abre direto.</li>
+      </ul>` },
+    balances: { title: "Saldo e saldo compensado", body: `
+      <p>Cada conta mostra dois totais lado a lado.</p>
+      <ul>
+        <li>O <b>saldo</b> conta tudo o que está no extrato: cada lançamento, compensado ou não, inclusive os com data depois de hoje.</li>
+        <li>O <b>saldo compensado</b> conta só os lançamentos marcados como compensados (C) ou conciliados (R): o que o banco já viu. É ele que se compara com o saldo do banco.</li>
+        <li><b>Por que diferem:</b> cheques ainda não descontados, compras no cartão pendentes, depósitos ainda não lançados e lançamentos com data futura contam no saldo, mas não no compensado.</li>
+        <li><b>Quando olhar com atenção:</b> uma diferença que vai e volta é normal. Uma que só cresce, ou lançamentos de semanas atrás ainda não compensados, costuma indicar algo que nunca chegou ao banco ou foi lançado duas vezes.
+          <b>Conciliar a conta</b> percorre um extrato e marca o que confere. Uma conta nunca conciliada mostra uma diferença grande só porque nada foi marcado ainda.</li>
       </ul>` },
     cards: { title: "Cartões de crédito", body: `
       <p>Cada cartão é controlado de um de dois jeitos (Detalhes da conta → <i>Como você controla este cartão?</i>):</p>
@@ -140,6 +154,12 @@ I18N.helpText({
         <li><b>Automático ⟳:</b> marque os itens que acontecem sozinhos (débito automático, depósito direto). Escolha
           <i>lançar para mim</i> e o MoneyThistle registra cada um na data, marcado com ⟳ no extrato.</li>
         <li>O Início lista o que vence em breve; Relatórios → Previsão usa a agenda para prever os saldos.</li>
+        <li><b>Em breve</b> mostra cada vez que um item acontece nos dias escolhidos. Só o primeiro pode ser lançado ou pulado; os seguintes mostram o que vem por aí.
+          A conta com mais itens vem primeiro, e os cartões preenchem as colunas para que um longo não deixe um vazio ao lado.</li>
+        <li><b>Mostrar automáticos</b> (marcado) inclui também os itens automáticos; desmarque para ver só o que precisa de você. Sua escolha é lembrada em todos os seus aparelhos.</li>
+        <li><b>Pagar esta conta ↗</b> abre o site onde a conta é paga: digite-o em <i>Mais opções</i> (<i>Site para pagá-la</i>). Pagamentos de cartão e de empréstimo usam o site dos detalhes do cartão ou do empréstimo.
+          Depósitos e transferências têm <b>Ver conta ↗</b>, para o site da conta.</li>
+        <li><b>Uma média:</b> clique no valor médio de um item agendado para ver os valores de onde ela vem, com as datas.</li>
       </ul>
       <p>Cores e símbolos: dinheiro que entra é verde <b>+</b>, dinheiro que sai é laranja <b>−</b>, movimentações entre suas
       próprias contas são azuis <b>⇄</b>.</p>` },
@@ -377,6 +397,8 @@ I18N.helpText({
           reinicia, ou marque <i>Instalar as versões novas sozinho</i>. No Unraid, o <i>update ready</i> da aba Docker
           atualiza o contêiner; com Docker Compose, faça pull e inicie de novo. Seus dados ficam.</li>
         <li><b>Onde estão as coisas:</b> os arquivos do app, a pasta de dados, os backups e o log aparecem em Configurações.</li>
+        <li><b>Salvar:</b> uma seção com configurações para mudar tem <b>Salvar</b> e <b>Descartar alterações</b> no alto e embaixo, em cinza até algo mudar
+          (enquanto isso o nome da seção ganha um ponto). Sair com alterações não salvas pergunta antes. Botões que agem na hora (Adicionar pessoa, Fazer backup agora, Enviar teste) funcionam sozinhos.</li>
       </ul>` },
     safety: { title: "Mantendo seguro", body: `
       <p><b>Nunca exponha o MoneyThistle à internet pública</b> (sem redirecionamento de porta, sem proxy reverso público).

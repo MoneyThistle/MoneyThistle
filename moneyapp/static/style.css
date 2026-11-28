@@ -135,6 +135,26 @@ h2 { font-size: 15px; margin: 0 0 10px; color: var(--heading); font-weight: 600;
 .acctrow:hover { background: var(--sel); }
 .acctrow.on { background: var(--sel); font-weight: 600; }
 .acctrow.closed { opacity: .55; }
+/* Favorites: a filled star and a slightly stronger name; each person's own (see acctPrefs). */
+.acctrow { align-items: center; gap: 4px; }
+.acctrow .aname { flex: 1; min-width: 0; }
+.acctrow.fav .aname { font-weight: 600; }
+.acctrow .star { background: none; border: none; padding: 0 2px; margin: 0; font-size: 15px; line-height: 1; color: var(--muted); cursor: pointer; }
+.acctrow.fav .star { color: #d9a400; }
+.acctrow .star:hover { color: #d9a400; }
+/* Reordering: locked by default; open, rows get a handle (drag) or arrows (small screens). */
+.acctlock { display: flex; justify-content: flex-end; margin: -4px 0 2px; }
+.lockbtn { background: none; border: 1px solid transparent; font-size: 13px; }
+.acctlist.unlocked .lockbtn { border-color: var(--accent); }
+.acctrow .grip { cursor: grab; color: var(--muted); letter-spacing: -2px; padding-right: 2px; }
+.acctrow .mvarrows { display: none; gap: 2px; }
+.acctlist.unlocked .acctrow { cursor: grab; }
+.acctrow.dragging { opacity: .5; }
+.acctrow.dropat { box-shadow: inset 0 0 0 2px var(--accent); }
+@media (max-width: 760px), (pointer: coarse) {
+  .acctrow .grip { display: none; }
+  .acctrow .mvarrows { display: inline-flex; }
+}
 .networth { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; display: flex; justify-content: space-between; font-weight: 600; }
 
 table { width: 100%; border-collapse: collapse; }
@@ -171,11 +191,12 @@ input, select, textarea { font: inherit; border: 1px solid var(--inputline); bor
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
 input.num { width: 100px; }
 label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
-.form { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); align-items: end; }
+/* Every form (dialogs, settings, the paystub) lines its fields up from the top: label over box,
+   so a note under one box never pushes the boxes beside it down. A cell holding only a button
+   sits at the boxes' level. */
+.form { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); align-items: start; }
 .form .wide { grid-column: span 2; }
-/* Fields with a note under their box line up from the top, with the boxes beside them (the
-   rest line up at the bottom, so a label on two lines doesn't push its box out of line). */
-.form > .top { align-self: start; }
+.form > button, .form > :has(> button:only-child) { align-self: end; }
 .form input, .form select { width: 100%; }
 .check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text); margin: 6px 0; }
 .check input { width: auto; }
@@ -265,6 +286,17 @@ dialog .dclose { background: transparent; border: none; color: #fff; font-size: 
 dialog .dclose:hover, dialog .dclose:focus-visible { background: rgba(255,255,255,.18); }
 /* "Save your changes?" asked over a dialog being closed */
 dialog.ask { max-width: 400px; }
+/* Settings: one Save / Discard changes bar at the top and bottom of a section that is a form */
+.savebar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 12px; border: 1px solid var(--line);
+  border-radius: 8px; background: var(--surface2); margin: 0 0 14px; max-width: 100%; }
+.savebar-bottom { margin: 14px 0 0; }
+.savebar button:disabled { opacity: .45; cursor: default; }
+.bar-saved { display: none !important; }
+.settabs a.dirty::after { content: " ●"; color: var(--accent); }
+/* The amounts behind an average: a small card; a long list scrolls inside it */
+dialog.avgcard { max-width: 340px; max-height: 70vh; overflow: auto; }
+dialog.avgcard .dbody { padding: 6px 12px 12px; }
+a.avglink { font-weight: 600; text-decoration: underline dotted; cursor: pointer; }
 dialog .dbody { padding: 16px; }
 dialog .dfoot { padding: 10px 16px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--line); background: var(--surface2);
   position: sticky; bottom: 0; z-index: 3; }
@@ -329,7 +361,9 @@ th.sortable:hover { color: var(--heading); }
 td.click { cursor: pointer; }
 td.click:hover { text-decoration: underline; }
 .scrollx { overflow-x: auto; }
-.bill-groups { grid-template-columns: repeat(auto-fill, minmax(min(460px, 100%), 1fr)); align-items: start; }
+/* Coming up: account cards in balanced columns (as many as fit at 460px or more), not rows. */
+.bill-groups { columns: 460px; column-gap: 16px; }
+.bill-groups > .card { break-inside: avoid; margin: 0 0 16px; display: block; width: 100%; }
 
 /* ---------- Adaptive layout: half a monitor, tablets, phones ---------- */
 .menubtn { display: none; align-items: center; gap: 8px; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35); padding: 6px 10px; }
@@ -618,10 +652,11 @@ tr.grp-part[hidden] { display: none; }
 td:has(button, .btn) { white-space: normal; }
 td:has(button, .btn) > button, td:has(button, .btn) > .btn { margin-top: 2px; margin-bottom: 2px; }
 td, .card p, .card li { overflow-wrap: break-word; }
-td .small, td .muted { overflow-wrap: anywhere; }   /* (an email address under a name) */
+td .small:not(button, .btn, .pill), td .muted:not(button, .btn, .pill) { overflow-wrap: anywhere; }   /* (an email address under a name) */
+td button, td .btn { white-space: nowrap; }   /* (a cell of buttons stacks them; each keeps its words together) */
 @media (max-width: 480px) { td.num { white-space: normal; } }   /* (an amount and its date share a narrow column) */
 td.num, .pill, button, .btn { overflow-wrap: normal; }
 .pill { white-space: nowrap; }
-.grid > *, .form > * { min-width: 0; }
+.form > * { min-width: 0; }
 .card { max-width: 100%; }
 .card .head { flex-wrap: wrap; gap: 6px 8px; }

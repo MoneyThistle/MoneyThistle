@@ -1,12 +1,58 @@
 """Made-up sample data for trying the app out (and for screenshots)."""
 
+import base64
 import datetime as dt
 import random
 
-from . import loans
+from . import attachments, loans
 
 
-def load_sample(store):
+def sample_pdf(title, lines):
+    """A one-page PDF with a title and a few lines of text, clearly marked SAMPLE: kept with
+    the sample data so Files and Receipts have something to show."""
+    def esc(s):
+        return s.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+    text = [f"BT /F1 20 Tf 60 760 Td ({esc(title)}) Tj ET",
+            "BT /F1 11 Tf 60 738 Td (SAMPLE - made-up data from MoneyThistle's sample, not a real document) Tj ET"]
+    y = 700
+    for ln in lines:
+        text.append(f"BT /F1 12 Tf 60 {y} Td ({esc(ln)}) Tj ET")
+        y -= 20
+    stream = "\n".join(text).encode("latin-1", "replace")
+    objs = [b"<< /Type /Catalog /Pages 2 0 R >>",
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
+            b"<< /Length %d >>\nstream\n" % len(stream) + stream + b"\nendstream",
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+    out, offs = bytearray(b"%PDF-1.4\n"), []
+    for n, o in enumerate(objs, 1):
+        offs.append(len(out))
+        out += b"%d 0 obj\n" % n + o + b"\nendobj\n"
+    xref = len(out)
+    out += b"xref\n0 %d\n0000000000 65535 f \n" % (len(objs) + 1)
+    out += b"".join(b"%010d 00000 n \n" % o for o in offs)
+    out += b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objs) + 1, xref)
+    return bytes(out)
+
+
+def _sample_files(store, data_dir, chk, card):
+    """A receipt with a grocery entry and a statement kept with Everyday Checking."""
+    g = store.q1("SELECT id, date, payee, amount FROM transactions WHERE account_id=? AND payee IN "
+                 "('Fresh Market','Green Grocer','Corner Foods') ORDER BY date DESC, id DESC LIMIT 1", (card,))
+    if g:
+        pdf = sample_pdf(f"Receipt - {g['payee']}", [f"Date: {g['date']}", "Groceries", f"Total: ${-g['amount'] / 100:,.2f}",
+                                                    "Paid with Rewards Card", "Thank you for shopping with us!"])
+        attachments.add(None, store, data_dir, g["id"], None, {"name": "sample-receipt.pdf", "note": "Sample receipt",
+                                                               "data": base64.b64encode(pdf).decode()})
+    end = (dt.date.today().replace(day=1) - dt.timedelta(days=1))
+    pdf = sample_pdf("Everyday Checking - monthly statement", [f"Statement period ending {end.isoformat()}",
+                                                              "Account ending 0000 (sample)", "Thank you for banking with us."])
+    attachments.add(None, store, data_dir, None, None, {"name": "sample-statement.pdf", "note": "Sample statement",
+                                                        "doc_date": end.isoformat(), "data": base64.b64encode(pdf).decode()},
+                    account_id=chk)
+
+
+def load_sample(store, data_dir=None):
     if store.accounts():
         return False
     store.set_setting("sample_data", True)   # (Start fresh then needs no typed confirmation)
@@ -115,4 +161,6 @@ def load_sample(store):
         {"category_id": cats["Clothing"], "amount": 75},
         {"category_id": cats["Wages & Salary"], "amount": 4621.10},
     ])
+    if data_dir:
+        _sample_files(store, data_dir, chk, card)
     return True

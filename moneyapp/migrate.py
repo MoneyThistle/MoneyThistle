@@ -543,6 +543,14 @@ def read_one(filename, content_b64):
         base = re.sub(r"\.qif$", "", (filename or "Imported account").rsplit("/", 1)[-1].rsplit("\\", 1)[-1], flags=re.I)
         accounts, kinds, skipped = parse_qif_all(text, base or "Imported account")
         return {"format": "QIF", "accounts": accounts, "kinds": kinds, "skipped": skipped}
+    # Name the kind of file it really is (never guess "CSV" for something else).
+    head = text[:4096].upper()
+    if re.search(r"\.(ofx|qfx|qbo)$", name) or "OFXHEADER" in head or "<OFX>" in head:
+        raise ApiError("This OFX file is a single-account bank download, not a full export from another "
+                       "program. To bring in one account, use Import file in that account's register instead.")
+    if raw[:4] in (b"%PDF", b"PK\x03\x04") or (b"\x00" in raw[:4096] and raw[:2] not in (b"\xff\xfe", b"\xfe\xff")):
+        raise ApiError("This file isn't a QIF or CSV export. Move in reads QIF files (Microsoft Money, "
+                       "Quicken, Moneydance) and CSV exports with an Account column.")
     accounts, fmt = parse_csv_all(text)
     if not accounts:
         raise ApiError("No accounts or transactions found in this file")

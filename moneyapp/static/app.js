@@ -665,6 +665,8 @@ function dialog(title, body, buttons) {
       if (pick === "save") save.click();
       else if (pick === "discard") { resolve(null); d.close(); }
     };
+    // (the page changing under it asks the same, once: see the hashchange handler)
+    d._dirty = () => changed && !!q("#dlgFoot button.primary");
     q("#dlgClose").onclick = leave;
     d.oncancel = e => { e.preventDefault(); leave(); };   // Escape
     d.onmousedown = e => { d._downOutside = e.target === d; };
@@ -672,6 +674,24 @@ function dialog(title, body, buttons) {
     d.showModal();
     const first = q("input,select,textarea", bodyEl); if (first) first.focus();
   });
+}
+// The amounts an average comes from, with their dates (newest first), in a small card over
+// whatever is open: ✕, Escape or a click beside it closes it; a long list scrolls inside.
+function averageCard(title, history) {
+  let a = document.getElementById("avgCard");
+  if (!a) {
+    a = document.createElement("dialog");
+    a.id = "avgCard"; a.className = "ask avgcard";
+    document.body.appendChild(a);
+  }
+  const rows = (history || []).slice().sort((x, y) => (y.date || "").localeCompare(x.date || ""));
+  a.innerHTML = `<div class="dhead"><span translate="no">${esc(title)}</span><button type="button" class="dclose dlg-x" aria-label="${esc(tr("Close"))}">✕</button></div>
+    <div class="dbody"><table>${rows.map(h => `<tr><td>${niceDate(h.date)}</td><td class="num">${fmt(h.amount, true)}</td></tr>`).join("")}</table></div>`;
+  q(".dlg-x", a).onclick = () => a.close();
+  a.oncancel = e => { e.preventDefault(); a.close(); };
+  a.onmousedown = e => { a._downOutside = e.target === a; };
+  a.onclick = e => { if (e.target === a && a._downOutside) a.close(); };
+  a.showModal();
 }
 // "Save your changes?" over a dialog that's being closed: save, don't save, or keep editing.
 function askSaveChanges(text) {
@@ -951,7 +971,7 @@ function homeForecast(f, H) {
       <td class="num">${fmt(a.low)}<div class="small muted">${niceDate(a.low_date)}</div></td><td class="num">${fmt(a.end)}</td></tr>`).join("")}</table>
     <p class="small muted" style="margin-bottom:0">From your scheduled bills, deposits and transfers; bills whose amount varies count at their average.</p>`;
   }
-  return `<div class="card" data-card="forecast"><div class="head"><h2>Looking ahead: ${f.days} days</h2><span style="display:flex;gap:10px;align-items:center">${toggle}<a href="#/reports" class="small" id="fcLink">Forecast</a></span></div>${inner}</div>`;
+  return `<div class="card" data-card="forecast"><div class="head"><h2>Looking ahead: next ${f.days} days</h2><span style="display:flex;gap:10px;align-items:center">${toggle}<a href="#/reports" class="small" id="fcLink">Forecast</a></span></div>${inner}</div>`;
 }
 
 async function renderHome() {
@@ -960,7 +980,7 @@ async function renderHome() {
   const dueDays = (S.ui && S.ui.due_days) || 14;
   const sc = scopeQS();
   const [d, fc, upd] = await Promise.all([GET(`/api/summary?days=${dueDays}&recent=${H.recent_count || 8}${sc}`),
-    showing("forecast") ? GET("/api/forecast?days=" + (H.forecast_days || 30) + sc).catch(() => null) : Promise.resolve(null),
+    showing("forecast") ? GET("/api/forecast?days=30" + sc)   /* (Home is a 30-day glance; Reports looks further) */.catch(() => null) : Promise.resolve(null),
     S.me.user.is_admin ? GET("/api/updates").catch(() => null) : Promise.resolve(null)]);
   refreshBackupState(d.backup);
   if (!d.accounts.length && !(d.shared_accounts || []).length) {
@@ -1089,7 +1109,6 @@ async function customizeHome() {
     <div id="hcList">${listHtml()}</div>
     <div class="form" style="margin-top:14px">
       <div><label>Looking ahead shows</label><select id="hcFview"><option value="table" ${H.forecast_view === "table" ? "selected" : ""}>Balances</option><option value="chart" ${H.forecast_view === "chart" ? "selected" : ""}>Chart</option></select></div>
-      <div><label>Looking ahead covers</label><select id="hcFdays">${[30, 60, 90].map(n => `<option value="${n}" ${H.forecast_days === n ? "selected" : ""}>${n} days</option>`).join("")}</select></div>
       <div><label>Bills due within</label><input id="hcDue" class="num" style="width:80px" value="${(S.ui && S.ui.due_days) || 14}"> <span class="small muted">days</span></div>
       <div><label>Recent transactions</label><select id="hcRecent">${[5, 8, 10, 15, 20].map(n => `<option ${H.recent_count === n ? "selected" : ""}>${n}</option>`).join("")}</select></div>
       <div class="wide"><label class="check"><input type="checkbox" id="hcZero" ${H.hide_zero ? "checked" : ""}> Hide accounts with a zero balance in the account list</label></div>
@@ -1114,7 +1133,7 @@ async function customizeHome() {
     { label: "Save", cls: "primary", action: async () => {
       readList();
       const home = Object.assign({}, H, {
-        forecast_view: q("#hcFview").value, forecast_days: +q("#hcFdays").value, recent_count: +q("#hcRecent").value,
+        forecast_view: q("#hcFview").value, recent_count: +q("#hcRecent").value,
         hide_zero: q("#hcZero").checked, show_networth: q("#hcNet").checked });
       await saveHome(home, { due_days: q("#hcDue").value });
       toast("Home page saved"); renderHome(); return true;
@@ -1141,7 +1160,7 @@ async function editAccount(acc) {
     <div><label>As of</label><input type="date" name="opening_date" value="${esc(a.opening_date)}"></div>
     <div><label>Currency</label><select name="currency" title="The money this account is kept in">${curOptions(a.currency || homeCur())}</select></div>
     <div class="wide"><label>Notes</label><input name="notes" value="${esc(a.notes || "")}"></div>
-    <div><label class="check"><input type="checkbox" name="favorite" ${a.favorite ? "checked" : ""}> Favorite (list first)</label></div>
+    <input type="hidden" name="favorite" value="${a.favorite ? "1" : ""}">
     ${acc ? `<div><label class="check"><input type="checkbox" name="closed" ${a.closed ? "checked" : ""}> Account is closed</label></div>` : ""}
   </div><p class="small muted">For credit cards and loans, enter what you owe as a positive number. <span class="req-note"><b>*</b> must be filled in.</span></p>
   ${accountDetailsForm(a, xsrc)}`;
@@ -1840,7 +1859,7 @@ function registerRows(rows) {
     // A paystub: gross pay and how many taxes and deductions came out of it.
     const stub = g.some(p => p.paystub);
     const summary = stub
-      ? `<span class="pill green">Paystub</span> gross ${fmt(g.filter(p => p.amount > 0).reduce((s, p) => s + p.amount, 0), true, top)} · ${g.filter(p => p.amount < 0).length} taxes &amp; deductions${payPills(g.find(p => p.pay_flag) || {})}`
+      ? `<a href="#" class="pill green" data-stubtag="${top.group_id}" title="Open the paystub">Paystub</a> gross ${fmt(g.filter(p => p.amount > 0).reduce((s, p) => s + p.amount, 0), true, top)} · ${g.filter(p => p.amount < 0).length} taxes &amp; deductions${payPills(g.find(p => p.pay_flag) || {})}`
       : `<span class="pill">Split</span> ${g.slice().reverse().map(p => esc(label(p))).join(" · ")}`;
     // One line; its parts fold out with ▸ (and stay open while the register is used).
     const open = REG_OPEN.has(String(top.group_id));
@@ -2195,13 +2214,93 @@ async function otherEnvAccounts() {
   return Promise.all(S.me.envs.filter(e => e.id !== S.env && scopeEnvs().includes(e.id)).map(e =>
     api("GET", "/api/accounts", undefined, { env_id: e.id }).then(list => ({ e, list: list.filter(a => !a.closed) })).catch(() => ({ e, list: [] }))));
 }
+// Each person's own Accounts list, per environment: favorites (★, first in their group) and
+// the order inside each group, kept with their sign-in (S.ui.accts), never on the account,
+// which other people may share. Until someone changes it, the account's own Favorite counts.
+function acctPrefs() {
+  const p = ((S.ui && S.ui.accts) || {})[String(S.env)];
+  return p ? { fav: new Set(p.fav.map(Number)), order: p.order.map(Number), mine: true }
+    : { fav: new Set(S.accounts.filter(a => a.favorite).map(a => a.id)), order: [], mine: false };
+}
+function acctSorted(list) {
+  const p = acctPrefs(), pos = id => { const i = p.order.indexOf(id); return i < 0 ? 1e9 : i; };
+  return list.slice().sort((a, b) => (!!a.closed - !!b.closed) || (p.fav.has(b.id) - p.fav.has(a.id))
+    || (pos(a.id) - pos(b.id)) || a.name.localeCompare(b.name));
+}
+async function acctPrefsSave(fav, order) {
+  const accts = Object.assign({}, (S.ui && S.ui.accts) || {}, { [String(S.env)]: { fav: [...fav], order } });
+  if (S.ui) S.ui.accts = accts;
+  try { S.ui = await api("PUT", "/api/settings", { accts: { [String(S.env)]: accts[String(S.env)] } }); }
+  catch (e) { toast(e.message, true); }
+}
+// Reordering is locked until the lock is opened (and locks again when you leave Accounts):
+// no handles while locked, so nothing moves by accident while scrolling.
+let acctUnlocked = false;
+window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/accounts")) acctUnlocked = false; });
+// One account moved to another place in its group (and among favorites or the others only).
+function acctMove(id, toId, after) {
+  const p = acctPrefs(), row = q(`.acctlist [data-acct="${id}"]`); if (!row) return;
+  const group = [...row.parentElement.querySelectorAll("[data-acct]")].map(r => +r.dataset.acct);
+  const ids = group.filter(x => x !== id);
+  let at = ids.indexOf(toId); if (at < 0) return;
+  if (p.fav.has(id) !== p.fav.has(toId)) return;   // (favorites stay at the top)
+  ids.splice(at + (after ? 1 : 0), 0, id);
+  // The whole list's order: this group as now arranged, the others as they are shown.
+  const all = [...qa(".acctlist .acctgroup [data-acct]")].map(r => +r.dataset.acct);
+  const order = all.filter(x => !group.includes(x));
+  const first = all.findIndex(x => group.includes(x));
+  order.splice(first < 0 ? order.length : first, 0, ...ids);
+  acctPrefsSave(p.fav, order).then(render);
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest && e.target.closest(".acctlist [data-star], .acctlist #acctLock, .acctlist [data-amove]");
+  if (!t) return;
+  e.preventDefault(); e.stopPropagation();
+  if (t.id === "acctLock") { acctUnlocked = !acctUnlocked; render(); return; }
+  if (t.dataset.star) {
+    const p = acctPrefs(), id = +t.dataset.star;
+    if (p.fav.has(id)) p.fav.delete(id); else p.fav.add(id);
+    const order = p.order.length ? p.order : [...qa(".acctlist .acctgroup [data-acct]")].map(r => +r.dataset.acct);
+    acctPrefsSave(p.fav, order).then(render);
+    return;
+  }
+  const [id, dir] = t.dataset.amove.split(":").map(Number);
+  const rows = [...q(`.acctlist [data-acct="${id}"]`).parentElement.querySelectorAll("[data-acct]")].map(r => +r.dataset.acct);
+  const i = rows.indexOf(id), j = i + dir;
+  if (j >= 0 && j < rows.length) acctMove(id, rows[j], dir > 0);
+}, true);
+// Dragging (wider screens): drop an account on another in its group to put it there.
+document.addEventListener("dragstart", e => {
+  const r = e.target.closest && e.target.closest(".acctlist.unlocked [data-acct]");
+  if (!r) return;
+  e.dataTransfer.setData("text/x-acct", r.dataset.acct); e.dataTransfer.effectAllowed = "move";
+  r.classList.add("dragging");
+});
+document.addEventListener("dragend", e => { qa(".acctlist .dragging, .acctlist .dropat").forEach(x => x.classList.remove("dragging", "dropat")); });
+document.addEventListener("dragover", e => {
+  const r = e.target.closest && e.target.closest(".acctlist.unlocked [data-acct]");
+  if (r) { e.preventDefault(); qa(".acctlist .dropat").forEach(x => x !== r && x.classList.remove("dropat")); r.classList.add("dropat"); }
+});
+document.addEventListener("drop", e => {
+  const r = e.target.closest && e.target.closest(".acctlist.unlocked [data-acct]");
+  const id = +e.dataTransfer.getData("text/x-acct");
+  if (!r || !id || +r.dataset.acct === id) return;
+  e.preventDefault();
+  const box = r.getBoundingClientRect();
+  acctMove(id, +r.dataset.acct, e.clientY > box.top + box.height / 2);
+});
 function accountsList(id, shared, activeSid, others) {
   const all = reportScopeAll(), mine = new Set(scopeEnvs());
   if (all) shared = shared.filter(a => !mine.has(a.env_id));   // shown where they live instead
   const here = all ? (S.me.envs.find(e => e.id === S.env) || {}).name : "";
-  return `<div class="card"><div class="head"><h2>Accounts${here ? ` <span class="small muted">· ${esc(here)}</span>` : ""}</h2><span><button class="small" id="newLoan">New loan</button> <button class="small primary" id="newAcct">New</button></span></div>
-    ${groupAccounts(S.accounts).map(([name, l]) => `<div class="acctgroup"><div class="gname">${esc(name)}</div>
-    ${l.map(a => `<a class="acctrow ${a.id == id ? "on" : ""} ${a.closed ? "closed" : ""}" href="#/accounts/${a.id}"><span>${esc(a.name)}</span><span class="num">${fmt(a.balance, false, a)}</span></a>`).join("")}</div>`).join("")
+  const fav = acctPrefs().fav, un = acctUnlocked;
+  return `<div class="card acctlist${un ? " unlocked" : ""}"><div class="head"><h2>Accounts${here ? ` <span class="small muted">· ${esc(here)}</span>` : ""}</h2><span><button class="small" id="newLoan">New loan</button> <button class="small primary" id="newAcct">New account</button></span></div>
+    ${S.accounts.length > 1 ? `<div class="acctlock"><button type="button" class="tiny lockbtn" id="acctLock" aria-pressed="${un}" title="${un ? "Lock the order" : "Change the order"}" aria-label="${un ? "Lock the order" : "Change the order"}">${un ? "🔓" : "🔒"}</button></div>` : ""}
+    ${groupAccounts(acctSorted(S.accounts)).map(([name, l]) => `<div class="acctgroup"><div class="gname">${esc(name)}</div>
+    ${l.map(a => `<a class="acctrow ${a.id == id ? "on" : ""} ${a.closed ? "closed" : ""} ${fav.has(a.id) ? "fav" : ""}" href="#/accounts/${a.id}" data-acct="${a.id}" data-fav="${fav.has(a.id) ? 1 : ""}"${un ? ' draggable="true"' : ""}>
+      ${un ? `<span class="grip" aria-hidden="true">⋮⋮</span><span class="mvarrows"><button type="button" class="tiny" data-amove="${a.id}:-1" aria-label="Move up">▲</button><button type="button" class="tiny" data-amove="${a.id}:1" aria-label="Move down">▼</button></span>` : ""}
+      <button type="button" class="star" data-star="${a.id}" aria-pressed="${fav.has(a.id)}" title="${fav.has(a.id) ? "Favorite (click to unstar)" : "Make it a favorite"}" aria-label="${fav.has(a.id) ? "Favorite" : "Make it a favorite"}">${fav.has(a.id) ? "★" : "☆"}</button>
+      <span class="aname">${esc(a.name)}</span><span class="num">${fmt(a.balance, false, a)}</span></a>`).join("")}</div>`).join("")
     || (shared.length ? "" : `<div class="empty">No accounts yet</div>`)}
     ${sharedGroup(shared, activeSid)}
     ${(others || []).filter(o => o.list.length).map(({ e, list }) => `<div class="acctgroup"><div class="gname">In ${esc(e.name)}</div>
@@ -2227,7 +2326,7 @@ async function renderShared(sid) {
     <div class="toolbar"><h1 style="margin:0">${esc(acc.name)}</h1><span class="pill">${esc(acc.type)}</span>
       <span class="pill green">shared by ${esc(sh.shared_by)}</span>${sh.can_edit ? "" : '<span class="pill">view only</span>'}<span class="grow"></span>
       ${sh.can_edit ? '<button id="recon">Balance account</button>' : ""}</div>
-    <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>
+    <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>${BAL_HELP}
       <span class="muted">This account lives in ${esc(sh.shared_by)}'s ${esc(sh.env_name)}; you see the same register and its categories.</span></div>
     <div class="card flush"><div class="register"><table id="reg">
       <tr><th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
@@ -2275,7 +2374,7 @@ async function sharedBillsSection(days) {
     <table><tr><th>Due</th><th>Payee</th><th>How often</th><th class="num">Amount</th><th></th></tr>
     ${d.upcoming.map(u => `<tr class="${u.overdue ? "overdue " : ""}k-${kindOf(u)}"><td class="small">${niceDate(u.date)} ${u.overdue ? '<span class="pill red">Overdue</span>' : ""}</td>
       <td>${esc(u.payee)} ${kindPill(u)}${autoPill(u)}<div class="small muted">${esc(u.category_label)}</div></td><td class="small">${esc(freqLabel(u))}</td><td class="num">${billAmount(u)}</td>
-      <td class="num">${u.first && sh.can_edit ? `<button class="small primary" data-senter="${sh.share_id}:${u.id}">Enter</button> <button class="small" data-sskip="${sh.share_id}:${u.id}">Skip</button> <button class="small" data-sedit="${sh.share_id}:${u.id}">Change</button>` : (u.first ? "" : '<span class="small muted">later</span>')}</td></tr>`).join("")}
+      <td class="num">${u.first && sh.can_edit ? `<button class="small primary" data-senter="${sh.share_id}:${u.id}">Enter</button> <button class="small" data-sskip="${sh.share_id}:${u.id}">Skip</button> <button class="small" data-sedit="${sh.share_id}:${u.id}">Change</button>` : (u.first ? "" : "")}</td></tr>`).join("")}
     </table>${d.upcoming.length ? "" : `<div class="empty">Nothing due in the next ${days} days${d.bills.length ? "" : " (no bills or deposits scheduled for this account)"}</div>`}</div>`).join("");
   const find = v => { const [sid, id] = v.split(":"); const p = parts.find(x => x.sh.share_id == sid); return { sh: p.sh, b: p.d.bills.find(b => b.id == id), occ: p.d.upcoming.find(u => u.id == id && u.first) }; };
   const wire = () => {
@@ -2298,10 +2397,10 @@ async function renderAccounts(id, sub) {
   const list = accountsList(id, shared, null, await otherEnvAccounts());
   if (!id) {
     view().innerHTML = `<div class="pagehead"><h1>Accounts</h1>${scopeSwitch()}</div><div class="grid side">${list}<div class="card flush">
-      <table><tr><th>Account</th><th>Type</th><th class="num">Transactions</th><th class="num">Cleared</th><th class="num">Balance</th></tr>
+      <table><tr><th>Account</th><th>Type</th><th class="num">Transactions</th><th class="num">Cleared</th><th class="num">Balance ${BAL_HELP}</th></tr>
       ${accs.map(a => `<tr class="click" data-id="${a.id}"><td>${esc(a.name)} ${a.closed ? '<span class="pill">closed</span>' : ""}</td><td>${esc(a.type)}</td>
       <td class="num">${a.tx_count}</td><td class="num">${fmt(a.cleared_balance, false, a)}</td><td class="num">${fmt(a.balance, false, a)}</td></tr>`).join("")}</table>
-      ${accs.length ? "" : `<div class="empty">Add your first account with <b>New</b>.</div>`}</div></div>`;
+      ${accs.length ? "" : `<div class="empty">Add your first account with <b>New account</b>.</div>`}</div></div>`;
     q("#newAcct").onclick = () => editAccount(null);
   q("#newLoan").onclick = () => editLoan(null);
   q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
@@ -2324,7 +2423,7 @@ async function renderAccounts(id, sub) {
       <button id="editAcct">Account details</button>${CARD_TYPES.includes(acc.type) && cardMode(acc.details) === "statement" && !acc._shared ? '<button id="stmtBtn" title="Enter the balance from this card\'s statement">Enter statement</button>' : ""}${VALUE_TYPES.includes(acc.type) && !acc._shared ? '<button id="valBtn" title="Type in what it\'s worth now, from its statement or website">Update value</button>' : ""}<button id="recon">Balance account</button>
       <button id="import">Import file</button><a class="btn" href="/api/export.csv?account=${id}&env=${S.env}">Export CSV</a>${regOrderButton()}
       <button id="acctFiles" title="Receipts and papers kept with this account (not one entry): a purchase on a card, a warranty, a contract">${CLIP_ICON} Papers<span id="acctFilesN"></span></button></div>
-    <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>
+    <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>${BAL_HELP}
       ${acc.reconciled_date ? `<span class="muted">Last balanced ${niceDate(acc.reconciled_date)} at ${fmt(acc.reconciled_balance, true)}</span>` : ""}</div>
     ${accountDetailsLine(acc)}
     ${loan ? loanCard(loan) : (acc.type === "Loan" && canEdit() && !acc._shared ? `<div class="notice" style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2369,9 +2468,22 @@ async function renderAccounts(id, sub) {
     for (const t of g) await api("POST", `/api/transactions/${t.id}/status`, { status: next });
     renderAccounts(id, { q: search });
   });
-  qa("tr[data-group]").forEach(r => r.onclick = () => r.dataset.paystub
-    ? paystubDialog(acc, +r.dataset.group, () => renderAccounts(id, { q: search }))
-    : groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search }), acc));
+  // A paycheck with its paystub: a click shows it in the line at the bottom like any entry
+  // (with Receipts, for a PDF of the pay slip); the paystub itself opens from its "Paystub"
+  // tag or the Paystub button there. Afterwards the register comes back with it still picked.
+  const backTo = gid => async () => {
+    await renderAccounts(id, { q: search });
+    const r = q(`tr[data-group="${gid}"]`); if (r) r.click();
+  };
+  const openStub = gid => paystubDialog(acc, +gid, backTo(gid));
+  qa("[data-stubtag]").forEach(t => t.onclick = e => { e.stopPropagation(); openStub(t.dataset.stubtag); });
+  qa("tr[data-group]").forEach(r => r.onclick = e => {
+    if (e.target.closest("[data-tog],[data-gst],[data-move],[data-stubtag]")) return;
+    if (!r.dataset.paystub) return groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search }), acc);
+    qa("tr.sel").forEach(x => x.classList.remove("sel")); r.classList.add("sel");
+    paystubEntryView(acc, rows.filter(t => t.group_id == r.dataset.group), () => openStub(r.dataset.group),
+      backTo(r.dataset.group), () => renderAccounts(id, { q: search }));
+  });
   if (q("#loanSetup")) q("#loanSetup").onclick = async () => editLoan(acc, null, await GET(`/api/loans/${acc.id}/suggest`));
   if (loan) {
     q("#loanPay").onclick = () => payLoan(acc.id, loan.bill ? { ...loan.bill, date: loan.bill.next_date } : null);
@@ -2626,6 +2738,30 @@ async function renderFiles() {
 }
 function isoDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
 function envName() { return ((S.me && S.me.envs || []).find(e => e.id === S.env) || {}).name || "this environment"; }
+
+// A paycheck with its paystub, picked in the register: shown in the entry line like any
+// entry (viewing), with its paystub one click away and its receipts (a PDF of the pay slip).
+function paystubEntryView(acc, g, openStub, back, close) {
+  const el = q("#entry"); if (!el) { openStub(); return; }
+  const top = g[0], net = g.reduce((s, t) => s + t.amount, 0);
+  const gross = g.filter(p => p.amount > 0).reduce((s, p) => s + p.amount, 0);
+  const files = g.reduce((s, t) => s + (t.attachments || 0), 0);
+  el.classList.add("viewing");
+  el.innerHTML = `<div class="kind"><span class="small muted" style="align-self:center">Viewing a paycheck with its paystub</span></div>
+    <div class="row"><div><label>Date</label><input type="date" value="${esc(top.date)}" disabled></div>
+      <div><label>From (payer)</label><input value="${esc(top.payee)}" disabled></div>
+      <div><label>Gross pay</label><input class="num" value="${dollars(gross)}" disabled></div>
+      <div><label>Take-home pay</label><input class="num" value="${dollars(net)}" disabled></div></div>
+    <div class="entry-actions"><button class="primary" id="e_openstub">Paystub</button>
+      <button id="e_att" title="Photos of the receipt, PDFs">${CLIP_ICON} Receipts${files ? ` (${files})` : ""}</button>
+      <button id="e_hist" title="Who entered and changed it, and when">History</button><button id="e_new">Close</button></div>`;
+  q("#e_openstub", el).onclick = openStub;
+  // (the paycheck's files are kept with its first line)
+  q("#e_att", el).onclick = () => attachDialog({ tx: g.find(t => t.attachments) || top }, back);
+  q("#e_hist", el).onclick = () => entryHistoryDialog("transaction", top.id, back);
+  q("#e_new", el).onclick = close;
+  el.scrollIntoView({ block: "nearest" });
+}
 
 // The entry line under a register. A transaction picked in the register is shown
 // first, unchangeable, until "Edit transaction" is chosen: changes are on purpose.
@@ -2926,7 +3062,7 @@ async function editBill(bill, kind, start) {
       <div class="small muted" style="margin-left:24px">The amount is your take-home pay (what reaches the account). When it comes in, record just that, or add the paystub too: gross pay and deductions.</div></div>
     <div class="top"><label id="amtLabel">${varies ? "Starting estimate (optional)" : "Amount"}</label>
       <input name="amount" class="num" value="${est ? dollars(est) : ""}" placeholder="${varies ? "none yet" : "0.00"}">
-      <div class="small muted" id="avgNote" style="margin-top:3px">${varies && hist.length ? `Average of the last ${hist.length}: <b>${fmt(b.amount, true)}</b> (${hist.map(h => fmt(h.amount, true)).join(", ")})` : (varies ? "Used until the first payment is recorded; after that the average takes over." : "")}</div></div>
+      <div class="small muted" id="avgNote" style="margin-top:3px">${varies && hist.length ? `Average of the last ${hist.length}: <a href="#" class="avglink" id="avgOpen">${fmt(b.amount, true)}</a>` :(varies ? "Used until the first payment is recorded; after that the average takes over." : "")}</div></div>
     ${card ? `<div class="top"><label>Pay from</label><select name="account_id">${acctOptions(b.account_id)}</select></div>
       <div class="top"><label>To the card</label><div style="padding:6px 0"><b>${esc(cardName)}</b></div></div>
       <div class="wide small muted" style="grid-column:1/-1;margin-bottom:4px">The card's monthly payment: what you change here (where it comes from, the amount, the day) changes the card's details too.</div>`
@@ -2952,7 +3088,8 @@ async function editBill(bill, kind, start) {
       <div class="lastday" style="margin-bottom:8px"><label class="check"><input type="checkbox" name="last_day" ${b.last_day ? "checked" : ""}>
         On the last day of the month</label><div class="small muted">For things like interest posted at month end: the 28th, 29th, 30th or 31st, whichever is last.</div></div>
       <div style="margin-bottom:8px"><label>Memo</label><input name="memo" style="width:100%" value="${esc(b.memo || "")}"></div>
-      ${autoFields(b)}`, varies || b.last_day || b.memo || b.auto)}</div>
+      ${card ? "" : `<div class="payurlf" style="margin-bottom:8px"><label>Website to pay it</label><input name="pay_url" type="url" inputmode="url" style="width:100%" placeholder="https://www.example.com" value="${esc(b.kind === "bill" ? b.pay_url || "" : "")}"></div>`}
+      ${autoFields(b)}`, varies || b.last_day || b.memo || b.auto || (!card && b.kind === "bill" && b.pay_url))}</div>
   </div><datalist id="pl">${S.payees.map(p => `<option value="${esc(p.name)}">`).join("")}</datalist>`;
   const btns = [{ label: "Cancel" }];
   if (bill) btns.unshift({ label: "Delete", cls: "danger", action: async () => { if (!(await confirmBox("Delete this scheduled item?"))) return false; await api("DELETE", "/api/bills/" + b.id); render(); } });
@@ -2965,6 +3102,7 @@ async function editBill(bill, kind, start) {
       .map(x => ({ id: x.id || null, account_id: +x.account_id || null, amount: x.amount, amount_mode: x.amount_mode })) : [];
     if (xb) { f.kind = "transfer"; delete f.account_id; delete f.to_account_id; }
     if (card) { f.kind = "transfer"; f.splits = []; delete f.to_account_id; }
+    if (f.kind !== "bill" && "pay_url" in f) f.pay_url = "";   // (only a bill is paid on a website)
     const from = String(f.account_id || ""), to = String(f.to_account_id || "");
     const shOf = v => v.startsWith("sh:") ? sharedOpts.find(a => a.share_id == v.slice(3)) : null;
     const sFrom = shOf(from), sTo = f.kind === "transfer" ? shOf(to) : null;
@@ -2985,6 +3123,7 @@ async function editBill(bill, kind, start) {
     toast("Saved"); render();
   } });
   const p = dialog(bill ? "Change scheduled item" : "Schedule a bill or deposit", body, btns);
+  if (q("#avgOpen")) q("#avgOpen").onclick = e => { e.preventDefault(); averageCard(b.payee || "", hist); };
   const ks = q("#dlgBody [name=kind]");
   // Paid into more than one account: one line per other account, with its amount, set or
   // averaged from what it got before (the main account's is above).
@@ -3034,6 +3173,7 @@ async function editBill(bill, kind, start) {
     q("#dlgBody .catf").style.display = ks.value === "transfer" ? "none" : "";
     q("#dlgBody .paycheckf").style.display = ks.value === "deposit" ? "" : "none";
     const sp = q("#dlgBody .splitf"); if (sp) sp.style.display = ks.value === "deposit" ? "" : "none";
+    const pu = q("#dlgBody .payurlf"); if (pu) pu.style.display = ks.value === "bill" ? "" : "none";
     // A transfer between two currencies: what usually arrives.
     const xc = q("#dlgBody .xcur");
     if (xc) {
@@ -3332,6 +3472,15 @@ async function billSkip(u) {
   try { await api("POST", `/api/bills/${u.id}/skip`, {}, u._sh || (u._env ? { env_id: u._env.id } : undefined)); toast("Skipped to the next date"); render(); }
   catch (e) { toast(e.message, true); }
 }
+// A link out to the bank: money going out links to where the bill is paid (its own website,
+// a card's or a loan's); money coming in or moving between accounts links to the account's site.
+function billLink(u) {
+  const web = s => /^https?:\/\//i.test(s || "");
+  const out = u.kind === "bill" || u.kind === "loan" || u.card_account_id || u.x_card;
+  if (out && web(u.pay_url)) return `<a class="btn small" href="${esc(u.pay_url)}" target="_blank" rel="noopener noreferrer">Pay this bill ↗</a> `;
+  if (!out && web(u.account_url)) return `<a class="btn small" href="${esc(u.account_url)}" target="_blank" rel="noopener noreferrer">View account ↗</a> `;
+  return "";
+}
 function billWhat(b) {
   if (b.card_account_id || b.x_card) return "Card payment to " + (b.to_account_name || "") + (b.pay_full ? " (full balance)" : "") + " · the card's details follow changes";
   if (b.kind === "transfer") return (b.x_dir === "in" ? "Transfer from " : "Transfer to ") + (b.to_account_name || "");
@@ -3366,30 +3515,43 @@ async function renderBills(sub) {
 
 function drawUpcoming(data) {
   const days = billView.days;
-  // One card per account (own accounts first, then shared ones), in date order inside.
+  // Automatic items (autopay, direct deposit) can be hidden, to see what needs you: the choice
+  // is kept with your sign-in (every browser and phone), the count is for the days shown.
+  const autoCount = data.upcoming.filter(u => u.auto).length;
+  const showAuto = !(S.ui && S.ui.bills_show_auto === false);
+  const shownItems = showAuto ? data.upcoming : data.upcoming.filter(u => !u.auto);
+  // One card per account, in date order inside; the busiest account first (then by name).
+  // The cards fill balanced columns (CSS columns), so a long card doesn't leave a hole beside it.
   const groups = new Map();
-  for (const u of data.upcoming) {
+  for (const u of shownItems) {
     if (!groups.has(u._key)) groups.set(u._key, { name: u._acct, sh: u._sh, items: [] });
     groups.get(u._key).items.push(u);
   }
-  const order = [...groups.values()].sort((a, b) => (!!a.sh - !!b.sh) || a.name.localeCompare(b.name));
+  const order = [...groups.values()].sort((a, b) => (b.items.length - a.items.length) || a.name.localeCompare(b.name));
   const total = g => g.items.reduce((s, u) => s + (u.kind === "deposit" ? u.amount : -u.amount), 0);
   q("#billBody").innerHTML = `<div class="toolbar small">Show the next
-      ${[14, 31, 60, 90].map(n => `<button class="small ${days === n ? "primary" : ""}" data-days="${n}">${n} days</button>`).join("")}</div>
-    <div class="grid bill-groups">${order.map(g => `<div class="card flush">
+      ${[14, 31, 60, 90].map(n => `<button class="small ${days === n ? "primary" : ""}" data-days="${n}">${n} days</button>`).join("")}
+      <label class="check" style="margin:0 0 0 10px" title="Automatic items happen by themselves (autopay, direct deposit). Untick to see only what needs you.">
+        <input type="checkbox" id="showAuto" ${showAuto ? "checked" : ""}> Show automatic (${autoCount})</label></div>
+    <div class="bill-groups">${order.map(g => `<div class="card flush">
       <div style="padding:12px 14px 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <h2 style="margin:0">${esc(g.name)}</h2>${g.sh ? `<span class="pill plain">shared</span>${g.sh.can_edit ? "" : '<span class="pill">view only</span>'}` : ""}
         <span style="flex:1"></span><span class="small muted">net ${fmt(total(g))}</span></div>
       <div class="scrollx"><table>${g.items.map((u, i) => `<tr class="${u.overdue ? "overdue " : ""}k-${kindOf(u)}">
-        <td class="small" style="white-space:nowrap">${niceDate(u.date)} ${u.overdue ? '<span class="pill red">Overdue</span>' : (u.date === todayISO() ? '<span class="pill amber">Today</span>' : "")}</td>
+        <td class="small"><span style="white-space:nowrap">${niceDate(u.date)}</span> ${u.overdue ? '<span class="pill red">Overdue</span>' : (u.date === todayISO() ? '<span class="pill amber">Today</span>' : "")}</td>
         <td class="click" data-open="${g.items === null ? "" : i}" data-g="${esc(u._key)}">${esc(u.payee || "Transfer")} ${kindPill(u)}${autoPill(u)}
           <div class="small muted">${esc(billWhat(u))}${u.frequency ? " · " + esc(freqLabel(u)) : ""}</div></td>
         <td class="num">${billAmount(u)}</td>
-        <td class="num" style="white-space:nowrap">${u.first && /^https?:\/\//i.test(u.pay_url || "") ? `<a class="btn small" href="${esc(u.pay_url)}" target="_blank" rel="noopener noreferrer" title="Open the card's website to pay">Pay online ↗</a> ` : ""}${u.first && billEditable(u) ? `<button class="small primary" data-enter="${esc(u._key)}:${i}">Enter</button> <button class="small" data-skip="${esc(u._key)}:${i}">Skip</button>` : (u.first ? (u._sh ? '<span class="small muted" title="Recorded in its own environment">view only</span>' : "") : '<span class="small muted">later</span>')}</td></tr>`).join("")}
-      </table></div></div>`).join("") || `<div class="card"><div class="empty">Nothing due in the next ${days} days.
+        <td class="num">${u.first ? billLink(u) : ""}${u.first && billEditable(u) ? `<button class="small primary" data-enter="${esc(u._key)}:${i}">Enter</button> <button class="small" data-skip="${esc(u._key)}:${i}">Skip</button>` : (u.first ? (u._sh ? '<span class="small muted" title="Recorded in its own environment">view only</span>' : "") : "")}</td></tr>`).join("")}
+      </table></div></div>`).join("") || `<div class="card"><div class="empty">${!showAuto && autoCount ? `Nothing that needs you in the next ${days} days.` : `Nothing due in the next ${days} days.`}
         ${data.bills.length ? `<a href="#/bills/all">See all scheduled items</a>` : "Schedule a bill or deposit with the buttons above."}</div></div>`}</div>`;
   const pick = v => { const [key, i] = v.split(":"); return groups.get(key).items[+i]; };
   qa("[data-days]").forEach(b => b.onclick = () => { billView.days = +b.dataset.days; localStorage.setItem("hl-bill-days", billView.days); render(); });
+  q("#showAuto").onchange = e => {
+    if (S.ui) S.ui.bills_show_auto = e.target.checked;
+    api("PUT", "/api/settings", { bills_show_auto: e.target.checked }).catch(() => { });
+    drawUpcoming(data);
+  };
   qa("[data-enter]").forEach(b => b.onclick = () => billEnter(pick(b.dataset.enter)));
   qa("[data-skip]").forEach(b => b.onclick = () => billSkip(pick(b.dataset.skip)));
   qa("[data-open]").forEach(c => c.onclick = () => billOpen(groups.get(c.dataset.g).items[+c.dataset.open]));
@@ -4089,7 +4251,7 @@ async function renderBackup() {
     if (q("#webdav_password").value) o.webdav_password = q("#webdav_password").value;
     return o;
   };
-  q("#saveS").onclick = async () => { try { await api("PUT", "/api/backup/settings", collect()); toast("Backup settings saved"); renderBackup(); } catch (e) { toast(e.message, true); } };
+  q("#saveS").onclick = async () => { try { await api("PUT", "/api/backup/settings", collect()); toast("Backup settings saved"); renderBackup().then(settingsSaveBar); } catch (e) { toast(e.message, true); } };
   q("#restoreFile").onclick = () => dialog("Restore from a file", `<p class="small">Everything goes back to how it was in that backup: every environment,
       entry, receipt and sign-in. Changes made since then are lost, so a safety copy of everything as it is now is saved in the backup folder first.</p>
     <div class="form" style="grid-template-columns:1fr"><div><label>Backup file</label><input type="file" id="rfFile" accept=".zip,.enc,.db,.gz"></div>
@@ -4108,7 +4270,7 @@ async function renderBackup() {
       const bad = r.results.filter(x => !x.ok);
       if (bad.length) toast(bad.map(x => x.destination + ": " + x.error).join("; "), true); else toast("Backup made");
     } catch (e) { toast(e.message, true); }
-    renderBackup(); refreshBackupState();
+    renderBackup().then(settingsSaveBar); refreshBackupState();
   };
   // An encrypted backup made with another password (an older one, another computer)
   // asks for it; the saved password is tried first.
@@ -4148,7 +4310,7 @@ async function renderBackup() {
         return true;
       } }]);
     if (!ok) return;
-    try { await api("POST", "/api/backup/delete", { name: b.dataset.bdel, destination: b.dataset.dest }); toast("Backup deleted"); renderBackup(); }
+    try { await api("POST", "/api/backup/delete", { name: b.dataset.bdel, destination: b.dataset.dest }); toast("Backup deleted"); renderBackup().then(settingsSaveBar); }
     catch (e) { toast(e.message, true); }
   });
   qa("[data-restore]").forEach(b => b.onclick = async () => {
@@ -4276,6 +4438,40 @@ async function renderSettings(sub) {
   } else if (sub === "data") renderDataTab();
   else if (sub === "computer") await renderComputerTab();
   else renderLookTab();
+  if (sub !== "computer" && sub !== "data") settingsSaveBar();
+}
+// A Settings section that is a form gets one bar, at its top and its bottom: Save and Discard
+// changes, greyed out until something in it changes (the section's name in the tabs gets a dot
+// meanwhile). Sections of actions or information (Your data, This computer) get none; buttons
+// that do something at once (Add person, Back up now, Send test) keep their own place and look.
+function settingsSaveBar() {
+  const sv = q("#subview"); if (!sv || q(".savebar", sv)) return;
+  const guards = [...new Set(qa("[data-guard]", sv).map(c => c.dataset.guard))].filter(sel => q(sel, sv));
+  if (!guards.length) return;
+  // (each card's own Save button stays, hidden: the bar's Save uses them)
+  guards.forEach(sel => q(sel, sv).classList.add("bar-saved"));
+  const bar = pos => `<div class="savebar savebar-${pos} noprint" role="group" aria-label="Save or discard">
+    <button type="button" class="primary" data-bar="save" disabled>Save</button>
+    <button type="button" data-bar="discard" disabled>Discard changes</button></div>`;
+  sv.insertAdjacentHTML("afterbegin", bar("top"));
+  sv.insertAdjacentHTML("beforeend", bar("bottom"));
+  const tab = q(".settabs a.on");
+  const sync = () => {
+    const on = guards.some(g => UNSAVED.has(g));
+    qa("[data-bar]", sv).forEach(b => { b.disabled = !on; });
+    if (tab) tab.classList.toggle("dirty", on);
+  };
+  ["input", "change", "click"].forEach(ev => sv.addEventListener(ev, () => setTimeout(sync, 0)));
+  qa("[data-bar=save]", sv).forEach(b => b.onclick = async () => {
+    qa("[data-bar]", sv).forEach(x => { x.disabled = true; });
+    if (!(await saveUnsaved())) sync();
+  });
+  qa("[data-bar=discard]", sv).forEach(b => b.onclick = () => {
+    guards.forEach(g => UNSAVED.delete(g));
+    if (S.ui) applyTheme(S.ui);   // (a look tried but not kept goes back)
+    renderSettings(S.settingsSub);
+  });
+  sync();
 }
 function renderDataTab() {
   view().innerHTML = `<div class="card" style="max-width:820px"><h2>Your data</h2>
@@ -4464,6 +4660,7 @@ async function migrateDialog() {
   const aliases = {};
   const intro = `<p>Bring in every account and its history from a file your old program exported. First you'll see what's in it;
       nothing changes until you choose <b>Bring it in</b>.</p>
+    <p class="small" style="margin-top:0">Reads QIF files (Microsoft Money, Quicken, Moneydance) and CSV exports with an Account column. A bank download (OFX, QFX, QBO, or a CSV for one account) goes in with Import file in that account's register.</p>
     <details class="acct-more"><summary>How to export from your old program</summary>
       <ul class="small">${MIGRATE_HOWTO.map(([p, h]) => `<li><b>${esc(p)}:</b> ${esc(h)}</li>`).join("")}</ul>
       <p class="small muted">A CSV from any other program works too when it has Account, Date, Payee, Category and Amount columns.</p></details>
@@ -4892,7 +5089,7 @@ async function renderPeople(noEnv) {
       </div>
     </div>
   </div>`;
-  const again = async msg => { if (msg) toast(msg); await loadBasics().catch(() => {}); renderPeople(); };
+  const again = async msg => { if (msg) toast(msg); await loadBasics().catch(() => {}); renderPeople().then(settingsSaveBar); };
   const run = async (fn, msg) => { try { await fn(); again(msg); } catch (e) { toast(e.message, true); } };
   q("#newEnv").onclick = () => dialog("New environment", `<label>Name</label><input name="name" placeholder="Business">
     <p class="small muted">You'll be its owner. It starts empty, with its own accounts, categories, bills and budget.</p>`,
@@ -4989,7 +5186,7 @@ async function renderPeople(noEnv) {
   };
   qa("[data-clearended]").forEach(b => b.onclick = async () => {
     if (!(await confirmBox("Clear the connections and shared accounts that ended or were declined from these lists? Entries made through them stay as they are."))) return;
-    run(() => api("POST", "/api/connections/clear-ended"), "Cleared");
+    run(() => api("POST", "/api/connections/clear-ended"), "Ended connections cleared");
   });
   if (q("#newLink")) q("#newLink").onclick = async () => {
     const body = `<div class="form" style="grid-template-columns:1fr 1fr">
@@ -5199,6 +5396,8 @@ const markUnsaved = e => {
   const c = e.target.closest("[data-guard]");
   if (c && c.closest("#view")) UNSAVED.add(c.dataset.guard);
 };
+// (a colour swatch is a button: picking one is a change too)
+document.addEventListener("click", e => { if (e.target.closest && e.target.closest(".swatch")) markUnsaved(e); }, true);
 document.addEventListener("input", markUnsaved, true);
 document.addEventListener("change", markUnsaved, true);
 document.addEventListener("click", e => {
@@ -5228,11 +5427,36 @@ async function saveUnsaved() {
 let shownHash = location.hash, routeBusy = false;
 window.addEventListener("hashchange", async () => {
   if (routeBusy) return;
+  // A dialog belongs to the page that opened it: going elsewhere (a tab, Back, a link) closes
+  // it first: straight away when nothing in it changed, otherwise after asking once, here.
+  const dlg = document.getElementById("dlg");
+  if (dlg && dlg.open) {
+    const to = location.hash;
+    if (dlg._dirty && dlg._dirty()) {
+      history.replaceState(null, "", shownHash || "#/");   // stay here while asking
+      routeBusy = true;
+      const pick = await askSaveChanges();
+      if (pick === "save") {
+        q("#dlgFoot button.primary").click();
+        // Saved: the dialog closes; a problem shows in it and it stays (and so does the page).
+        const t0 = Date.now();
+        while (dlg.open && q("#dlgErr").hidden && Date.now() - t0 < 20000) await new Promise(r => setTimeout(r, 100));
+      } else if (pick === "discard") dlg.close();
+      routeBusy = false;
+      if (dlg.open) return;
+      location.hash = to;
+      return;
+    }
+    dlg.close();
+  }
   if (UNSAVED.size) {
     const to = location.hash;
     history.replaceState(null, "", shownHash || "#/");   // stay here while asking (no hashchange)
     routeBusy = true;
-    const pick = await askSaveChanges("You changed settings here without saving. Save them before leaving?");
+    const sec = location.hash.startsWith("#/settings") || (shownHash || "").startsWith("#/settings")
+      ? (settingsTabs().find(([k]) => k === S.settingsSub) || [])[1] : "";
+    const pick = await askSaveChanges(sec ? tr(`You have unsaved changes in ${tr(sec)}. Save them before leaving?`)
+      : "You changed settings here without saving. Save them before leaving?");
     routeBusy = false;
     if (pick === "keep") return;
     if (pick === "save" && !(await saveUnsaved())) return;
@@ -5344,6 +5568,8 @@ function placeName(where) {
   const a = q(`#tabs a[data-tab="${tab}"]`);
   return a ? a.textContent : tab;
 }
+// One "?" for the pair Balance and Cleared (they only make sense together): to their guide.
+const BAL_HELP = `<a class="helplink noprint" href="#/help/balances" translate="no" title="Balance and Cleared" aria-label="Balance and Cleared">?</a>`;
 function helpLinkInTitle(tab) {
   let id = HELP_FOR_TAB[tab];
   if (tab === "reports" && reportState.kind === "tax") id = "taxes";
@@ -5400,16 +5626,16 @@ function renderHelp(open) {
 // replay from Help). Each step points at part of the page; on a phone the menu opens
 // so the tabs can be pointed at.
 const TOUR = [
-  { title: "Welcome to MoneyThistle", text: "A quick look around: about a minute. Skip any time; you can take the tour again from Help." },
-  { sel: '#tabs a[data-tab="accounts"]', title: "Accounts", text: "Your checking, savings, cards, loans and investments, each with its register. Type entries in, import a bank file, or record a whole paystub." },
-  { sel: '#tabs a[data-tab="bills"]', title: "Bills & Deposits", text: "Everything that repeats: bills, paychecks, transfers, card and loan payments. Mark the automatic ones (⟳) and MoneyThistle can record them for you." },
-  { sel: '#tabs a[data-tab="budget"]', title: "Budget", text: "Plan the month by category, or simply by your scheduled items, and see how it's going." },
-  { sel: '#tabs a[data-tab="reports"]', title: "Reports", text: "Where the money goes and comes from, net worth, a forecast of your balances, and the year-end tax report." },
-  { sel: '#tabs a[data-tab="files"]', title: "Files", text: "Receipts and papers you keep with entries and accounts, with notes and keywords: search them by account, words or time." },
+  { go: "#/", title: "Welcome to MoneyThistle", text: "A quick look around: about a minute. Skip any time; you can take the tour again from Help." },
+  { go: "#/accounts", sel: '#tabs a[data-tab="accounts"]', title: "Accounts", text: "Your checking, savings, cards, loans and investments, each with its register. New entries are typed in the bar at the bottom of a register; you can also import a bank file or record a whole paystub." },
+  { go: "#/bills", sel: '#tabs a[data-tab="bills"]', title: "Bills & Deposits", text: "Everything that repeats: bills, paychecks, transfers, card and loan payments. Mark the automatic ones (⟳) and MoneyThistle can record them for you." },
+  { go: "#/budget", sel: '#tabs a[data-tab="budget"]', title: "Budget", text: "Plan the month by category, or simply by your scheduled items, and see how it's going." },
+  { go: "#/reports", sel: '#tabs a[data-tab="reports"]', title: "Reports", text: "Where the money goes and comes from, net worth, a forecast of your balances, and the year-end tax report." },
+  { go: "#/files", sel: '#tabs a[data-tab="files"]', title: "Files", text: "Receipts and papers you keep with entries and accounts, with notes and keywords: search them by account, words or time." },
   { sel: "#envbar", title: "Which environment", text: "Switch between the sets of accounts you're a member of here." },
-  { sel: '#tabs a[data-tab="settings"]', title: "Settings", text: "The look, notifications, people and sharing, categories, backups to Nextcloud, moving in from another program, and (for administrators) how MoneyThistle starts on this computer. Each has its own tab inside Settings." },
+  { go: "#/settings", sel: '#tabs a[data-tab="settings"]', title: "Settings", text: "The look, notifications, people and sharing, categories, backups to Nextcloud, moving in from another program, and (for administrators) how MoneyThistle starts on this computer. Each has its own tab inside Settings." },
   { sel: "#quickFab", title: "Quick add", text: "On a phone, this + button enters a transaction in a few taps." },
-  { sel: '#tabs a[data-tab="help"]', title: "Help", text: "Guides, questions and answers, and what words mean. Every page's title has a ? that opens its guide. Keep MoneyThistle on your home network or Tailscale, never the open internet." },
+  { go: "#/help", sel: '#tabs a[data-tab="help"]', title: "Help", text: "Guides, questions and answers, and what words mean. Every page's title has a ? that opens its guide. Keep MoneyThistle on your home network or Tailscale, never the open internet." },
 ];
 let tourShown = false;
 function maybeStartTour(tab) {
@@ -5429,10 +5655,14 @@ function startTour(replay) {
   document.body.appendChild(wrap);
   const spot = q(".tour-spot", wrap), box = q(".tour-box", wrap);
   const steps = TOUR.filter(s => !s.sel || (() => { const e = q(s.sel); return e && e.getClientRects().length; })());
+  // Each step opens the page it describes (from first sign-in and from Help alike); the end
+  // comes back to where the tour started.
+  const startHash = location.hash || "#/";
   let i = 0;
   const finish = async () => {
     removeEventListener("resize", place); document.removeEventListener("keydown", keys, true);
     wrap.remove();
+    if ((location.hash || "#/") !== startHash) location.hash = startHash;
     if (narrow && !menuWasOpen) top.classList.remove("open");
     if (!S.ui || !S.ui.tour_done) {
       try { S.ui = await api("PUT", "/api/settings", { tour_done: true }); } catch (e) { /* asked again next time */ }
@@ -5472,6 +5702,10 @@ function startTour(replay) {
       i += t === "next" ? 1 : -1; draw();
     });
     place();
+    if (s.go && (location.hash || "#/") !== s.go) {
+      location.hash = s.go;
+      setTimeout(() => { if (narrow) top.classList.add("open"); place(); }, 400);   // (a new page closes the phone menu)
+    }
     q('[data-t="next"]', box).focus();
   }
   function keys(e) {

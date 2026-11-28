@@ -167,6 +167,22 @@ def today():
     return dt.date.today()
 
 
+def web_address(w, field="website"):
+    """A website someone typed, for a link: "chase.com" becomes https://chase.com; anything
+    that isn't an http(s) address is refused (so a link can never run code)."""
+    w = str(w or "").strip()
+    if not w:
+        return ""
+    bad = ApiError("The website must be a web address, like https://www.example.com", field=field)
+    if not re.match(r"(?i)^https?://", w):
+        if ":" in w.split("/")[0] or not re.match(r"^[\w.-]+\.[a-z]{2,}", w, re.I):
+            raise bad
+        w = "https://" + w
+    if re.search(r"\s", w) or len(w) > 300:
+        raise bad
+    return w
+
+
 def parse_date(s, field="date"):
     try:
         return dt.date.fromisoformat(str(s)[:10])
@@ -480,6 +496,9 @@ class Store:
         # the same dates as the main one and entered with it (split_of: the main one).
         if "split_of" not in cols("bills"):
             self.db.execute("ALTER TABLE bills ADD COLUMN split_of INTEGER REFERENCES bills(id) ON DELETE CASCADE")
+        # Where a bill is paid online (optional): Bills & Deposits links to it.
+        if "pay_url" not in cols("bills"):
+            self.db.execute("ALTER TABLE bills ADD COLUMN pay_url TEXT")
         # A category's name in each language (see category_names()).
         self.db.execute("CREATE TABLE IF NOT EXISTS category_names (category_id INTEGER NOT NULL "
                         "REFERENCES categories(id) ON DELETE CASCADE, lang TEXT NOT NULL, name TEXT NOT NULL, "
@@ -722,15 +741,7 @@ class Store:
             if v:
                 out[k] = v
         if out.get("website"):
-            # Only web addresses: "chase.com" becomes https://chase.com; anything else is refused.
-            w = out["website"]
-            if not re.match(r"(?i)^https?://", w):
-                if ":" in w.split("/")[0] or not re.match(r"^[\w.-]+\.[a-z]{2,}", w, re.I):
-                    raise ApiError("The website must be a web address, like https://www.example.com", field="website")
-                w = "https://" + w
-            if re.search(r"\s", w):
-                raise ApiError("The website must be a web address, like https://www.example.com", field="website")
-            out["website"] = w
+            out["website"] = web_address(out["website"], "website")
         if d.get("routing_number") and not re.fullmatch(r"\d{9}", out.get("routing_number", "")):
             raise ApiError("A routing number has 9 digits", field="routing_number")
         if d.get("interest_rate") not in (None, ""):
@@ -1498,14 +1509,26 @@ class Store:
         # the card owes now; each links to where the card can be paid online.
         cards = {a["id"]: a for a in self.accounts() if a["details"].get("auto_pay")} \
             if any(r.get("card_account_id") for r in rows) else {}
+        # Each account's website (its details): money coming in or moving between accounts
+        # links to the bank's site ("View account"); a bill links to where it's paid.
+        sites = {}
+        for a in self.q("SELECT id, details FROM accounts"):
+            try:
+                w = (json.loads(a["details"] or "{}") or {}).get("website") or ""
+            except ValueError:
+                w = ""
+            if re.match(r"(?i)^https?://", w):
+                sites[a["id"]] = w
         for r in rows:
+            r["pay_url"] = r.get("pay_url") or (sites.get(r["loan_account_id"], "") if r["kind"] == "loan" else "")
+            r["account_url"] = sites.get(r["account_id"], "")
             r["overdue"] = r["next_date"] < t
             r["days_until"] = (dt.date.fromisoformat(r["next_date"]) - today()).days
             r["last_day"] = r["anchor_day"] >= 31 and r["frequency"] in MONTH_BASED
             card = cards.get(r.get("card_account_id"))
             if card:
                 cd = card["details"]
-                r["pay_url"] = cd.get("website") or ""
+                r["pay_url"] = r["pay_url"] or cd.get("website") or ""
                 r["pay_full"] = cd.get("pay_mode") == "full"
                 r["card_mode"] = cd.get("card_mode") or ("purchases" if cd.get("track_purchases") else "statement")
                 r["statement_day"] = cd.get("statement_day")
@@ -1589,6 +1612,7 @@ class Store:
         if kind == "transfer" and to_aid and data.get("received") not in (None, ""):
             with about("received"):
                 received = abs(to_cents(data.get("received"), "Amount that arrives")) or None
+        pay_url = web_address(data.get("pay_url"), "pay_url") if "pay_url" in data else None
         vals = (kind, (data.get("payee") or "").strip(), aid, to_aid if kind == "transfer" else None,
                 (data.get("category_id") or None) if kind != "transfer" else None,
                 amount, freq, nd.isoformat(), anchor, (data.get("memo") or "").strip())
@@ -1614,6 +1638,8 @@ class Store:
                 # A paycheck: its amount is the take-home pay; entering it can bring a paystub.
                 self.db.execute("UPDATE bills SET paycheck=? WHERE id=?",
                                 (int(bool(data.get("paycheck")) and kind == "deposit"), bid))
+            if "pay_url" in data:
+                self.db.execute("UPDATE bills SET pay_url=? WHERE id=?", (pay_url or None, bid))
             if "received" in data or kind != "transfer":
                 # A transfer between two currencies: what usually arrives (optional).
                 self.db.execute("UPDATE bills SET received=? WHERE id=?", (received, bid))

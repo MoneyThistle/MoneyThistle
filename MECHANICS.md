@@ -132,5 +132,18 @@ split) are used when there are at least two. Worked out by the server (`store.gu
   average of its own history), on the main one's dates, entered and skipped with it, listed with it.
 - Typed amounts: the last of "," and "." is the decimal mark when both appear; one alone is the decimal
   mark unless exactly three digits follow (then it groups thousands).
+- Balance and Cleared: Balance = opening balance + every entry (any status, any date); Cleared =
+  opening balance + entries marked C or R.
+- Coming up (the person's design): every occurrence in the chosen days is listed; only an item's earliest
+  can be entered or skipped. Account cards are ordered by how many items they show (then by name) and
+  fill balanced columns. "Show automatic" (default on, kept per person) hides items marked automatic;
+  its count is for the days shown.
+- Links out (the person's design): a bill links to its own "website to pay it", else (card and loan
+  payments) to the card's or loan's website; deposits and transfers link to their account's website.
+  Only http(s) addresses are kept.
+- Home's Looking ahead covers 30 days, always (the person's ruling); Reports → Looking ahead chooses.
+- Accounts list (the person's design): favorites and order are each person's own, per environment,
+  kept with their sign-in (never on the shared account). Favorites first in their type group, then the
+  person's order, then by name. Until someone changes theirs, the account's own Favorite counts.
 - Bank connectivity (OFX/online services) is left out on purpose. Files can be imported instead:
   CSV and QIF.
