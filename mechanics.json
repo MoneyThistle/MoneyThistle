@@ -48,6 +48,9 @@
     {"name": "coming up: card order", "group": "schedule", "value": "most items first, then name; balanced columns", "source": "person's design"},
     {"name": "show automatic items by default", "group": "schedule", "value": true, "source": "person's design"},
     {"name": "account favorites and order kept", "group": "accounts", "value": "per person, per environment", "source": "person's design"},
-    {"name": "cleared balance counts", "group": "accounts", "value": "entries marked C or R", "source": "MoneyThistle register rule (store.accounts)"}
+    {"name": "cleared balance counts", "group": "accounts", "value": "entries marked C or R", "source": "MoneyThistle register rule (store.accounts)"},
+    {"name": "payment into a card is shown as", "group": "schedule", "value": "bill and transfer (bill color), card's website linked", "source": "person's design"},
+    {"name": "administrators' summary covers", "group": "notifications", "value": "environments an administrator is a member of", "source": "person's design"},
+    {"name": "home recent transactions", "group": "home", "value": "one line per transaction", "source": "person's design"}
   ]
 }

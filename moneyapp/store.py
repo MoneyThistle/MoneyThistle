@@ -1511,8 +1511,12 @@ class Store:
             if any(r.get("card_account_id") for r in rows) else {}
         # Each account's website (its details): money coming in or moving between accounts
         # links to the bank's site ("View account"); a bill links to where it's paid.
-        sites = {}
-        for a in self.q("SELECT id, details FROM accounts"):
+        # A payment into a card is a card payment however it was scheduled (by the card's
+        # details or as a plain transfer): it's a bill too, and links to the card's website.
+        sites, card_ids = {}, set()
+        for a in self.q("SELECT id, type, details FROM accounts"):
+            if a["type"] in self.CARD_TYPES:
+                card_ids.add(a["id"])
             try:
                 w = (json.loads(a["details"] or "{}") or {}).get("website") or ""
             except ValueError:
@@ -1521,6 +1525,11 @@ class Store:
                 sites[a["id"]] = w
         for r in rows:
             r["pay_url"] = r.get("pay_url") or (sites.get(r["loan_account_id"], "") if r["kind"] == "loan" else "")
+            to_card = r.get("card_account_id") or (r["kind"] == "transfer" and r.get("to_account_id") in card_ids
+                                                   and r.get("to_account_id"))
+            if to_card:
+                r["to_card"] = True
+                r["pay_url"] = r["pay_url"] or sites.get(to_card, "")
             r["account_url"] = sites.get(r["account_id"], "")
             r["overdue"] = r["next_date"] < t
             r["days_until"] = (dt.date.fromisoformat(r["next_date"]) - today()).days
@@ -2568,9 +2577,40 @@ class Store:
             "upcoming": [u for u in self.upcoming(max(1, min(90, due_days))) if not u.get("split_of")],
             "spending": self.spending_by_category(mstart, t.isoformat()),
             "budget": self.budget(),
-            "recent": self.transactions(limit=recent),
+            "recent": self.recent_entries(recent),
             "backup": self.backup_status(),
         }
+
+    def recent_entries(self, n=8):
+        """The latest entries as people think of them: one line per transaction. A paycheck
+        with its paystub or a split payment is one line (its total); a transfer between two
+        accounts here is one line (the side the money leaves)."""
+        rows = self.transactions(limit=max(40, n * 8))
+        out, groups, seen_tx = [], {}, set()
+        for t in rows:
+            g = t.get("group_id")
+            if g:
+                if g in groups:
+                    first = groups[g]
+                    first["amount"] += t["amount"]
+                    first["paystub"] = first.get("paystub") or t.get("paystub")
+                    continue
+                groups[g] = t = dict(t)
+                out.append(t)
+                continue
+            other = t.get("transfer_id")
+            if other and (other in seen_tx or t["id"] in seen_tx):
+                continue
+            if other:
+                seen_tx.update((t["id"], other))
+                if t["amount"] > 0:   # show the leg the money leaves, when it's here
+                    leg = next((x for x in rows if x["id"] == other), None)
+                    if leg:
+                        t = leg
+            out.append(t)
+        for t in groups.values():
+            t["category_label"] = "Paystub" if t.get("paystub") else "Split"
+        return out[:n]
 
     def backup_status(self):
         last = self.q1("SELECT * FROM backup_log WHERE ok=1 ORDER BY id DESC LIMIT 1")

@@ -65,6 +65,9 @@ I18N.helpText({
           Favoritas e ordem são só suas: cada pessoa que usa as mesmas contas mantém as suas.</li>
         <li><b>Um salário com o holerite:</b> um clique o mostra na linha de baixo como qualquer lançamento, com <b>Recibos</b> (guarde ali o PDF do holerite)
           e <b>Holerite</b>, que abre o holerite. A etiqueta verde <b>Holerite</b> na linha o abre direto.</li>
+              <li><b>Novo:</b> um só botão para qualquer conta nova: escolha uma conta bancária, um cartão de crédito, um empréstimo, uma conta de investimento ou aposentadoria, ou um imóvel.</li>
+        <li><b>Mudar a ordem é um modo:</b> enquanto um 🔒 está aberto, os itens não respondem (nenhum lançamento abre, as estrelas e a marca C/R não mudam); só as alças (▲ ▼ no celular) movem. Feche de novo, aperte Esc ou saia da página para terminar.</li>
+        <li><b>Um pagamento dividido</b> (principal e juros de um empréstimo, uma divisão) aparece na linha de baixo como qualquer lançamento; <b>Abrir o pagamento</b> mostra as partes e a data.</li>
       </ul>` },
     balances: { title: "Saldo e saldo compensado", body: `
       <p>Cada conta mostra dois totais lado a lado.</p>
@@ -109,6 +112,7 @@ I18N.helpText({
         <li>As fotos são reduzidas antes de serem enviadas (cerca de 400 KB em vez de vários MB); um PDF pode ter até 20 MB.</li>
         <li>Os arquivos ficam na pasta de dados e entram em todo backup, inclusive no Nextcloud.</li>
         <li>Excluir um lançamento deixa os arquivos dele guardados por 60 dias, então desfazer a exclusão (Histórico) os traz de volta.</li>
+              <li><b>Ambiente:</b> Arquivos mostra os arquivos deste ambiente; escolha outro dos seus, ou <i>Todos os meus ambientes</i>, para vê-los juntos.</li>
       </ul>` },
     paystubs: { title: "Salários e holerites", body: `
       <p>Registre um salário com o que você souber. O <b>salário líquido</b> (o que chegou no banco) é suficiente; o salário bruto
@@ -160,6 +164,7 @@ I18N.helpText({
         <li><b>Pagar esta conta ↗</b> abre o site onde a conta é paga: digite-o em <i>Mais opções</i> (<i>Site para pagá-la</i>). Pagamentos de cartão e de empréstimo usam o site dos detalhes do cartão ou do empréstimo.
           Depósitos e transferências têm <b>Ver conta ↗</b>, para o site da conta.</li>
         <li><b>Uma média:</b> clique no valor médio de um item agendado para ver os valores de onde ela vem, com as datas.</li>
+              <li><b>Pagamentos de cartão</b> são transferências e contas ao mesmo tempo: levam as duas etiquetas, na cor das contas, e <b>Pagar esta conta ↗</b> abre o site do cartão, não importa como o pagamento foi agendado (pelos detalhes do cartão ou como transferência, também de outro ambiente).</li>
       </ul>
       <p>Cores e símbolos: dinheiro que entra é verde <b>+</b>, dinheiro que sai é laranja <b>−</b>, movimentações entre suas
       próprias contas são azuis <b>⇄</b>.</p>` },
@@ -358,7 +363,11 @@ I18N.helpText({
       não entram, a não ser que você marque <i>Itens automáticos a vencer também</i>: acontecem sozinhos.</p>
       <p>Configurações → Notificações envia um resumo diário (o que vence, o que foi lançado automaticamente, problemas de backup)
       por e-mail, Pushover, ntfy ou Gotify. Cada pessoa configura o seu; o e-mail pode usar as configurações compartilhadas que um
-      administrador informou, ou as da própria pessoa.</p>` },
+      administrador informou, ou as da própria pessoa.</p>
+      <p><b>Pushover para a família:</b> um administrador pode compartilhar o Pushover dele: cada celular da família entra como aparelho
+      da conta Pushover do administrador, e os outros escolhem <i>Usar o Pushover que um administrador compartilhou</i> e o próprio
+      aparelho (<b>Buscar aparelhos</b> lista todos). Não precisam de conta Pushover própria; a configuração própria também funciona.
+      As notícias de um ambiente compartilhado vão para os membros que as ativaram; as do ambiente próprio de alguém, só para essa pessoa.</p>` },
     startstop: { title: "Iniciar e parar o MoneyThistle", body: `
       <p>O MoneyThistle é um pequeno servidor; seu navegador só o mostra. <b>Fechar a aba do navegador não o para</b>, porque
       celulares e outros computadores podem estar usando. Num computador (não Docker), um administrador escolhe em

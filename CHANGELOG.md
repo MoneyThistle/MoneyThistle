@@ -3,6 +3,34 @@
 What changed in each release of MoneyThistle. Versions follow MAJOR.MINOR.PATCH: a new MAJOR
 can need you to do something when updating, MINOR adds features, PATCH fixes things.
 
+## 1.0.8 (2026-11-28)
+
+From the second team review (v1.0.7):
+
+- **Card payments are bills too:** any scheduled payment into a credit card shows both tags (bill
+  and transfer) in the bill's color, and **Pay this bill ↗** opens the card's own website, however it
+  was scheduled: through the card's details or as a plain transfer, from another environment too.
+  (Payments from another environment showed no link, or the paying bank's site.)
+- **Reordering is a real mode:** while a 🔒 is open, the items rest: no entry opens, the C/R mark and
+  the stars don't change, only the handles (▲ ▼ on a phone) move things. In a register the handles
+  get a column of their own at the edge. Lock again, press Escape or leave the page to end it.
+- **Accounts:** one **New** button with a short list: banking account, credit card, loan, investment
+  or retirement account, property.
+- **Register:** a split payment (a loan payment, a split) opens in the entry line like every other
+  entry; **Open payment** shows its parts and date. The green Paystub tag no longer jumps to Home.
+- **A dialog left by clicking a tab** now goes on to that tab after it's closed or saved (it stayed
+  on the page before).
+- **Pushover for the family:** an administrator can share their Pushover; everyone else picks only
+  their own device (Find devices lists them from Pushover). Their own Pushover still works too. The
+  administrators' summary covers the environments an administrator is in: someone's own environment
+  stays theirs.
+- **Files:** an Environment choice, including All my environments.
+- **Home:** with all environments shown, accounts are grouped under each environment's name; Recent
+  transactions shows one line per transaction (a paystub, a split or a transfer is one line).
+- **Budget:** payments entered early for a later month are a one-line note that opens, not a block.
+- **Settings → Look:** Back to defaults sits at the bottom of the left column, under what it resets.
+- The sign-in page no longer logs an error in the browser's console.
+
 ## 1.0.7 (2026-11-27)
 
 - **Looking ahead remembers your accounts everywhere:** which accounts it shows, and whether it

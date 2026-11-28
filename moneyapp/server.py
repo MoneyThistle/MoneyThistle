@@ -106,6 +106,7 @@ class App:
         r("GET", r"/api/notify", lambda q, b: self.notifier.public(self._notify_who()), "user")
         r("PUT", r"/api/notify", lambda q, b: self.notifier.save(b, self._notify_who()), "user")
         r("POST", r"/api/notify/test", self.notify_test, "user")
+        r("POST", r"/api/notify/pushover-devices", lambda q, b: self.notifier.pushover_devices(self._notify_who(), b), "user")
         r("GET", r"/api/notify/preview", lambda q, b: {"text": self.notifier.summary(who=self._notify_who())}, "user")
         # Where it listens (desktop): this computer only, or the home network too.
         # Starting and stopping a copy on a computer: shortcuts, with sign-in, with the computer.
@@ -451,6 +452,8 @@ class App:
         bills, upcoming = self.store.bills(), self.store.upcoming(days)
         # (a deposit's other accounts are shown with it, not as items of their own)
         bills, upcoming = [x for x in bills if not x.get("split_of")], [x for x in upcoming if not x.get("split_of")]
+        self.system.mark_card_payments(self.env_id, bills)
+        self.system.mark_card_payments(self.env_id, upcoming)
         if self.share:
             # Items that involve the shared account (bills, deposits, transfers, loan
             # payments), and only if its bills are shared; each says if it may be changed.
@@ -609,6 +612,8 @@ class App:
                 "api_version": API_VERSION, "build": self.build_id, "ui_build": version.static_id(),
                 "version": version.VERSION,
                 "needs_setup": not self.system.has_users(),
+                # (the sign-in page then shows without asking /api/me first, which would log a 401)
+                "signed_in": bool(getattr(self.ctx, "user", None)),
                 # A copy on a computer (not Docker) that an administrator can shut down.
                 "can_shutdown": self.request_stop is not None and not self.in_docker,
                 # Setting up: offer a desktop icon (copies on Windows or Linux computers).
@@ -1260,8 +1265,11 @@ class App:
         out["upcoming"] = sorted([tag(e, u) for e, s in res for u in s["upcoming"]], key=lambda u: (u["date"], u["payee"]))
         out["shared_upcoming"] = [tag(e, u) for e, s in res for u in s["shared_upcoming"]]
         out["statements_due"] = [tag(e, x) for e, s in res for x in s["statements_due"]]
-        out["recent"] = sorted([tag(e, t) for e, s in res for t in s["recent"]],
-                               key=lambda t: (t["date"], t.get("created") or ""), reverse=True)[:recent]
+        # A transfer between two environments is one transaction: the side the money leaves.
+        rec = [tag(e, t) for e, s in res for t in s["recent"]]
+        outs = {(t.get("xlink_id"), t["date"], -t["amount"]) for t in rec if t.get("xlink_id") and t["amount"] < 0}
+        rec = [t for t in rec if not (t.get("xlink_id") and t["amount"] > 0 and (t["xlink_id"], t["date"], t["amount"]) in outs)]
+        out["recent"] = sorted(rec, key=lambda t: (t["date"], t.get("created") or ""), reverse=True)[:recent]
         spend = {}
         for _, s in res:
             for r in s["spending"]:

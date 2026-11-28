@@ -67,6 +67,9 @@ const HELP = {
           Favorites and order are yours alone: everyone using the same accounts keeps their own.</li>
         <li><b>A paycheck with its paystub:</b> clicking it shows it in the line at the bottom like any entry, with <b>Receipts</b> (keep a PDF of the pay slip there)
           and <b>Paystub</b>, which opens the paystub. The green <b>Paystub</b> tag on the line opens it directly.</li>
+              <li><b>New:</b> one button for any new account: choose a banking account, a credit card, a loan, an investment or retirement account, or property.</li>
+        <li><b>Reordering is a mode:</b> while a 🔒 is open, the items themselves rest (no entry opens, stars and the C/R mark don't change); only the handles (▲ ▼ on a phone) move things. Lock it again, press Escape or leave the page to end it.</li>
+        <li><b>A split payment</b> (a loan payment's principal and interest, a split) shows in the line at the bottom like any entry; <b>Open payment</b> shows its parts and date.</li>
       </ul>` },
     { id: "balances", title: "Balance and Cleared", tab: "accounts", body: `
       <p>Each account shows two totals side by side.</p>
@@ -109,6 +112,7 @@ const HELP = {
         <li>Photos are made smaller before they're sent (about 400 KB instead of several MB); a PDF can be up to 20 MB.</li>
         <li>The files are kept in the data folder and go into every backup, including Nextcloud.</li>
         <li>Deleting an entry sets its files aside for 60 days, so undoing the delete (History) brings them back.</li>
+              <li><b>Environment:</b> Files shows this environment's files; choose another of yours, or <i>All my environments</i>, to see them together.</li>
       </ul>` },
     { id: "paystubs", title: "Paychecks and paystubs", tab: "accounts", body: `
       <p>Record a paycheck with as much as you know. <b>Take-home pay</b> (what reached your bank) is enough; gross pay and
@@ -160,6 +164,7 @@ const HELP = {
         <li><b>Pay this bill ↗</b> opens the website a bill is paid on: type it under <i>More options</i> (<i>Website to pay it</i>). Card and loan payments use the website in the card's or loan's details.
           Deposits and transfers get <b>View account ↗</b>, to the account's website.</li>
         <li><b>An average:</b> click the averaged amount in a scheduled item to see the amounts it comes from, with their dates.</li>
+              <li><b>Card payments</b> are transfers and bills at once: they show both tags, in the bill's color, and <b>Pay this bill ↗</b> opens the card's website, however the payment was scheduled (by the card's details or as a transfer, from another environment too).</li>
       </ul>
       <p>Colors and symbols: money in is green <b>+</b>, money out is orange <b>−</b>, moves between your own
       accounts are blue <b>⇄</b>.</p>` },
@@ -351,7 +356,11 @@ const HELP = {
       in it unless you tick <i>Automatic items coming due too</i>: they happen by themselves.</p>
       <p>Settings → Notifications sends a daily summary (what's due, what was recorded automatically, backup
       problems) by email, Pushover, ntfy or Gotify. Each person sets up their own; email can use the shared mail
-      settings an administrator entered, or the person's own.</p>` },
+      settings an administrator entered, or the person's own.</p>
+      <p><b>Pushover for the family:</b> an administrator can share their Pushover: every family phone is added as a device on the
+      administrator's Pushover account, and everyone else chooses <i>Use the Pushover an administrator shared</i> and picks their
+      own device (<b>Find devices</b> lists them). They need no Pushover account of their own; their own setup still works instead.
+      News from a shared environment goes to its members who turned it on; from someone's own environment, only to them.</p>` },
     { id: "startstop", title: "Starting and stopping MoneyThistle", tab: "settings/computer", body: `
       <p>MoneyThistle is a small server; your browser only shows it. <b>Closing the browser tab doesn't stop it</b>, because phones
       and other computers may be using it. On a computer (not Docker), an administrator chooses in <b>Settings → This computer</b>:</p>

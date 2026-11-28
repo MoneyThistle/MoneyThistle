@@ -1891,6 +1891,84 @@ DATA:OFXSGML
         self.assertEqual(sorted(a["name"] for a in only["accounts"]), ["Business Checking", "Joint Checking"])
         self.assertEqual(len(c.call("GET", "/api/summary?scope=all&envs=999", env=1)["accounts"]), 1)
 
+    def test_card_payment_links_however_scheduled(self):
+        # A payment into a card is a card payment (a bill too) however it was scheduled: by the
+        # card's details or as a plain transfer, here or from another environment. Each links
+        # to the card's own website.
+        app, base = self._serve()
+        c = Client(base)
+        c.call("POST", "/api/setup", {"username": "alex", "password": "correct-horse"})
+        hh = c.call("POST", "/api/envs", {"name": "Household"})["id"]
+        hchk = c.call("POST", "/api/accounts", {"name": "Joint Checking", "type": "Checking",
+                                                "details": {"website": "bank.example.com"}}, env=hh)["id"]
+        macys = c.call("POST", "/api/accounts", {"name": "Store Card", "type": "Credit Card",
+                                                 "details": {"website": "cards.example.com/pay"}}, env=1)["id"]
+        visa = c.call("POST", "/api/accounts", {"name": "Visa", "type": "Credit Card", "details": {
+            "website": "visa.example.com", "due_day": 20, "auto_pay": True, "pay_mode": "fixed", "pay_amount": "200",
+            "pay_from_env_id": hh, "pay_from_account_id": hchk}}, env=1)["id"]
+        # A plain scheduled transfer from Household into the store card, through a connection.
+        lid = self.system.owned_link(1, hh, hchk, 1, macys)
+        c.call("POST", "/api/bills", {"kind": "transfer", "payee": "Store card", "account_id": hchk, "x_link_id": lid,
+                                      "x_dir": "out", "x_label": "Store Card (Personal)", "amount": "35",
+                                      "frequency": "Monthly", "next_date": "2030-01-05"}, env=hh)
+        # And one inside Personal: a plain transfer into the card.
+        pchk = c.call("POST", "/api/accounts", {"name": "My Checking", "type": "Checking"}, env=1)["id"]
+        c.call("POST", "/api/bills", {"kind": "transfer", "payee": "Card", "account_id": pchk, "to_account_id": macys,
+                                      "amount": "10", "frequency": "Monthly", "next_date": "2030-01-06"}, env=1)
+        hb = {b["payee"]: b for b in c.call("GET", "/api/bills", env=hh)["bills"]}
+        self.assertEqual((hb["Visa payment"]["to_card"], hb["Visa payment"]["pay_url"]), (True, "https://visa.example.com"))
+        self.assertEqual((hb["Store card"]["to_card"], hb["Store card"]["pay_url"]), (True, "https://cards.example.com/pay"))
+        pb = c.call("GET", "/api/bills", env=1)
+        mine = {b["payee"]: b for b in pb["bills"]}
+        self.assertEqual((mine["Card"]["to_card"], mine["Card"]["pay_url"]), (True, "https://cards.example.com/pay"))
+        rel = {b["payee"]: b for b in pb["related"]["bills"]}
+        self.assertEqual(rel["Store card"]["pay_url"], "https://cards.example.com/pay")
+        # A transfer to an account that isn't a card stays a transfer ("View account").
+        sav = c.call("POST", "/api/accounts", {"name": "Savings", "type": "Savings"}, env=1)["id"]
+        c.call("POST", "/api/bills", {"kind": "transfer", "payee": "Save", "account_id": pchk, "to_account_id": sav,
+                                      "amount": "5", "frequency": "Monthly", "next_date": "2030-01-07"}, env=1)
+        save = next(b for b in c.call("GET", "/api/bills", env=1)["bills"] if b["payee"] == "Save")
+        self.assertFalse(save.get("to_card"))
+        self.assertIsNotNone(visa)
+
+    def test_recent_is_one_line_per_transaction(self):
+        # Home's recent entries: a paycheck with its paystub, a split, a transfer: one line each.
+        st = self.store
+        chk = st.save_account({"name": "Chk", "type": "Checking", "opening_balance": "100"})
+        sav = st.save_account({"name": "Sav", "type": "Savings"})
+        st.save_transaction({"account_id": chk, "date": "2026-01-03", "payee": "Move", "amount": "-40",
+                             "transfer_account_id": sav})
+        st.save_transaction({"account_id": chk, "date": "2026-01-02", "payee": "Coffee", "amount": "-4"})
+        rec = st.recent_entries(8)
+        self.assertEqual([(r["payee"], r["amount"]) for r in rec], [("Move", -4000), ("Coffee", -400)])
+
+    def test_shared_pushover(self):
+        # The administrators' Pushover, shared: someone else only picks their device; the
+        # token and key are the administrators' and never shown.
+        from moneyapp.notify import Notifier
+        import urllib.parse
+        nt = Notifier(self.system, self.dir)
+        admin = self.system.create_user("alex", "correct-horse", "Alex", True)
+        tati = self.system.create_user("tati", "battery-staple", "Tati", False)
+        nt.save({"pushover": {"enabled": True, "app_token": "apptok", "user_key": "ukey"}})
+        with self.assertRaises(ApiError):   # not shared yet
+            nt.save({"pushover": {"enabled": True, "use_shared": True, "device": "tati-phone"}}, tati)
+        nt.save({"share_pushover": True})
+        pub = nt.public(tati)
+        self.assertTrue(pub["shared_pushover_available"])
+        with self.assertRaises(ApiError):   # the device is needed
+            nt.save({"pushover": {"enabled": True, "use_shared": True, "device": ""}}, tati)
+        pub = nt.save({"pushover": {"enabled": True, "use_shared": True, "device": "tati-phone"}}, tati)
+        self.assertEqual((pub["pushover"]["app_token"], pub["pushover"]["user_key"]), ("", ""))
+        sent = []
+        nt._post = lambda url, data, headers=None: sent.append(urllib.parse.parse_qs(data.decode()))
+        self.assertEqual(nt.send("T", "B", ["pushover"], who=tati), {"pushover": "ok"})
+        self.assertEqual((sent[0]["token"], sent[0]["user"], sent[0]["device"]), (["apptok"], ["ukey"], ["tati-phone"]))
+        # Unshared again: her setup stops working until she uses her own.
+        nt.save({"share_pushover": False})
+        self.assertNotEqual(nt.send("T", "B", ["pushover"], who=tati)["pushover"], "ok")
+        self.assertIsNotNone(admin)
+
     def test_card_paid_from_another_environment_and_deleting(self):
         app, base = self._serve()
         c = Client(base)

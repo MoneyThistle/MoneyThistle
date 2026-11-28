@@ -239,6 +239,7 @@ async function loadBasics() {
   if (!S.pageUi) S.pageUi = S.meta.ui_build;
   S.pageOld = !!(S.meta.ui_build && S.pageUi && S.meta.ui_build !== S.pageUi);
   if (S.meta.needs_setup) throw new NeedSignIn("setup");
+  if (S.meta.signed_in === false) throw new NeedSignIn("Please sign in");
   S.me = await GET("/api/me");
   // Pick the environment: the last one used here, if still allowed, else the first.
   const ids = S.me.envs.map(e => e.id);
@@ -658,19 +659,31 @@ function dialog(title, body, buttons) {
     bodyEl.onchange = mark;
     // (buttons inside it add, remove or move lines, or fill something in)
     bodyEl.onclick = e => { if (e.isTrusted && e.target.closest("button") && !e.target.closest(".lockbtn")) changed = true; };
-    const leave = async () => {
+    // go: a page the click outside the card was aimed at (a tab in the menu): once the dialog
+    // is closed, saved or not, the page the person asked for opens.
+    const leave = async go => {
       const save = q("#dlgFoot button.primary");
-      if (!changed || !save) { resolve(null); d.close(); return; }
+      const then = () => { if (go && !d.open && location.hash !== go) location.hash = go; };
+      if (!changed || !save) { resolve(null); d.close(); then(); return; }
       const pick = await askSaveChanges();
-      if (pick === "save") save.click();
-      else if (pick === "discard") { resolve(null); d.close(); }
+      if (pick === "save") {
+        save.click();
+        // Saved: the dialog closes; a problem shows in it and it stays open.
+        const t0 = Date.now();
+        while (d.open && q("#dlgErr").hidden && Date.now() - t0 < 20000) await new Promise(r => setTimeout(r, 100));
+        then();
+      } else if (pick === "discard") { resolve(null); d.close(); then(); }
     };
     // (the page changing under it asks the same, once: see the hashchange handler)
     d._dirty = () => changed && !!q("#dlgFoot button.primary");
-    q("#dlgClose").onclick = leave;
+    q("#dlgClose").onclick = () => leave();
     d.oncancel = e => { e.preventDefault(); leave(); };   // Escape
     d.onmousedown = e => { d._downOutside = e.target === d; };
-    d.onclick = e => { if (e.target === d && d._downOutside) leave(); };   // the dimmed area around the card
+    d.onclick = e => {   // the dimmed area around the card (a tab under it opens afterwards)
+      if (e.target !== d || !d._downOutside) return;
+      const under = document.elementsFromPoint(e.clientX, e.clientY).find(x => x !== d && !d.contains(x) && x.closest("a[href^='#/']"));
+      leave(under ? under.closest("a[href^='#/']").getAttribute("href") : null);
+    };
     d.showModal();
     const first = q("input,select,textarea", bodyEl); if (first) first.focus();
   });
@@ -997,14 +1010,19 @@ async function renderHome() {
   const b = d.budget;
   const cardHtml = {
     accounts: () => {
-      const groups = groupAccounts(d.accounts)
+      // All environments together: each environment under its own heading (no tag on every row).
+      const envIds = [...new Set(d.accounts.map(a => a.env_id).filter(Boolean))];
+      const byEnv = envIds.length > 1 ? envIds.map(e => [d.accounts.find(a => a.env_id === e).env_name, d.accounts.filter(a => a.env_id === e)])
+        : [["", d.accounts]];
+      const block = accs => groupAccounts(accs)
         .map(([name, list]) => [name, list, H.hide_zero ? list.filter(a => a.balance !== 0) : list])
-        .filter(([, , vis]) => vis.length);
+        .filter(([, , vis]) => vis.length)
+        .map(([name, list, vis]) => `<div class="acctgroup"><div class="gname">${esc(name)}</div>
+        ${vis.map(a => `<a class="acctrow" href="#/accounts/${a.id}"${a.env_id && a.env_id !== S.env ? ` data-goenv="${a.env_id}" data-goacct="${a.id}"` : ""}><span>${esc(a.name)}</span><span class="num">${fmt(a.balance, false, a)}</span></a>`).join("")}
+        <div class="acctrow small muted"><span>Total</span><span class="num">${sumByCur(list)}</span></div></div>`).join("");
       return `<div class="card" data-card="accounts">
       <div class="head"><h2>Account list</h2><a href="#/accounts" class="small">Manage</a></div>
-      ${groups.map(([name, list, vis]) => `<div class="acctgroup"><div class="gname">${esc(name)}</div>
-        ${vis.map(a => `<a class="acctrow" href="#/accounts/${a.id}"${a.env_id && a.env_id !== S.env ? ` data-goenv="${a.env_id}" data-goacct="${a.id}"` : ""}><span>${esc(a.name)}${envTag(a)}</span><span class="num">${fmt(a.balance, false, a)}</span></a>`).join("")}
-        <div class="acctrow small muted"><span>Total</span><span class="num">${sumByCur(list)}</span></div></div>`).join("")}
+      ${byEnv.map(([en, accs]) => (en ? `<h3 class="envhead" translate="no">${esc(en)}</h3>` : "") + block(accs)).join("")}
       ${sharedGroup(H.hide_zero ? (d.shared_accounts || []).filter(a => a.balance !== 0) : (d.shared_accounts || []))}
       ${H.show_networth ? netWorthHtml(d) : ""}
     </div>`;
@@ -1144,9 +1162,9 @@ async function customizeHome() {
 }
 
 // ---------- ACCOUNTS ----------
-async function editAccount(acc) {
+async function editAccount(acc, newType) {
   if (acc && acc.has_loan) return editLoan(acc);
-  const a = acc || { name: "", type: "Checking", opening_balance: 0, opening_date: todayISO() };
+  const a = acc || { name: "", type: newType || "Checking", opening_balance: 0, opening_date: todayISO() };
   const isLiab = t => (S.meta.liability_types || []).includes(t);
   // A card can be paid from an account in another environment you own (both yours: the
   // connection is made by itself).
@@ -1830,9 +1848,22 @@ function moveBtns(t) {
   return `<span class="movebtns"><span class="grip" data-regmove="${t.id}" data-date="${t.date}" title="Drag to move it within the day" aria-hidden="true">⋮⋮</span><span class="mvarrows"><button type="button" class="tiny" data-move="${t.id}:${up}" title="Move up (${up} that day)" aria-label="Move up">▲</button><button type="button" class="tiny" data-move="${t.id}:${down}" title="Move down (${down} that day)" aria-label="Move down">▼</button></span></span>`;
 }
 document.addEventListener("click", e => {
-  if (!(e.target.closest && e.target.closest("#regLock"))) return;
+  if (!e.target.closest) return;
+  // While the Accounts list is unlocked its rows don't open (only handles and arrows work).
+  const row = e.target.closest(".acctlist.unlocked a.acctrow");
+  if (row && !e.target.closest(".mvarrows, .grip")) { e.preventDefault(); e.stopPropagation(); return; }
+  if (!e.target.closest("#regLock")) return;
   e.preventDefault(); e.stopPropagation();
   regUnlocked = !regUnlocked; render();
+}, true);
+// Escape ends reordering (the Accounts list or the register), like locking it again; in a
+// paystub it locks the lines first (a second Escape closes the paystub).
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  const stub = q("#dlg[open] #stubLines.unlocked");
+  if (stub) { e.preventDefault(); e.stopPropagation(); q("#stubLock").click(); return; }
+  if (document.getElementById("dlg").open || q("dialog[open]")) return;
+  if (regUnlocked || acctUnlocked) { e.preventDefault(); regUnlocked = acctUnlocked = false; render(); }
 }, true);
 // Dragging an entry onto another of the same day: one step at a time, as the arrows do.
 document.addEventListener("dragstart", e => {
@@ -1898,8 +1929,8 @@ function registerRows(rows) {
   return out.map(r => {
     if (r.one) {
       const t = r.one;
-      return `<tr class="click${t.date > today ? " future" : ""}"${t.date > today ? ' title="Dated after today"' : ""} data-id="${t.id}"><td class="status ${t.status}" data-st="${t.id}" title="Click: blank → cleared → reconciled">${t.status || "·"}</td>
-        <td class="small">${niceDate(t.date)}${moveBtns(t)}</td><td class="small">${esc(t.number)}</td><td>${esc(t.payee)}${t.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}${t.attachments ? ` <span class="clip" title="${t.attachments} receipt${t.attachments === 1 ? "" : "s"} or file${t.attachments === 1 ? "" : "s"} attached">${CLIP_ICON}${t.attachments > 1 ? t.attachments : ""}</span>` : ""}${payPills(t)}</td>
+      return `<tr class="click${t.date > today ? " future" : ""}"${t.date > today ? ' title="Dated after today"' : ""} data-id="${t.id}">${regUnlocked ? `<td class="gripcol">${moveBtns(t)}</td>` : ""}<td class="status ${t.status}" data-st="${t.id}" title="Click: blank → cleared → reconciled">${t.status || "·"}</td>
+        <td class="small">${niceDate(t.date)}</td><td class="small">${esc(t.number)}</td><td>${esc(t.payee)}${t.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}${t.attachments ? ` <span class="clip" title="${t.attachments} receipt${t.attachments === 1 ? "" : "s"} or file${t.attachments === 1 ? "" : "s"} attached">${CLIP_ICON}${t.attachments > 1 ? t.attachments : ""}</span>` : ""}${payPills(t)}</td>
         <td class="small">${esc(t.category_label)}${otherSide(t)}</td><td class="small muted">${esc(t.memo)}</td>
         <td class="num">${t.amount < 0 ? fmt(-t.amount, true, t) : ""}</td><td class="num">${t.amount > 0 ? fmt(t.amount, true, t) : ""}</td>
         <td class="num">${t.running_balance == null ? "" : fmt(t.running_balance, false, t)}</td></tr>`;
@@ -1909,17 +1940,17 @@ function registerRows(rows) {
     // A paystub: gross pay and how many taxes and deductions came out of it.
     const stub = g.some(p => p.paystub);
     const summary = stub
-      ? `<a href="#" class="pill green" data-stubtag="${top.group_id}" title="Open the paystub">Paystub</a> gross ${fmt(g.filter(p => p.amount > 0).reduce((s, p) => s + p.amount, 0), true, top)} · ${g.filter(p => p.amount < 0).length} taxes &amp; deductions${payPills(g.find(p => p.pay_flag) || {})}`
+      ? `<button type="button" class="pill green pillbtn" data-stubtag="${top.group_id}" title="Open the paystub">Paystub</button> gross ${fmt(g.filter(p => p.amount > 0).reduce((s, p) => s + p.amount, 0), true, top)} · ${g.filter(p => p.amount < 0).length} taxes &amp; deductions${payPills(g.find(p => p.pay_flag) || {})}`
       : `<span class="pill">Split</span> ${g.slice().reverse().map(p => esc(label(p))).join(" · ")}`;
     // One line; its parts fold out with ▸ (and stay open while the register is used).
     const open = REG_OPEN.has(String(top.group_id));
-    return `<tr class="click${top.date > today ? " future" : ""}"${top.date > today ? ' title="Dated after today"' : ""} data-group="${top.group_id}"${stub ? ' data-paystub="1"' : ""}><td class="status ${top.status}" data-gst="${top.group_id}" title="Click: blank → cleared → reconciled">${top.status || "·"}</td>
-        <td class="small">${niceDate(top.date)}${moveBtns(top)}</td><td class="small">${esc(top.number)}</td><td>${esc(top.payee)}${top.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}
+    return `<tr class="click${top.date > today ? " future" : ""}"${top.date > today ? ' title="Dated after today"' : ""} data-group="${top.group_id}"${stub ? ' data-paystub="1"' : ""}>${regUnlocked ? `<td class="gripcol">${moveBtns(top)}</td>` : ""}<td class="status ${top.status}" data-gst="${top.group_id}" title="Click: blank → cleared → reconciled">${top.status || "·"}</td>
+        <td class="small">${niceDate(top.date)}</td><td class="small">${esc(top.number)}</td><td>${esc(top.payee)}${top.auto ? ' <span class="pill auto" title="Recorded automatically from an automatic scheduled item">⟳ auto</span>' : ""}
           <button type="button" class="tiny grp-tog" data-tog="${top.group_id}" aria-expanded="${open}" title="Show or hide its parts">${open ? "▾" : "▸"} ${g.length} parts</button></td>
         <td class="small">${summary}</td><td class="small muted"></td>
         <td class="num">${sum < 0 ? fmt(-sum, true, top) : ""}</td><td class="num">${sum > 0 ? fmt(sum, true, top) : ""}</td>
         <td class="num">${top.running_balance == null ? "" : fmt(top.running_balance, false, top)}</td></tr>` +
-      g.slice().reverse().map(p => `<tr class="small muted grp-part${top.date > today ? " future" : ""}" data-part="${top.group_id}"${open ? "" : " hidden"}><td></td><td></td><td></td><td style="padding-left:22px">↳ ${esc(label(p))}</td>
+      g.slice().reverse().map(p => `<tr class="small muted grp-part${top.date > today ? " future" : ""}" data-part="${top.group_id}"${open ? "" : " hidden"}>${regUnlocked ? "<td></td>" : ""}<td></td><td></td><td></td><td style="padding-left:22px">↳ ${esc(label(p))}</td>
         <td class="small">${esc(p.category_label || "(lender holds it)")}</td><td></td>
         <td class="num">${p.amount < 0 ? fmt(-p.amount, true, p) : ""}</td><td class="num">${p.amount > 0 ? fmt(p.amount, true, p) : ""}</td><td></td></tr>`).join("");
   }).join("");
@@ -2293,6 +2324,30 @@ async function otherEnvAccounts() {
   return Promise.all(S.me.envs.filter(e => e.id !== S.env && scopeEnvs().includes(e.id)).map(e =>
     api("GET", "/api/accounts", undefined, { env_id: e.id }).then(list => ({ e, list: list.filter(a => !a.closed) })).catch(() => ({ e, list: [] }))));
 }
+// One "New" button for any kind of account: it opens a short list (the kind can still be
+// changed in the account's details, except a loan, which has its own terms).
+const NEW_KINDS = [["Checking", "New banking account"], ["Credit Card", "New credit card"], ["loan", "New loan"],
+  ["Investment", "New investment or retirement account"], ["Asset", "New property or other asset"]];
+function newAccountMenu() {
+  return `<span class="newmenu"><button type="button" class="small primary" id="newAcct" aria-haspopup="menu" aria-expanded="false">New ▾</button>
+    <span class="menu" role="menu" hidden>${NEW_KINDS.map(([k, l]) => `<button type="button" role="menuitem" data-newkind="${k}">${l}</button>`).join("")}</span></span>`;
+}
+document.addEventListener("click", async e => {
+  const open = e.target.closest && e.target.closest("#newAcct");
+  const item = e.target.closest && e.target.closest("[data-newkind]");
+  const menu = q(".newmenu .menu");
+  if (!menu) return;
+  if (open) { e.preventDefault(); menu.hidden = !menu.hidden; open.setAttribute("aria-expanded", String(!menu.hidden)); return; }
+  menu.hidden = true; const b = q("#newAcct"); if (b) b.setAttribute("aria-expanded", "false");
+  if (!item) return;
+  e.preventDefault();
+  if (S.shareCtx) { S.shareCtx = null; await loadBasics(); }   // (new accounts go in this environment)
+  if (item.dataset.newkind === "loan") editLoan(null); else editAccount(null, item.dataset.newkind);
+});
+document.addEventListener("keydown", e => {
+  const m = q(".newmenu .menu");
+  if (e.key === "Escape" && m && !m.hidden) { m.hidden = true; q("#newAcct").focus(); }
+});
 // Each person's own Accounts list, per environment: favorites (★, first in their group) and
 // the order inside each group, kept with their sign-in (S.ui.accts), never on the account,
 // which other people may share. Until someone changes it, the account's own Favorite counts.
@@ -2373,7 +2428,7 @@ function accountsList(id, shared, activeSid, others) {
   if (all) shared = shared.filter(a => !mine.has(a.env_id));   // shown where they live instead
   const here = all ? (S.me.envs.find(e => e.id === S.env) || {}).name : "";
   const fav = acctPrefs().fav, un = acctUnlocked;
-  return `<div class="card acctlist${un ? " unlocked" : ""}"><div class="head"><h2>Accounts${here ? ` <span class="small muted">· ${esc(here)}</span>` : ""}</h2><span><button class="small" id="newLoan">New loan</button> <button class="small primary" id="newAcct">New account</button></span></div>
+  return `<div class="card acctlist${un ? " unlocked" : ""}"><div class="head"><h2>Accounts${here ? ` <span class="small muted">· ${esc(here)}</span>` : ""}</h2>${newAccountMenu()}</div>
     ${S.accounts.length > 1 ? `<div class="acctlock">${lockButton("acctLock", un)}</div>` : ""}
     ${groupAccounts(acctSorted(S.accounts)).map(([name, l]) => `<div class="acctgroup"><div class="gname">${esc(name)}</div>
     ${l.map(a => `<a class="acctrow ${a.id == id ? "on" : ""} ${a.closed ? "closed" : ""} ${fav.has(a.id) ? "fav" : ""}" href="#/accounts/${a.id}" data-acct="${a.id}" data-fav="${fav.has(a.id) ? 1 : ""}"${un ? ' draggable="true"' : ""}>
@@ -2408,12 +2463,10 @@ async function renderShared(sid) {
     <div class="toolbar small"><span>Balance <b>${fmt(acc.balance, false, acc)}</b></span><span class="muted">Cleared ${fmt(acc.cleared_balance, true, acc)}</span>${BAL_HELP}
       <span class="muted">This account lives in ${esc(sh.shared_by)}'s ${esc(sh.env_name)}; you see the same register and its categories.</span></div>
     <div class="card flush"><div class="register reorder${regUnlocked ? " unlocked" : ""}"><table id="reg">
-      <tr><th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
+      <tr>${regUnlocked ? '<th class="gripcol" aria-label="Move"></th>' : ""}<th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
       ${registerRows(rows)}
     </table>${rows.length ? "" : `<div class="empty">No transactions yet.</div>`}</div>
     <div class="entry" id="entry"></div></div></div></div>`;
-  q("#newAcct").onclick = async () => { S.shareCtx = null; await loadBasics(); editAccount(null); };
-  q("#newLoan").onclick = async () => { S.shareCtx = null; await loadBasics(); editLoan(null); };
   q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
   const again = () => renderSharedKeep(sid);
   if (q("#recon")) q("#recon").onclick = () => reconcile(acc);
@@ -2480,8 +2533,6 @@ async function renderAccounts(id, sub) {
       ${accs.map(a => `<tr class="click" data-id="${a.id}"><td>${esc(a.name)} ${a.closed ? '<span class="pill">closed</span>' : ""}</td><td>${esc(a.type)}</td>
       <td class="num">${a.tx_count}</td><td class="num">${fmt(a.cleared_balance, false, a)}</td><td class="num">${fmt(a.balance, false, a)}</td></tr>`).join("")}</table>
       ${accs.length ? "" : `<div class="empty">Add your first account with <b>New account</b>.</div>`}</div></div>`;
-    q("#newAcct").onclick = () => editAccount(null);
-  q("#newLoan").onclick = () => editLoan(null);
   q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
     qa("tr[data-id]").forEach(r => r.onclick = () => location.hash = "#/accounts/" + r.dataset.id);
     return;
@@ -2510,12 +2561,10 @@ async function renderAccounts(id, sub) {
       Add its rate and payment to see its payment schedule, payoff date and what-if payments. Its register and balance stay as they are.</span>
       <button class="small primary" id="loanSetup">Set up loan details…</button></div>` : "")}
     <div class="card flush"><div class="register reorder${regUnlocked ? " unlocked" : ""}"><table id="reg">
-      <tr><th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
+      <tr>${regUnlocked ? '<th class="gripcol" aria-label="Move"></th>' : ""}<th class="status" title="Cleared / Reconciled">C</th><th>Date</th><th>Num</th><th>Payee</th><th>Category</th><th>Memo</th><th class="num">Payment</th><th class="num">Deposit</th><th class="num">Balance</th></tr>
       ${registerRows(rows)}
     </table>${rows.length ? "" : `<div class="empty">No transactions${search ? " match" : " yet. Type one in below"}.</div>`}</div>
     <div class="entry" id="entry"></div></div></div></div>`;
-  q("#newAcct").onclick = () => editAccount(null);
-  q("#newLoan").onclick = () => editLoan(null);
   q("#loanCalc").onclick = e => { e.preventDefault(); loanCalculator(); };
   q("#editAcct").onclick = () => editAccount(acc);
   if (q("#stmtBtn")) q("#stmtBtn").onclick = () => statementDialog(acc);
@@ -2529,7 +2578,7 @@ async function renderAccounts(id, sub) {
   q("#acctFiles").onclick = () => attachDialog({ acc }, filesCount);
   q("#search").onkeydown = e => { if (e.key === "Enter") renderAccounts(id, { q: e.target.value }); };
   qa("tr[data-id]").forEach(r => r.onclick = (e) => {
-    if (e.target.dataset.st || e.target.closest(".grip")) return;
+    if (regUnlocked || e.target.dataset.st || e.target.closest(".grip")) return;
     qa("tr.sel").forEach(x => x.classList.remove("sel")); r.classList.add("sel");
     entryForm(acc, rows.find(t => t.id == r.dataset.id), () => renderAccounts(id, { q: search }));
   });
@@ -2557,19 +2606,24 @@ async function renderAccounts(id, sub) {
   const openStub = gid => paystubDialog(acc, +gid, backTo(gid));
   qa("[data-stubtag]").forEach(t => t.onclick = e => { e.stopPropagation(); openStub(t.dataset.stubtag); });
   qa("tr[data-group]").forEach(r => r.onclick = e => {
-    if (e.target.closest("[data-tog],[data-gst],[data-move],[data-stubtag],.grip")) return;
-    if (!r.dataset.paystub) return groupDialog(rows, r.dataset.group, () => renderAccounts(id, { q: search }), acc);
+    if (regUnlocked || e.target.closest("[data-tog],[data-gst],[data-move],[data-stubtag],.grip")) return;
     qa("tr.sel").forEach(x => x.classList.remove("sel")); r.classList.add("sel");
-    paystubEntryView(acc, rows.filter(t => t.group_id == r.dataset.group), () => openStub(r.dataset.group),
+    const g = rows.filter(t => t.group_id == r.dataset.group);
+    // A split payment (a loan payment, a split) shows in the entry line like any entry too;
+    // its parts and date open with "Open payment".
+    if (!r.dataset.paystub) return splitEntryView(acc, g, () => groupDialog(rows, r.dataset.group, backTo(r.dataset.group), acc),
       backTo(r.dataset.group), () => renderAccounts(id, { q: search }));
+    paystubEntryView(acc, g, () => openStub(r.dataset.group), backTo(r.dataset.group), () => renderAccounts(id, { q: search }));
   });
+  // The register's lock shows only when two entries share a day (nothing else can be reordered).
+  if (q("#regLock")) q("#regLock").hidden = !Object.values(regDayCount).some(n => n > 1);
   if (q("#loanSetup")) q("#loanSetup").onclick = async () => editLoan(acc, null, await GET(`/api/loans/${acc.id}/suggest`));
   if (loan) {
     q("#loanPay").onclick = () => payLoan(acc.id, loan.bill ? { ...loan.bill, date: loan.bill.next_date } : null);
     q("#loanSched").onclick = () => { const w = q("#schedWrap"); w.style.display = w.style.display === "none" ? "" : "none"; };
     q("#loanWhatIf").onclick = () => loanWhatIf(loan);
   }
-  if (canEdit()) entryForm(acc, null, () => renderAccounts(id, { q: search }));
+  if (canEdit() && !regUnlocked) entryForm(acc, null, () => renderAccounts(id, { q: search }));
 }
 
 // Category list for the register: transfers between your own accounts come first
@@ -2619,9 +2673,9 @@ const CLIP_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="
 // ---------- receipts and other attached files ----------
 // A phone offers its camera for "Take a photo"; any device can pick a photo or PDF.
 const PHONE = window.matchMedia && matchMedia("(pointer: coarse)").matches;
-function attachUrl(id, download) {
-  const sc = S.shareCtx;
-  return `/api/attachments/${id}?env=${sc ? sc.env_id : S.env}${sc && sc.share_id ? "&share=" + sc.share_id : ""}${download ? "&download=1" : ""}`;
+function attachUrl(id, download, env) {
+  const sc = env ? null : S.shareCtx;
+  return `/api/attachments/${id}?env=${env || (sc ? sc.env_id : S.env)}${sc && sc.share_id ? "&share=" + sc.share_id : ""}${download ? "&download=1" : ""}`;
 }
 function attachPickers(prefix) {
   return `${PHONE ? `<label class="btn small filepick" title="Use the camera">📷 Take a photo<input type="file" id="${prefix}_cam" accept="image/*" capture="environment" hidden></label>` : ""}
@@ -2764,26 +2818,36 @@ async function attachDialog(target, done) {
 }
 
 // ---------- Files: every receipt and paper, searchable ----------
-const filesState = { q: "", account: "", from: "", to: "", sort: "date", dir: -1 };
+const filesState = { q: "", account: "", from: "", to: "", sort: "date", dir: -1, env: "" };
 async function renderFiles() {
   const st = filesState;
   const qs = new URLSearchParams();
-  if (st.q) qs.set("q", st.q); if (st.account) qs.set("account", st.account);
+  // Which environment's files: this one (the usual), another of yours, or all of them together.
+  const envs = (S.me && S.me.envs) || [];
+  const pick = st.env === "all" ? envs.map(e => e.id) : [st.env ? +st.env : S.env];
+  const one = pick.length === 1;
+  if (st.q) qs.set("q", st.q); if (st.account && one) qs.set("account", st.account);
   if (st.from) qs.set("from", st.from); if (st.to) qs.set("to", st.to);
-  const r = await GET("/api/attachments?" + qs.toString());
+  const parts = await Promise.all(pick.map(e => api("GET", "/api/attachments?" + qs.toString(), undefined, { env_id: e })
+    .then(x => ({ e, x })).catch(() => ({ e, x: { files: [], accounts: [] } }))));
+  const nameOf = e => (envs.find(x => x.id === e) || {}).name || "";
+  const r = { files: parts.flatMap(({ e, x }) => x.files.map(f => Object.assign(f, { env_id: e, env_name: nameOf(e) }))),
+    accounts: one ? parts[0].x.accounts : [] };
   const key = { date: a => a.date || "", account: a => (a.account_name || "").toLowerCase(), name: a => (a.note || a.name).toLowerCase(),
     amount: a => a.amount == null ? -Infinity : Math.abs(a.amount) }[st.sort];
   const rows = r.files.slice().sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : b.id - a.id) * st.dir);
   const mayChange = canEdit();
+  const here = f => f.env_id === S.env;   // (notes change in the environment you're in)
   const y = new Date().getFullYear();
   const periods = [["", "", "Any time"], [`${y}-01-01`, `${y}-12-31`, "This year"], [`${y - 1}-01-01`, `${y - 1}-12-31`, "Last year"],
     [isoDaysAgo(30), "", "Last 30 days"], [isoDaysAgo(90), "", "Last 90 days"]];
   const th = (k, l, cls) => `<th class="${cls || ""} sortable" data-sort="${k}" title="Sort">${l}${st.sort === k ? (st.dir < 0 ? " ▾" : " ▴") : ""}</th>`;
   view().innerHTML = `<div class="pagehead"><h1>Files</h1></div>
-    <p class="small muted" style="margin-top:-6px">Every receipt and paper kept in ${esc(envName())}: with entries, and with accounts (choose <b>Papers</b> on an account's page).</p>
+    <p class="small muted" style="margin-top:-6px">Every receipt and paper kept in ${st.env === "all" ? esc(tr("all your environments")) : esc(nameOf(pick[0]))}: with entries, and with accounts (choose <b>Papers</b> on an account's page).</p>
     <div class="toolbar files-filter">
       <input id="f_q" type="search" placeholder="Search notes, keywords, payees, file names…" value="${esc(st.q)}" style="min-width:260px">
-      <select id="f_acct"><option value="">All accounts</option>${r.accounts.map(a => `<option value="${a.id}" ${String(a.id) === String(st.account) ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select>
+      ${envs.length > 1 ? `<select id="f_env" aria-label="Environment"><option value="">${esc(envName())} (here)</option>${envs.filter(e => e.id !== S.env).map(e => `<option value="${e.id}" ${String(e.id) === st.env ? "selected" : ""} translate="no">${esc(e.name)}</option>`).join("")}<option value="all" ${st.env === "all" ? "selected" : ""}>All my environments</option></select>` : ""}
+      <select id="f_acct" ${one ? "" : "hidden"}><option value="">All accounts</option>${r.accounts.map(a => `<option value="${a.id}" ${String(a.id) === String(st.account) ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select>
       <select id="f_period" aria-label="Time period">${periods.map(([f, t, l]) => `<option data-f="${f}" data-t="${t}" ${f === st.from && t === st.to ? "selected" : ""}>${l}</option>`).join("")}
         ${periods.some(([f, t]) => f === st.from && t === st.to) ? "" : `<option selected>Between these dates</option>`}</select>
       <label class="small">From <input type="date" id="f_from" value="${esc(st.from)}"></label>
@@ -2796,11 +2860,11 @@ async function renderFiles() {
         <td class="files-thumb">${attThumb(a)}</td>
         <td class="small" style="white-space:nowrap">${esc(niceDate(a.date))}</td>
         <td><div class="small att-name" title="${esc(a.name)}">${esc(a.name)}</div>
-          ${mayChange ? `<input class="att-note" data-attnote="${a.id}" value="${esc(a.note || "")}" maxlength="500" placeholder="Add a note or keywords" aria-label="Note for ${esc(a.name)}">` : `<div class="small">${esc(a.note || "")}</div>`}</td>
-        <td class="small"><a href="#/accounts/${a.account_id}">${esc(a.account_name)}</a></td>
+          ${mayChange && here(a) ? `<input class="att-note" data-attnote="${a.id}" value="${esc(a.note || "")}" maxlength="500" placeholder="Add a note or keywords" aria-label="Note for ${esc(a.name)}">` : `<div class="small">${esc(a.note || "")}</div>`}</td>
+        <td class="small"><a href="#/accounts/${a.account_id}"${here(a) ? "" : ` data-goenv="${a.env_id}" data-goacct="${a.account_id}"`}>${esc(a.account_name)}</a>${st.env === "all" || !here(a) ? `<div class="muted" translate="no">${esc(a.env_name)}</div>` : ""}</td>
         <td class="small">${a.transaction_id ? `${esc(a.payee || "")}${a.category_name ? `<div class="muted">${esc(a.category_name)}</div>` : ""}` : `<span class="muted">Kept with the account</span>`}</td>
         <td class="num small">${a.amount == null ? "" : fmt(a.amount, true)}</td>
-        <td class="small" style="white-space:nowrap"><a href="${attachUrl(a.id)}" target="_blank" rel="noopener">Open</a> · <a href="${attachUrl(a.id, true)}">Download</a></td>
+        <td class="small" style="white-space:nowrap"><a href="${attachUrl(a.id, false, here(a) ? null : a.env_id)}" target="_blank" rel="noopener">Open</a> · <a href="${attachUrl(a.id, true, here(a) ? null : a.env_id)}">Download</a></td>
       </tr>`).join("")}
     </table>${rows.length ? "" : `<div class="empty">${st.q || st.account || st.from || st.to ? "Nothing matches." : "No files yet. Attach a receipt to an entry (Receipts), or keep papers with an account (Papers)."}</div>`}</div>
     <p class="small muted">${rows.length} file${rows.length === 1 ? "" : "s"}${rows.length >= 500 ? " (the newest 500: narrow the search to see others)" : ""}. Each word you type must appear in the note, the file name, the entry or the account.</p>`;
@@ -2808,12 +2872,16 @@ async function renderFiles() {
   let t = null;
   q("#f_q").oninput = e => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value.trim(); again().then(() => { const i = q("#f_q"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }); }, 350); };
   q("#f_acct").onchange = e => { st.account = e.target.value; again(); };
+  if (q("#f_env")) q("#f_env").onchange = e => { st.env = e.target.value; st.account = ""; again(); };
   q("#f_period").onchange = e => { const o = e.target.selectedOptions[0]; if (o.dataset.f === undefined) return; st.from = o.dataset.f; st.to = o.dataset.t; again(); };
   q("#f_from").onchange = e => { st.from = e.target.value; again(); };
   q("#f_to").onchange = e => { st.to = e.target.value; again(); };
   if (q("#f_clear")) q("#f_clear").onclick = e => { e.preventDefault(); Object.assign(st, { q: "", account: "", from: "", to: "" }); again(); };
   qa("[data-sort]").forEach(h => h.onclick = () => { if (st.sort === h.dataset.sort) st.dir = -st.dir; else { st.sort = h.dataset.sort; st.dir = h.dataset.sort === "date" || h.dataset.sort === "amount" ? -1 : 1; } again(); });
-  wireAttEdits(view(), r.files);
+  wireAttEdits(view(), r.files.filter(here));
+  qa("[data-goenv]", view()).forEach(a => a.onclick = async e => {   // (an account in another environment: open it there)
+    e.preventDefault(); await goEnv(+a.dataset.goenv); location.hash = "#/accounts/" + a.dataset.goacct; render();
+  });
 }
 function isoDaysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
 function envName() { return ((S.me && S.me.envs || []).find(e => e.id === S.env) || {}).name || "this environment"; }
@@ -2828,7 +2896,7 @@ function paystubEntryView(acc, g, openStub, back, close) {
   el.classList.add("viewing");
   el.innerHTML = `<div class="kind"><span class="small muted" style="align-self:center">Viewing a paycheck with its paystub</span></div>
     <div class="row"><div><label>Date</label><input type="date" value="${esc(top.date)}" disabled></div>
-      <div><label>From (payer)</label><input value="${esc(top.payee)}" disabled></div>
+      <div style="grid-column:span 2"><label>From (payer)</label><input value="${esc(top.payee)}" disabled></div>
       <div><label>Gross pay</label><input class="num" value="${dollars(gross)}" disabled></div>
       <div><label>Take-home pay</label><input class="num" value="${dollars(net)}" disabled></div></div>
     <div class="entry-actions"><button class="primary" id="e_openstub">Paystub</button>
@@ -2836,6 +2904,28 @@ function paystubEntryView(acc, g, openStub, back, close) {
       <button id="e_hist" title="Who entered and changed it, and when">History</button><button id="e_new">Close</button></div>`;
   q("#e_openstub", el).onclick = openStub;
   // (the paycheck's files are kept with its first line)
+  q("#e_att", el).onclick = () => attachDialog({ tx: g.find(t => t.attachments) || top }, back);
+  q("#e_hist", el).onclick = () => entryHistoryDialog("transaction", top.id, back);
+  q("#e_new", el).onclick = close;
+  el.scrollIntoView({ block: "nearest" });
+}
+
+// A split payment picked in the register: in the entry line, viewing, like any entry.
+function splitEntryView(acc, g, openIt, back, close) {
+  const el = q("#entry"); if (!el) { openIt(); return; }
+  const top = g[0], total = g.reduce((s, t) => s + t.amount, 0);
+  const files = g.reduce((s, t) => s + (t.attachments || 0), 0);
+  const label = p => p.memo.split(" · ")[0] || p.category_label || "Part";
+  el.classList.add("viewing");
+  el.innerHTML = `<div class="kind"><span class="small muted" style="align-self:center">Viewing a split payment</span></div>
+    <div class="row"><div><label>Date</label><input type="date" value="${esc(top.date)}" disabled></div>
+      <div style="grid-column:span 2"><label>${total > 0 ? "From (payer)" : "Pay to"}</label><input value="${esc(top.payee)}" disabled></div>
+      <div style="grid-column:span 2"><label>Parts</label><input value="${esc(g.slice().reverse().map(p => `${label(p)} ${fmt(Math.abs(p.amount), true, p)}`).join(" · "))}" disabled></div>
+      <div><label>Amount</label><input class="num" value="${dollars(Math.abs(total))}" disabled></div></div>
+    <div class="entry-actions"><button class="primary" id="e_opensplit" title="Its parts and its date">Open payment</button>
+      <button id="e_att" title="Photos of the receipt, PDFs">${CLIP_ICON} Receipts${files ? ` (${files})` : ""}</button>
+      <button id="e_hist" title="Who entered and changed it, and when">History</button><button id="e_new">Close</button></div>`;
+  q("#e_opensplit", el).onclick = openIt;
   q("#e_att", el).onclick = () => attachDialog({ tx: g.find(t => t.attachments) || top }, back);
   q("#e_hist", el).onclick = () => entryHistoryDialog("transaction", top.id, back);
   q("#e_new", el).onclick = close;
@@ -3349,8 +3439,14 @@ const KIND_LOOK = {
   out: { cls: "out", sym: "−", tip: "Money going out" },
   move: { cls: "move", sym: "⇄", tip: "Moving money between your accounts" },
 };
-function kindOf(b) { return b.kind === "deposit" ? "in" : (b.kind === "transfer" ? "move" : "out"); }
+// A payment into a card is a transfer and a bill at once: both tags, the bill's color.
+const isCardPay = b => !!(b && (b.to_card || b.card_account_id || b.x_card));
+function kindOf(b) { return b.kind === "deposit" ? "in" : (b.kind === "transfer" && !isCardPay(b) ? "move" : "out"); }
 function kindPill(b, labelOverride) {
+  if (!labelOverride && isCardPay(b) && b.kind === "transfer") {
+    const o = KIND_LOOK.out, m = KIND_LOOK.move;
+    return `<span class="pill ${o.cls}" title="${o.tip}"><span class="ksym" aria-hidden="true">${o.sym}</span> ${esc(tr("bill"))}</span> <span class="pill ${m.cls}" title="${m.tip}"><span class="ksym" aria-hidden="true">${m.sym}</span> ${esc(tr("transfer"))}</span>`;
+  }
   const label = labelOverride || (b.kind === "loan" ? "loan payment" : b.kind);
   const k = KIND_LOOK[kindOf(b)];
   return `<span class="pill ${k.cls}" title="${k.tip}"><span class="ksym" aria-hidden="true">${k.sym}</span> ${esc(label)}</span>`;
@@ -3555,7 +3651,7 @@ async function billSkip(u) {
 // a card's or a loan's); money coming in or moving between accounts links to the account's site.
 function billLink(u) {
   const web = s => /^https?:\/\//i.test(s || "");
-  const out = u.kind === "bill" || u.kind === "loan" || u.card_account_id || u.x_card;
+  const out = u.kind === "bill" || u.kind === "loan" || isCardPay(u);
   if (out && web(u.pay_url)) return `<a class="btn small" href="${esc(u.pay_url)}" target="_blank" rel="noopener noreferrer">Pay this bill ↗</a> `;
   if (!out && web(u.account_url)) return `<a class="btn small" href="${esc(u.account_url)}" target="_blank" rel="noopener noreferrer">View account ↗</a> `;
   return "";
@@ -3758,11 +3854,12 @@ function shiftBudgetMonth(n) {
 // Payments already recorded with next month's date (entered early, or dated wrong):
 // they count in their own month, so say where they went.
 function aheadNote(b) {
+  // Scheduled payments entered early count in their own month: one quiet line, details folded.
   const a = b.entered_ahead || [];
   if (!a.length) return "";
-  return `<div class="notice" style="margin:0 0 14px"><b>Already recorded for a later month.</b> These count in the month of their date, not in ${esc(monthName(b.month))}:
-    <ul style="margin:6px 0 6px 18px;padding:0">${a.map(r => `<li>${esc(r.payee)} · <b>${niceDate(r.date)}</b> · ${fmt(r.amount, true)}${r.account_name ? ` · ${esc(r.account_name)}` : ""}${r.shared ? "" : ` · <a href="#/accounts/${r.account_id}">open register</a>`}</li>`).join("")}</ul>
-    <span class="small">If one was really paid this month, open it in the register and change its date (for a loan payment, click it and use "Save date").</span></div>`;
+  return `<details class="small aheadnote" style="margin:0 0 12px"><summary class="muted">${a.length === 1 ? "1 payment entered early counts in a later month" : a.length + " payments entered early count in a later month"}</summary>
+    <ul style="margin:6px 0 4px 18px;padding:0">${a.map(r => `<li>${esc(r.payee)} · <b>${niceDate(r.date)}</b> · ${fmt(r.amount, true)}${r.account_name ? ` · ${esc(r.account_name)}` : ""}${r.shared ? "" : ` · <a href="#/accounts/${r.account_id}">open register</a>`}</li>`).join("")}</ul>
+    <span class="muted">If one was really paid this month, change its date in the register.</span></details>`;
 }
 // Cards whose purchases are entered: this month's charges are pending, paid later
 // through the card payment (which is what "Going out" counts).
@@ -4412,9 +4509,16 @@ async function notifyCard() {
   const admin = n.is_admin_setup;
   const shared = !admin && n.shared_email_available;
   const useShared = shared && n.email.use_shared;
+  // Pushover shared by an administrator: one Pushover account with every family phone on it
+  // as a device; everyone else only picks their device (a list from Pushover itself).
+  const pShared = !admin && n.shared_pushover_available;
+  const usePShared = pShared && n.pushover.use_shared;
+  const device = `<div class="wide"><label>${usePShared ? "Your device" : "Device <span class=\"muted\">(optional)</span>"}</label>
+      <div style="display:flex;gap:6px"><span id="poDeviceBox" style="flex:1"><input name="pushover.device" value="${v(n.pushover, "device")}" placeholder="${usePShared ? "your phone's name in Pushover" : "every device"}"></span>
+      <button type="button" class="small" id="poFind" ${usePShared ? "data-auto=\"1\"" : ""} title="Ask Pushover for the device names">Find devices</button></div></div>`;
   return `<div class="card" id="notifyCard" data-guard="#saveNotify"><h2>Notifications${admin ? ' <span class="pill">administrators</span>' : ""}</h2>
     <p class="small muted" style="margin-top:0">Once a day MoneyThistle sends you a short summary, but only when there's something to say. ${admin
-      ? "This setup is the administrators' and covers every environment; everyone else sets up their own here, for the environments they're in."
+      ? "This setup is the administrators' and covers the environments an administrator is in; everyone else sets up their own here, for the environments they're in (someone's own environment stays theirs)."
       : "It covers the environments you're in. Use your own services and credentials; they're kept for you alone."}</p>
     <div class="form">
       <div><label>Send at (hour, 0-23)</label><input name="hour" class="num" value="${n.hour}"></div>
@@ -4437,9 +4541,12 @@ async function notifyCard() {
         <div><label>From</label><input name="email.from" value="${v(n.email, "from")}" placeholder="moneythistle@example.com"></div>
         <div class="wide"><label>Send to</label><input name="email.to" value="${v(n.email, "to")}" placeholder="you@example.com"></div></div>
       ${admin ? `<label class="check" style="margin-top:6px"><input type="checkbox" name="share_email" ${n.share_email ? "checked" : ""}> Share this email server with everyone: they only enter their own address (your password stays hidden)</label>` : ""}</div>`}
-    ${head("pushover", "Pushover", "pushover.net: create an application for its token")}
-      <div class="form">${secret("pushover", "app_token", "Application token")}${secret("pushover", "user_key", "Your user key")}
-        <div><label>Device <span class="muted">(optional)</span></label><input name="pushover.device" value="${v(n.pushover, "device")}"></div></div></div>
+    ${head("pushover", "Pushover", usePShared ? "through the Pushover an administrator shared" : "pushover.net: create an application for its token")}
+      ${pShared ? `<div style="margin:4px 0 6px"><label class="check"><input type="radio" name="pushover.use_shared" value="1" ${usePShared ? "checked" : ""}> Use the Pushover an administrator shared: just choose your device</label>
+        <label class="check"><input type="radio" name="pushover.use_shared" value="" ${usePShared ? "" : "checked"}> Use my own Pushover</label></div>` : ""}
+      ${usePShared ? `<div class="form">${device}</div></div>` : `<div class="form">${secret("pushover", "app_token", "Application token")}${secret("pushover", "user_key", "Your user key")}
+        ${device}</div>
+      ${admin ? `<label class="check" style="margin-top:6px"><input type="checkbox" name="share_pushover" ${n.share_pushover ? "checked" : ""}> Share this Pushover with everyone: add each person's phone as a device on your Pushover account; they only choose theirs (your token and key stay hidden)</label>` : ""}</div>`}
     ${head("ntfy", "ntfy", "ntfy.sh or your own server; pick a hard-to-guess topic")}
       <div class="form"><div><label>Server</label><input name="ntfy.server" value="${v(n.ntfy, "server")}"></div>
         <div><label>Topic</label><input name="ntfy.topic" value="${v(n.ntfy, "topic")}"></div>
@@ -4464,7 +4571,7 @@ function notifyForm() {
 }
 document.addEventListener("change", async e => {
   // Shared email server or my own: save the choice and show its fields.
-  if (!e.target || e.target.name !== "email.use_shared") return;
+  if (!e.target || (e.target.name !== "email.use_shared" && e.target.name !== "pushover.use_shared")) return;
   try { await api("PUT", "/api/notify", notifyForm()); renderSettings(); } catch (err) { toast(err.message, true); }
 });
 document.addEventListener("click", async e => {
@@ -4475,12 +4582,21 @@ document.addEventListener("click", async e => {
     else if (t.id === "previewNotify") {
       const r = await GET("/api/notify/preview");
       const pre = q("#notifyPreview"); pre.style.display = ""; pre.textContent = r.text || "Nothing to report today: no summary would be sent.";
+    } else if (t.id === "poFind") {
+      // Pushover's own list of devices on the account, to pick from (no typing mistakes).
+      const f = notifyForm().pushover || {};
+      const r = await api("POST", "/api/notify/pushover-devices", { use_shared: !!f.use_shared, app_token: f.app_token || "", user_key: f.user_key || "" });
+      const cur = (q("#poDeviceBox [name='pushover.device']") || {}).value || "";
+      const shared = !!f.use_shared;
+      q("#poDeviceBox").innerHTML = `<select name="pushover.device" style="width:100%">${shared ? `<option value="">(choose your device)</option>` : `<option value="">Every device</option>`}${
+        [...new Set([...r.devices, ...(cur && !r.devices.includes(cur) ? [cur] : [])])].map(d => `<option ${d === cur ? "selected" : ""} translate="no">${esc(d)}</option>`).join("")}</select>`;
+      if (!r.devices.length) toast("Pushover lists no devices on that account yet", true);
     } else if (t.dataset && t.dataset.ntest) {
       await api("PUT", "/api/notify", notifyForm());   // test what's on screen
       const r = await api("POST", "/api/notify/test", { channel: t.dataset.ntest });
       toast(r.result === "ok" ? "Test sent: check " + t.dataset.ntest : "Couldn't send: " + r.result, r.result !== "ok");
     }
-  } catch (err) { toast(err.message, true); }
+  } catch (err) { if (e.isTrusted) toast(err.message, true); }   // (the device list asked for by itself fails quietly)
 });
 
 // ---------- SETTINGS ----------
@@ -4514,6 +4630,8 @@ async function renderSettings(sub) {
   else if (sub === "backups") await renderBackup();
   else if (sub === "notifications") {
     view().innerHTML = (await notifyCard()) || '<div class="card"><div class="empty">Notifications couldn\'t be loaded.</div></div>';
+    // Using a shared Pushover: its device list comes up by itself.
+    const pf = q("#poFind[data-auto]"); if (pf) pf.click();
   } else if (sub === "data") renderDataTab();
   else if (sub === "computer") await renderComputerTab();
   else renderLookTab();
@@ -4615,7 +4733,9 @@ function renderLookTab() {
       ${S.me.user.is_admin ? `<label class="check" style="margin-top:6px"><input type="checkbox" id="coffeeAll" ${S.me.coffee_off ? "checked" : ""}> Hide them for everyone on this MoneyThistle</label>` : ""}
       <p class="small muted" style="margin-bottom:0">MoneyThistle is free. The cup links to the maker's Buy Me a Coffee page, for anyone who'd like to chip in;
       nothing is ever expected, and nothing is sent there unless you click. <span>${S.me.coffee_off ? "An administrator has hidden them for everyone." : "Just for you."}</span></p>
-    </div></div>
+    </div>
+    <div class="toolbar" style="margin:0"><button class="primary" id="saveUi">Save settings</button><button id="resetUi">Back to defaults</button><span class="small muted">for Appearance and Language, money and dates</span></div>
+    </div>
     <div class="grid" style="align-content:start">
     <div class="card" data-guard="#saveUi"><h2>Language, money and dates</h2>
       <div class="setrow"><label for="lang">Language</label><div><select id="lang" translate="no">
@@ -4630,7 +4750,6 @@ function renderLookTab() {
       <div class="setrow"><label for="due_days">"Due soon" on Home</label><div><input id="due_days" class="num" style="width:70px" value="${ui.due_days}"> <span class="small muted">days ahead</span></div></div>
       <div class="setrow"><label>Home page cards</label><div><a class="btn small" href="#/" id="goCustom">Customize Home…</a> <span class="small muted">show, hide and arrange</span></div></div>
     </div>
-    <div class="toolbar" style="margin:0"><button class="primary" id="saveUi">Save settings</button><button id="resetUi">Back to defaults</button><span class="small muted">for Appearance and Language, money and dates</span></div>
     ${S.env ? currencyCard() : ""}
     </div>
   </div>`;

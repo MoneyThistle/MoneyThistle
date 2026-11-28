@@ -17,6 +17,7 @@ import smtplib
 import ssl
 import threading
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import html as _html
@@ -105,7 +106,7 @@ DEFAULTS = {
     "auto_due": False,          # also remind of automatic items (autopay, direct deposit) coming due
     "email": {"enabled": False, "use_shared": False, "host": "", "port": 587, "security": "starttls",
               "username": "", "password": "", "from": "", "to": ""},
-    "pushover": {"enabled": False, "app_token": "", "user_key": "", "device": ""},
+    "pushover": {"enabled": False, "use_shared": False, "app_token": "", "user_key": "", "device": ""},
     "ntfy": {"enabled": False, "server": "https://ntfy.sh", "topic": "", "token": ""},
     "gotify": {"enabled": False, "server": "", "token": ""},
 }
@@ -174,6 +175,44 @@ class Notifier:
         e = self._merged(raw["admin"])["email"]
         return {k: e[k] for k in SERVER_KEYS} if e.get("host") else None
 
+    def shared_pushover(self):
+        """The administrators' Pushover application and user key when they share it (else
+        None): each person's phone is a device on that one Pushover account, so the others
+        only choose their own device."""
+        raw = self._raw()
+        if not raw.get("share_pushover"):
+            return None
+        p = self._merged(raw["admin"])["pushover"]
+        return {"app_token": p["app_token"], "user_key": p["user_key"]} if p.get("app_token") and p.get("user_key") else None
+
+    def pushover_devices(self, who, b):
+        """The device names on a Pushover account (Pushover's own check), to pick from: the
+        shared one, or the token and key typed (or saved) in this setup. Secrets stay here."""
+        if b.get("use_shared") and who != ADMIN:
+            c = self.shared_pushover()
+            if not c:
+                raise ApiError("No shared Pushover: an administrator has to share theirs first")
+        else:
+            saved = self.settings(who)["pushover"]
+            c = {"app_token": str(b.get("app_token") or "").strip() or saved.get("app_token"),
+                 "user_key": str(b.get("user_key") or "").strip() or saved.get("user_key")}
+            if not c["app_token"] or not c["user_key"]:
+                raise ApiError("Pushover needs the application token and your user key")
+        form = urllib.parse.urlencode({"token": c["app_token"], "user": c["user_key"]}).encode()
+        req = urllib.request.Request("https://api.pushover.net/1/users/validate.json", data=form, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=20, context=ssl.create_default_context()) as r:
+                data = json.loads(r.read().decode("utf-8") or "{}")
+        except urllib.error.HTTPError as e:
+            try:
+                data = json.loads(e.read().decode("utf-8") or "{}")
+            except ValueError:
+                data = {}
+            raise ApiError("Pushover didn't accept them: " + "; ".join(data.get("errors") or [f"answer {e.code}"]))
+        except OSError as e:
+            raise ApiError(f"Pushover couldn't be reached ({type(e).__name__})")
+        return {"devices": [str(d) for d in (data.get("devices") or [])][:50]}
+
     def public(self, who=ADMIN):
         """A setup for the page: secrets replaced by whether they're set."""
         s = self.settings(who)
@@ -184,6 +223,8 @@ class Notifier:
         s["is_admin_setup"] = who == ADMIN
         s["share_email"] = bool(self._raw().get("share_email")) if who == ADMIN else None
         s["shared_email_available"] = who != ADMIN and self.shared_email() is not None
+        s["share_pushover"] = bool(self._raw().get("share_pushover")) if who == ADMIN else None
+        s["shared_pushover_available"] = who != ADMIN and self.shared_pushover() is not None
         s.pop("last_sent_at", None)
         return s
 
@@ -214,11 +255,13 @@ class Notifier:
                     continue   # left empty: keep what's saved
                 cur[k] = bool(v) if k in ("enabled", "use_shared") else (int(v) if k == "port" else str(v).strip())
             if who == ADMIN:
-                cur.pop("use_shared", None) if ch == "email" else None
+                cur.pop("use_shared", None) if ch in ("email", "pushover") else None
             self._check(ch, cur, who)
         if who == ADMIN:
             if "share_email" in b:
                 raw["share_email"] = bool(b["share_email"])
+            if "share_pushover" in b:
+                raw["share_pushover"] = bool(b["share_pushover"])
             raw["admin"] = s
         else:
             raw["users"][str(who)] = s
@@ -242,6 +285,12 @@ class Notifier:
             if not 1 <= int(c["port"]) <= 65535:
                 raise ApiError("Email port must be 1-65535")
         elif ch == "pushover":
+            if c.get("use_shared") and who != ADMIN:
+                if self.shared_pushover() is None:
+                    raise ApiError("No shared Pushover: an administrator has to share theirs first")
+                if not (c.get("device") or "").strip():
+                    raise ApiError("Choose your device (your phone's name in the shared Pushover account)")
+                return
             if not c["app_token"] or not c["user_key"]:
                 raise ApiError("Pushover needs the application token and your user key")
         elif ch == "ntfy":
@@ -269,6 +318,11 @@ class Notifier:
                     if not server:
                         raise ApiError("The shared email server isn't shared any more")
                     c.update(server)
+                if ch == "pushover" and c.get("use_shared"):
+                    shared = self.shared_pushover()
+                    if not shared:
+                        raise ApiError("The shared Pushover isn't shared any more")
+                    c.update(shared)
                 getattr(self, "_send_" + ch)(c, title, body)
                 out[ch] = "ok"
             except ApiError as e:
@@ -359,7 +413,12 @@ class Notifier:
 
     def _env_ids(self, who):
         if who == ADMIN:
-            return [e["id"] for e in self.system.q("SELECT id FROM environments ORDER BY id")]
+            # (environments an administrator belongs to: someone else's own environment
+            # stays theirs, its news goes to its own members)
+            if not self.system.q1("SELECT 1 FROM users WHERE is_admin=1"):   # (no sign-ins yet: everything)
+                return [e["id"] for e in self.system.q("SELECT id FROM environments ORDER BY id")]
+            return [r["env_id"] for r in self.system.q(
+                "SELECT DISTINCT m.env_id FROM members m JOIN users u ON u.id=m.user_id WHERE u.is_admin=1 ORDER BY m.env_id")]
         return [r["env_id"] for r in self.system.q("SELECT env_id FROM members WHERE user_id=? ORDER BY env_id", (int(who),))]
 
     def summary(self, s=None, who=ADMIN):

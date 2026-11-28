@@ -906,6 +906,41 @@ class System:
             st.db.commit()
             st.changed()
 
+    def mark_card_payments(self, env_id, rows):
+        """Scheduled transfers out to another environment's account: when that account is a
+        card, it's a card payment (however it was scheduled, through the card's details or as a
+        plain transfer) and links to the card's own website."""
+        from .store import Store
+        links, cards = {}, {}
+        for r in rows:
+            lid = r.get("x_link_id")
+            if not lid or (r.get("x_dir") or "out") != "out":
+                continue
+            if lid not in links:
+                l = self.q1("SELECT * FROM links WHERE id=?", (lid,))
+                links[lid] = None
+                if l:
+                    end = (l["env_b"], l["account_b"]) if l["env_a"] == env_id else (l["env_a"], l["account_a"])
+                    if end not in cards:
+                        try:
+                            a = self.store(end[0]).q1("SELECT type, details FROM accounts WHERE id=?", (end[1],))
+                        except ApiError:
+                            a = None
+                        site = ""
+                        if a and a["type"] in Store.CARD_TYPES:
+                            try:
+                                site = (json.loads(a["details"] or "{}") or {}).get("website") or ""
+                            except ValueError:
+                                site = ""
+                            cards[end] = site if re.match(r"(?i)^https?://", site) else ""
+                        else:
+                            cards[end] = None
+                    links[lid] = cards[end]
+            if links[lid] is not None:
+                r["to_card"] = True
+                r["pay_url"] = r.get("pay_url") or links[lid]
+        return rows
+
     def related_bills(self, uid, env_id, days=31):
         """Scheduled items kept in another environment this person belongs to that move money
         to or from an account here through a connection (a card here paid from Household's
@@ -917,8 +952,8 @@ class System:
                 continue
             st = self.store(other)
             tag = {"id": other, "name": self.env_name(other)}
-            bills += [dict(b, from_env=tag) for b in st.bills() if b.get("x_link_id") == l["id"]]
-            upcoming += [dict(u, from_env=tag) for u in st.upcoming(days) if u.get("x_link_id") == l["id"]]
+            bills += self.mark_card_payments(other, [dict(b, from_env=tag) for b in st.bills() if b.get("x_link_id") == l["id"]])
+            upcoming += self.mark_card_payments(other, [dict(u, from_env=tag) for u in st.upcoming(days) if u.get("x_link_id") == l["id"]])
         return bills, upcoming
 
     def clear_ended(self, uid):

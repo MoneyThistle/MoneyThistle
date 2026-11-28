@@ -478,3 +478,37 @@
 @Drag to move this line|Faites glisser pour déplacer cette ligne|Arrastra para mover esta línea|Arraste para mover esta linha
 @Ended connections cleared|Connexions terminées effacées|Conexiones terminadas borradas|Conexões encerradas apagadas
 @Your checking, savings, cards, loans and investments, each with its register. New entries are typed in the bar at the bottom of a register; you can also import a bank file or record a whole paystub.|Vos comptes chèques, épargne, cartes, prêts et placements, chacun avec son registre. Les nouvelles opérations se tapent dans la barre au bas d'un registre; vous pouvez aussi importer un fichier bancaire ou inscrire un talon de paie complet.|Tus cuentas de cheques, ahorros, tarjetas, préstamos e inversiones, cada una con su registro. Los movimientos nuevos se escriben en la barra al pie de un registro; también puedes importar un archivo del banco o anotar un recibo de nómina completo.|Sua conta corrente, poupança, cartões, empréstimos e investimentos, cada um com seu extrato. Lançamentos novos são digitados na barra no pé do extrato; você também pode importar um arquivo do banco ou lançar um holerite completo.
+@New ▾|Nouveau ▾|Nuevo ▾|Novo ▾
+@New banking account|Nouveau compte bancaire|Nueva cuenta bancaria|Nova conta bancária
+@New credit card|Nouvelle carte de crédit|Nueva tarjeta de crédito|Novo cartão de crédito
+@New investment or retirement account|Nouveau compte de placement ou de retraite|Nueva cuenta de inversión o jubilación|Nova conta de investimento ou aposentadoria
+@New property or other asset|Nouveau bien ou autre actif|Nueva propiedad u otro activo|Novo imóvel ou outro bem
+@Viewing a split payment|Vous voyez un paiement réparti|Viendo un pago dividido|Vendo um pagamento dividido
+@Parts|Parties|Partes|Partes
+@Open payment|Ouvrir le paiement|Abrir el pago|Abrir o pagamento
+@Its parts and its date|Ses parties et sa date|Sus partes y su fecha|Suas partes e sua data
+@1 payment entered early counts in a later month|1 paiement inscrit d'avance compte dans un mois suivant|1 pago anotado por adelantado cuenta en un mes posterior|1 pagamento lançado antes conta num mês seguinte
+@{} payments entered early count in a later month|{} paiements inscrits d'avance comptent dans un mois suivant|{} pagos anotados por adelantado cuentan en un mes posterior|{} pagamentos lançados antes contam num mês seguinte
+@If one was really paid this month, change its date in the register.|S'il a vraiment été payé ce mois-ci, changez sa date dans le registre.|Si de verdad se pagó este mes, cambia su fecha en el registro.|Se foi pago de fato neste mês, mude a data no extrato.
+@all your environments|tous vos environnements|todos tus entornos|todos os seus ambientes
+@{} (here)|{} (ici)|{} (aquí)|{} (aqui)
+@All my environments|Tous mes environnements|Todos mis entornos|Todos os meus ambientes
+@Environment|Environnement|Entorno|Ambiente
+@Your device|Votre appareil|Tu dispositivo|Seu aparelho
+@your phone's name in Pushover|le nom de votre téléphone dans Pushover|el nombre de tu teléfono en Pushover|o nome do seu celular no Pushover
+@every device|tous les appareils|todos los dispositivos|todos os aparelhos
+@Every device|Tous les appareils|Todos los dispositivos|Todos os aparelhos
+@Find devices|Trouver les appareils|Buscar dispositivos|Buscar aparelhos
+@Ask Pushover for the device names|Demander à Pushover le nom des appareils|Pedir a Pushover los nombres de los dispositivos|Pedir ao Pushover os nomes dos aparelhos
+@(choose your device)|(choisissez votre appareil)|(elige tu dispositivo)|(escolha seu aparelho)
+@through the Pushover an administrator shared|par le Pushover partagé par un administrateur|a través del Pushover que compartió un administrador|pelo Pushover que um administrador compartilhou
+@Use the Pushover an administrator shared: just choose your device|Utiliser le Pushover partagé par un administrateur : choisissez seulement votre appareil|Usar el Pushover que compartió un administrador: solo elige tu dispositivo|Usar o Pushover que um administrador compartilhou: só escolha seu aparelho
+@Use my own Pushover|Utiliser mon propre Pushover|Usar mi propio Pushover|Usar meu próprio Pushover
+@Share this Pushover with everyone: add each person's phone as a device on your Pushover account; they only choose theirs (your token and key stay hidden)|Partager ce Pushover avec tout le monde : ajoutez le téléphone de chaque personne comme appareil de votre compte Pushover; chacun choisit seulement le sien (votre jeton et votre clé restent cachés)|Compartir este Pushover con todos: agrega el teléfono de cada persona como dispositivo de tu cuenta Pushover; cada quien solo elige el suyo (tu token y tu clave quedan ocultos)|Compartilhar este Pushover com todos: adicione o celular de cada pessoa como aparelho da sua conta Pushover; cada um só escolhe o seu (seu token e sua chave ficam ocultos)
+@Pushover lists no devices on that account yet|Pushover n'indique encore aucun appareil sur ce compte|Pushover aún no muestra dispositivos en esa cuenta|O Pushover ainda não mostra aparelhos nessa conta
+@No shared Pushover: an administrator has to share theirs first|Aucun Pushover partagé : un administrateur doit d'abord partager le sien|No hay Pushover compartido: un administrador debe compartir el suyo primero|Nenhum Pushover compartilhado: um administrador precisa compartilhar o dele primeiro
+@Choose your device (your phone's name in the shared Pushover account)|Choisissez votre appareil (le nom de votre téléphone dans le compte Pushover partagé)|Elige tu dispositivo (el nombre de tu teléfono en la cuenta Pushover compartida)|Escolha seu aparelho (o nome do seu celular na conta Pushover compartilhada)
+@The shared Pushover isn't shared any more|Le Pushover partagé ne l'est plus|El Pushover compartido ya no está compartido|O Pushover compartilhado não está mais compartilhado
+@Pushover didn't accept them: {}|Pushover ne les a pas acceptés : {}|Pushover no los aceptó: {}|O Pushover não os aceitou: {}
+@Pushover couldn't be reached ({})|Impossible de joindre Pushover ({})|No se pudo contactar a Pushover ({})|Não foi possível falar com o Pushover ({})
+@This setup is the administrators' and covers the environments an administrator is in; everyone else sets up their own here, for the environments they're in (someone's own environment stays theirs).|Ce réglage est celui des administrateurs et couvre les environnements dont un administrateur fait partie; chacun fait le sien ici, pour ses environnements (l'environnement personnel de quelqu'un reste le sien).|Esta configuración es la de los administradores y cubre los entornos de los que forma parte un administrador; cada quien hace la suya aquí, para sus entornos (el entorno propio de alguien sigue siendo suyo).|Esta configuração é a dos administradores e cobre os ambientes de que um administrador participa; cada pessoa faz a sua aqui, para os seus ambientes (o ambiente próprio de alguém continua sendo dele).

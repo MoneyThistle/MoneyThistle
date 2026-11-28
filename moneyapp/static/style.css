@@ -158,8 +158,17 @@ h2 { font-size: 15px; margin: 0 0 10px; color: var(--heading); font-weight: 600;
   .unlocked .grip { display: none; }
   .unlocked .mvarrows { display: inline-flex; }
 }
-/* (a register shows its lock only when two entries share a day) */
-body:not(:has(#reg .grip)) #regLock { display: none; }
+/* Reordering is a mode: while unlocked, the items themselves do nothing (no entry opens, the
+   C/R mark and stars are inert); only the handles and arrows move things. Lock, Escape or
+   leaving the page ends it. In a register the handles get a column of their own, at the edge. */
+.register.unlocked td:not(.gripcol), .acctlist.unlocked .acctrow > :not(.grip):not(.mvarrows) { pointer-events: none; }
+.register.unlocked tr.click, .acctlist.unlocked .acctrow { cursor: default; }
+.register.unlocked td.status, .acctlist.unlocked .star { opacity: .5; }
+.register .gripcol { width: 44px; text-align: center; padding: 2px 4px; white-space: nowrap; }
+.register .gripcol .movebtns { margin: 0; }
+.register .gripcol .grip { font-size: 18px; padding: 6px 8px; cursor: grab; }
+.reorder.unlocked .stubline :is(input, select, .pick, [data-delline]), .reorder.unlocked [data-addline] { pointer-events: none; opacity: .55; }
+#regLock[hidden] { display: none; }
 .networth { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 8px; display: flex; justify-content: space-between; font-weight: 600; }
 
 table { width: 100%; border-collapse: collapse; }
@@ -662,5 +671,16 @@ td button, td .btn { white-space: nowrap; }   /* (a cell of buttons stacks them;
 td.num, .pill, button, .btn { overflow-wrap: normal; }
 .pill { white-space: nowrap; }
 .form > * { min-width: 0; }
+/* One "New" button with a short list of kinds of account */
+.newmenu { position: relative; display: inline-block; }
+.newmenu .menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; display: flex; flex-direction: column; min-width: 240px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 4px; }
+.newmenu .menu[hidden] { display: none; }
+.newmenu .menu button { background: none; border: none; text-align: left; padding: 7px 10px; border-radius: 6px; font-size: 13px; color: var(--text); cursor: pointer; }
+.newmenu .menu button:hover, .newmenu .menu button:focus-visible { background: var(--sel); }
+h3.envhead { margin: 12px 0 2px; font-size: 14px; color: var(--heading); border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+h3.envhead:first-of-type { margin-top: 2px; }
+button.pillbtn { border: none; cursor: pointer; font: inherit; font-size: 11px; line-height: inherit; }
+button.pillbtn:hover { text-decoration: underline; }
 .card { max-width: 100%; }
 .card .head { flex-wrap: wrap; gap: 6px 8px; }

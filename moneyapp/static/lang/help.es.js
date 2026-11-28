@@ -66,6 +66,9 @@ I18N.helpText({
           Favoritas y orden son solo tuyos: cada persona que usa las mismas cuentas mantiene los suyos.</li>
         <li><b>Un pago de nómina con su recibo:</b> un clic lo muestra en la línea de abajo como cualquier movimiento, con <b>Recibos</b> (guarda ahí el PDF del recibo de nómina)
           y <b>Recibo de nómina</b>, que lo abre. La etiqueta verde <b>Recibo de nómina</b> en la línea lo abre directamente.</li>
+              <li><b>Nuevo:</b> un solo botón para cualquier cuenta nueva: elige una cuenta bancaria, una tarjeta de crédito, un préstamo, una cuenta de inversión o jubilación, o una propiedad.</li>
+        <li><b>Cambiar el orden es un modo:</b> mientras un 🔒 está abierto, los elementos no responden (no se abre ningún movimiento, las estrellas y la marca C/R no cambian); solo las asas (▲ ▼ en el teléfono) mueven. Ciérralo de nuevo, pulsa Esc o sal de la página para terminar.</li>
+        <li><b>Un pago dividido</b> (capital e intereses de un préstamo, una división) se muestra en la línea de abajo como cualquier movimiento; <b>Abrir el pago</b> muestra sus partes y su fecha.</li>
       </ul>` },
     balances: { title: "Saldo y saldo compensado", body: `
       <p>Cada cuenta muestra dos totales lado a lado.</p>
@@ -110,6 +113,7 @@ I18N.helpText({
         <li>Las fotos se reducen antes de enviarse (unos 400 KB en lugar de varios MB); un PDF puede pesar hasta 20 MB.</li>
         <li>Los archivos se guardan en la carpeta de datos y van en cada respaldo, incluido Nextcloud.</li>
         <li>Eliminar un movimiento aparta sus archivos por 60 días, así que deshacer la eliminación (Historial) los recupera.</li>
+              <li><b>Entorno:</b> Archivos muestra los archivos de este entorno; elige otro de los tuyos, o <i>Todos mis entornos</i>, para verlos juntos.</li>
       </ul>` },
     paystubs: { title: "Pagos de nómina y recibos", body: `
       <p>Registra un pago de nómina con lo que sepas. El <b>sueldo neto</b> (lo que llegó a tu banco) es suficiente; el sueldo bruto
@@ -162,6 +166,7 @@ I18N.helpText({
         <li><b>Pagar esta factura ↗</b> abre el sitio donde se paga: escríbelo en <i>Más opciones</i> (<i>Sitio para pagarla</i>). Los pagos de tarjeta y de préstamo usan el sitio de los detalles de la tarjeta o del préstamo.
           Los depósitos y transferencias tienen <b>Ver cuenta ↗</b>, al sitio de la cuenta.</li>
         <li><b>Un promedio:</b> haz clic en el monto promedio de un elemento programado para ver los montos de los que sale, con sus fechas.</li>
+              <li><b>Los pagos de tarjeta</b> son transferencias y facturas a la vez: llevan las dos etiquetas, en el color de las facturas, y <b>Pagar esta factura ↗</b> abre el sitio de la tarjeta, sin importar cómo se programó el pago (por los detalles de la tarjeta o como transferencia, también desde otro entorno).</li>
       </ul>
       <p>Colores y símbolos: el dinero que entra es verde <b>+</b>, el que sale es naranja <b>−</b>, los movimientos entre tus
       propias cuentas son azules <b>⇄</b>.</p>` },
@@ -359,7 +364,11 @@ I18N.helpText({
       directos) no aparece, salvo que marques <i>También lo automático por vencer</i>: ocurre solo.</p>
       <p>Configuración → Notificaciones envía un resumen diario (lo que vence, lo que se registró automáticamente, problemas de
       respaldo) por correo, Pushover, ntfy o Gotify. Cada persona configura el suyo; el correo puede usar la configuración
-      compartida que ingresó un administrador, o la propia.</p>` },
+      compartida que ingresó un administrador, o la propia.</p>
+      <p><b>Pushover para la familia:</b> un administrador puede compartir su Pushover: cada teléfono de la familia se agrega como dispositivo
+      de la cuenta Pushover del administrador, y los demás eligen <i>Usar el Pushover que compartió un administrador</i> y su propio
+      dispositivo (<b>Buscar dispositivos</b> los muestra). No necesitan una cuenta Pushover propia; su propia configuración también funciona.
+      Las noticias de un entorno compartido van a sus miembros que las activaron; las del entorno propio de alguien, solo a esa persona.</p>` },
     startstop: { title: "Iniciar y detener MoneyThistle", body: `
       <p>MoneyThistle es un pequeño servidor; tu navegador solo lo muestra. <b>Cerrar la pestaña del navegador no lo detiene</b>,
       porque teléfonos y otras computadoras pueden estar usándolo. En una computadora (no Docker), un administrador elige en

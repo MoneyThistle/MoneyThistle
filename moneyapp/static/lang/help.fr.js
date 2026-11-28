@@ -67,6 +67,9 @@ I18N.helpText({
           Favoris et ordre sont à vous seul : chaque personne qui utilise les mêmes comptes garde les siens.</li>
         <li><b>Une paie avec son talon :</b> un clic l'affiche dans la ligne du bas comme toute opération, avec <b>Reçus</b> (gardez-y le PDF du talon de paie)
           et <b>Talon de paie</b>, qui ouvre le talon. L'étiquette verte <b>Talon de paie</b> sur la ligne l'ouvre directement.</li>
+              <li><b>Nouveau :</b> un seul bouton pour tout nouveau compte : choisissez un compte bancaire, une carte de crédit, un prêt, un compte de placement ou de retraite, ou un bien.</li>
+        <li><b>Changer l'ordre est un mode :</b> tant qu'un 🔒 est ouvert, les éléments eux-mêmes ne réagissent pas (aucune opération ne s'ouvre, les étoiles et la marque C/R ne changent pas); seules les poignées (▲ ▼ sur un téléphone) déplacent. Verrouillez de nouveau, appuyez sur Échap ou quittez la page pour en sortir.</li>
+        <li><b>Un paiement réparti</b> (capital et intérêts d'un prêt, une répartition) s'affiche dans la ligne du bas comme toute opération; <b>Ouvrir le paiement</b> montre ses parties et sa date.</li>
       </ul>` },
     balances: { title: "Solde et solde compensé", body: `
       <p>Chaque compte affiche deux totaux côte à côte.</p>
@@ -111,6 +114,7 @@ I18N.helpText({
         <li>Les photos sont réduites avant l'envoi (environ 400 Ko au lieu de plusieurs Mo); un PDF peut faire jusqu'à 20 Mo.</li>
         <li>Les fichiers sont gardés dans le dossier de données et vont dans chaque sauvegarde, y compris Nextcloud.</li>
         <li>Supprimer une écriture met ses fichiers de côté pendant 60 jours, donc annuler la suppression (Historique) les ramène.</li>
+              <li><b>Environnement :</b> Fichiers montre les fichiers de cet environnement; choisissez-en un autre, ou <i>Tous mes environnements</i>, pour les voir ensemble.</li>
       </ul>` },
     paystubs: { title: "Paies et talons de paie", body: `
       <p>Inscrivez une paie avec ce que vous savez. Le <b>salaire net</b> (ce qui est arrivé à la banque) suffit; le salaire brut
@@ -163,6 +167,7 @@ I18N.helpText({
         <li><b>Payer cette facture ↗</b> ouvre le site où la facture se paie : tapez-le sous <i>Plus d'options</i> (<i>Site pour la payer</i>). Les paiements de carte et de prêt utilisent le site des détails de la carte ou du prêt.
           Les dépôts et virements ont <b>Voir le compte ↗</b>, vers le site du compte.</li>
         <li><b>Une moyenne :</b> cliquez sur le montant moyen d'un élément prévu pour voir les montants d'où elle vient, avec leurs dates.</li>
+              <li><b>Les paiements de carte</b> sont à la fois des virements et des factures : ils portent les deux étiquettes, dans la couleur des factures, et <b>Payer cette facture ↗</b> ouvre le site de la carte, peu importe comment le paiement a été prévu (par les détails de la carte ou comme virement, aussi depuis un autre environnement).</li>
       </ul>
       <p>Couleurs et symboles : l'argent qui entre est vert <b>+</b>, l'argent qui sort est orange <b>−</b>, les déplacements entre
       vos propres comptes sont bleus <b>⇄</b>.</p>` },
@@ -370,7 +375,11 @@ I18N.helpText({
       (prélèvements, dépôts directs) n'y sont pas, sauf si vous cochez <i>Les éléments automatiques bientôt dus aussi</i> : ils se font tout seuls.</p>
       <p>Paramètres → Notifications envoie un résumé quotidien (ce qui est dû, ce qui a été inscrit automatiquement, les problèmes
       de sauvegarde) par courriel, Pushover, ntfy ou Gotify. Chaque personne configure le sien; le courriel peut utiliser les
-      paramètres partagés qu'un administrateur a entrés, ou les siens.</p>` },
+      paramètres partagés qu'un administrateur a entrés, ou les siens.</p>
+      <p><b>Pushover pour la famille :</b> un administrateur peut partager son Pushover : chaque téléphone de la famille est ajouté comme appareil
+      du compte Pushover de l'administrateur, et les autres choisissent <i>Utiliser le Pushover partagé par un administrateur</i> puis leur
+      appareil (<b>Trouver les appareils</b> les liste). Ils n'ont pas besoin de leur propre compte Pushover; leur propre réglage fonctionne aussi.
+      Les nouvelles d'un environnement partagé vont à ses membres qui les ont activées; celles de l'environnement personnel de quelqu'un, à lui seul.</p>` },
     startstop: { title: "Démarrer et arrêter MoneyThistle", body: `
       <p>MoneyThistle est un petit serveur; votre navigateur ne fait que l'afficher. <b>Fermer l'onglet du navigateur ne l'arrête
       pas</b>, car des téléphones et d'autres ordinateurs peuvent l'utiliser. Sur un ordinateur (pas Docker), un administrateur

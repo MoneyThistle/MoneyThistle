@@ -141,6 +141,14 @@ split) are used when there are at least two. Worked out by the server (`store.gu
 - Links out (the person's design): a bill links to its own "website to pay it", else (card and loan
   payments) to the card's or loan's website; deposits and transfers link to their account's website.
   Only http(s) addresses are kept.
+- Card payments (the person's design): a scheduled transfer into a credit card or line of credit
+  (here, or through a connection to another environment) is shown as a bill and a transfer, in the
+  bill's color, and links to the card's website.
+- Notifications: each person's summary covers the environments they're members of; the
+  administrators' covers those an administrator is a member of (all of them before anyone signs up).
+  A shared Pushover lends the administrators' application token and user key; the person picks a device.
+- Home's recent transactions: one line per transaction (a paystub or split: its total; a transfer:
+  the side the money leaves; between environments, once).
 - Home's Looking ahead covers 30 days, always (the person's ruling); Reports → Looking ahead chooses.
 - Accounts list (the person's design): favorites and order are each person's own, per environment,
   kept with their sign-in (never on the shared account). Favorites first in their type group, then the
