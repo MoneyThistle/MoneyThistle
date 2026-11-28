@@ -48,6 +48,6 @@
     {"name": "coming up: card order", "group": "schedule", "value": "most items first, then name; balanced columns", "source": "person's design"},
     {"name": "show automatic items by default", "group": "schedule", "value": true, "source": "person's design"},
     {"name": "account favorites and order kept", "group": "accounts", "value": "per person, per environment", "source": "person's design"},
-    {"name": "cleared balance counts", "group": "accounts", "value": "entries marked C or R"}
+    {"name": "cleared balance counts", "group": "accounts", "value": "entries marked C or R", "source": "MoneyThistle register rule (store.accounts)"}
   ]
 }
